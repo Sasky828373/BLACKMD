@@ -484,9 +484,13 @@ const userCommands = {
             // Generate and send a profile card
             try {
                 const cardPath = await createProfileCard(newProfile, null, sender);
-                if (cardPath) {
+                if (cardPath && await fs.access(cardPath).then(() => true).catch(() => false)) {
+                    // Read the image file as a buffer to prevent URL issues
+                    const imageBuffer = await fs.readFile(cardPath);
+                    
+                    // Use the buffer directly instead of a URL
                     await safeSendMessage(sock, sender, {
-                        image: { url: cardPath },
+                        image: imageBuffer,
                         caption: '🎉 Here\'s your new profile card!'
                     });
                 }
@@ -524,8 +528,12 @@ const userCommands = {
                 (targetUser.includes('@') ? targetUser : `${targetUser}@s.whatsapp.net`) : 
                 sender;
             
-            // Send initial feedback
-            await safeSendText(sock, sender, '🔍 Fetching profile information...');
+            // Send initial feedback - properly handle group vs private chat
+            if (isGroup) {
+                await safeSendGroupMessage(sock, message, { text: '🔍 Fetching profile information...' }, { mentionSender: true });
+            } else {
+                await safeSendText(sock, sender, '🔍 Fetching profile information...');
+            }
             
             // Get the profile with defensive error handling
             let profile = null;
@@ -537,10 +545,15 @@ const userCommands = {
             }
 
             if (!profile) {
-                await safeSendText(sock, sender, targetUser === sender ? 
-                        '*❌ Error:* You are not registered! Use .register [name] [age] to create a profile.' :
-                        '*❌ Error:* User not found!'
-                );
+                const errorMsg = targetUser === sender ? 
+                    '*❌ Error:* You are not registered! Use .register [name] [age] to create a profile.' :
+                    '*❌ Error:* User not found!';
+                
+                if (isGroup) {
+                    await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+                } else {
+                    await safeSendText(sock, sender, errorMsg);
+                }
                 return;
             }
 
@@ -646,26 +659,41 @@ ${rankText}
 *Progress:* ${progress.progressBar}
 *🕒 Registered:* ${new Date(profile.registeredAt).toLocaleDateString()}`;
 
-            // Send profile information with picture if available
+            // Send profile information with picture if available - properly handle group vs private chat
             if (profile.profilePic && await fs.access(profile.profilePic).then(() => true).catch(() => false)) {
                 try {
                     // Read profile picture as buffer
                     const profilePicBuffer = await fs.readFile(profile.profilePic);
                     
                     // Send profile picture with full profile info as caption
-                    await safeSendMessage(sock, sender, {
-                        image: profilePicBuffer,
-                        caption: profileText.trim()
-                    });
+                    if (isGroup) {
+                        await safeSendGroupMessage(sock, message, {
+                            image: profilePicBuffer,
+                            caption: profileText.trim()
+                        }, { mentionSender: true });
+                    } else {
+                        await safeSendMessage(sock, sender, {
+                            image: profilePicBuffer,
+                            caption: profileText.trim()
+                        });
+                    }
                     logger.info(`Successfully sent profile with picture for ${formatJidForLogging(targetJid)}`);
                 } catch (picErr) {
                     logger.error(`Error sending profile with picture for ${formatJidForLogging(targetJid)}:`, picErr);
                     // Fall back to text-only profile if image sending fails
-                    await safeSendText(sock, sender, profileText.trim());
+                    if (isGroup) {
+                        await safeSendGroupMessage(sock, message, { text: profileText.trim() }, { mentionSender: true });
+                    } else {
+                        await safeSendText(sock, sender, profileText.trim());
+                    }
                 }
             } else {
                 // Send text-only profile if no picture is available
-                await safeSendText(sock, sender, profileText.trim());
+                if (isGroup) {
+                    await safeSendGroupMessage(sock, message, { text: profileText.trim() }, { mentionSender: true });
+                } else {
+                    await safeSendText(sock, sender, profileText.trim());
+                }
             }
             
             // Generate and send profile card with robust error handling
@@ -702,10 +730,18 @@ ${rankText}
                             // Send as buffer for better reliability
                             const imageBuffer = await fs.readFile(cardPath);
                             
-                            await safeSendMessage(sock, sender, {
-                                image: imageBuffer,
-                                caption: caption
-                            });
+                            // Send to correct chat depending on if we're in group or not
+                            if (isGroup) {
+                                await safeSendGroupMessage(sock, message, {
+                                    image: imageBuffer,
+                                    caption: caption
+                                }, { mentionSender: true });
+                            } else {
+                                await safeSendMessage(sock, sender, {
+                                    image: imageBuffer,
+                                    caption: caption
+                                });
+                            }
                             logger.info(`Successfully sent profile card to ${formatJidForLogging(sender)}`);
                         } catch (fileErr) {
                             logger.error(`Error reading profile card file: ${fileErr.message}`);
@@ -717,27 +753,42 @@ ${rankText}
                     }
                 } else {
                     // Inform the user that profile card generation failed but profile info was displayed
-                    await safeSendText(sock, sender, 
-                        '*Note:* Unable to generate profile card image, but your profile information is displayed above.'
-                    );
+                    if (isGroup) {
+                        await safeSendGroupMessage(sock, message, {
+                            text: '*Note:* Unable to generate profile card image, but your profile information is displayed above.'
+                        }, { mentionSender: true });
+                    } else {
+                        await safeSendText(sock, sender, 
+                            '*Note:* Unable to generate profile card image, but your profile information is displayed above.'
+                        );
+                    }
                 }
             } catch (err) {
                 logger.error(`Error in profile card generation for ${formatJidForLogging(sender)}:`, err);
                 // Continue execution even if card generation fails
-                await safeSendText(sock, sender, 
-                    '*Note:* Unable to generate profile card image, but your profile information is displayed above.'
-                );
+                if (isGroup) {
+                    await safeSendGroupMessage(sock, message, {
+                        text: '*Note:* Unable to generate profile card image, but your profile information is displayed above.'
+                    }, { mentionSender: true });
+                } else {
+                    await safeSendText(sock, sender, 
+                        '*Note:* Unable to generate profile card image, but your profile information is displayed above.'
+                    );
+                }
             }
         } catch (err) {
             logger.error(`Error in profile command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '*❌ Error:* Failed to fetch profile. Please try again.\n\n' +
+                'If this error persists, please try registering with .register [name] [age]';
             
-            await safeSendText(sock, replyJid, 
-                '*❌ Error:* Failed to fetch profile. Please try again.\n\n' +
-                'If this error persists, please try registering with .register [name] [age]'
-            );
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     },
 
@@ -1031,10 +1082,15 @@ ${rankText}
         } catch (err) {
             logger.error(`Error in level command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '❌ Error fetching level information.';
             
-            await safeSendText(sock, replyJid, '❌ Error fetching level information.' );
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     },
     
@@ -1141,10 +1197,15 @@ Your XP: ${profile.xp}
         } catch (err) {
             logger.error(`Error in rank command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '❌ Error fetching rank information.';
             
-            await safeSendText(sock, replyJid, '❌ Error fetching rank information.');
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     },
 
@@ -1291,11 +1352,15 @@ Your XP: ${profile.xp}
         } catch (err) {
             logger.error(`Error in daily command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '*❌ Error:* Failed to claim daily reward. Please try again.';
             
-            await safeSendText(sock, replyJid, '*❌ Error:* Failed to claim daily reward. Please try again.'
-            );
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     },
     async leaderboard(sock, sender, args) {
@@ -1455,15 +1520,25 @@ ${profile.achievements && profile.achievements.length > 0 ? profile.achievements
             // Progress bar
             statsText += `\n*Progress:* ${stats.progressBar}`;
             
-            await safeSendText(sock, sender, statsText);
+            // Send the stats information with proper handling for groups
+            if (isGroup) {
+                await safeSendGroupMessage(sock, message, { text: statsText }, { mentionSender: true });
+            } else {
+                await safeSendText(sock, sender, statsText);
+            }
             
         } catch (err) {
             logger.error(`Error in stats command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '*❌ Error:* Failed to retrieve user statistics.';
             
-            await safeSendText(sock, replyJid, '*❌ Error:* Failed to retrieve user statistics.');
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     },
     
@@ -1549,15 +1624,25 @@ ${profile.achievements && profile.achievements.length > 0 ? profile.achievements
                 checkinText += `\n*🎉 Level Up!*\nYou are now level ${levelUpData.newLevel}!`;
             }
             
-            await safeSendText(sock, sender, checkinText);
+            // Send the check-in information with proper handling for groups
+            if (isGroup) {
+                await safeSendGroupMessage(sock, message, { text: checkinText }, { mentionSender: true });
+            } else {
+                await safeSendText(sock, sender, checkinText);
+            }
             
         } catch (err) {
             logger.error(`Error in checkin command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '*❌ Error:* Failed to complete daily check-in. Please try again.';
             
-            await safeSendText(sock, replyJid, '*❌ Error:* Failed to complete daily check-in. Please try again.');
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     },
 
@@ -1675,15 +1760,25 @@ ${profile.inventory.map(item => `• ${item}`).join('\n') || 'Inventory is empty
             streakText += `• If you miss a day, your streak will reset\n`;
             streakText += `• Higher streaks = better rewards!`;
             
-            await safeSendText(sock, sender, streakText);
+            // Send the streak information with proper handling for groups
+            if (isGroup) {
+                await safeSendGroupMessage(sock, message, { text: streakText }, { mentionSender: true });
+            } else {
+                await safeSendText(sock, sender, streakText);
+            }
             
         } catch (err) {
             logger.error(`Error in streaks command for ${formatJidForLogging(message.key.remoteJid)}:`, err);
             
-            // Ensure we reply to the correct JID (participant in group, or remote JID in private chat)
-            const replyJid = message.key.participant || message.key.remoteJid;
+            const errorMsg = '*❌ Error:* Failed to retrieve streak information.';
             
-            await safeSendText(sock, replyJid, '*❌ Error:* Failed to retrieve streak information.');
+            if (message.key.remoteJid.endsWith('@g.us')) {
+                // For groups, use safeSendGroupMessage
+                await safeSendGroupMessage(sock, message, { text: errorMsg }, { mentionSender: true });
+            } else {
+                // For private chats
+                await safeSendText(sock, message.key.remoteJid, errorMsg);
+            }
         }
     }
 };

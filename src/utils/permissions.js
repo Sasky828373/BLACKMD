@@ -19,27 +19,71 @@ async function isAdmin(sock, groupId, userId) {
             return true; // Bot is considered admin for its own commands
         }
         
-        // Normalize the JID to ensure consistent format
-        const normalizedUserId = userId.split('@')[0] + '@s.whatsapp.net';
-
-        // Get group metadata and extract admin list
-        const groupMetadata = await sock.groupMetadata(groupId);
-        const admins = groupMetadata.participants
-            .filter(p => p.admin)
-            .map(p => p.id);
-            
-        // Check if normalized ID is in admin list
-        for (const admin of admins) {
-            const normalizedAdmin = admin.split('@')[0] + '@s.whatsapp.net';
-            if (normalizedUserId === normalizedAdmin) {
-                return true;
-            }
+        // Enhanced error logging
+        if (!userId) {
+            console.error('isAdmin: userId is undefined or null');
+            return false;
         }
         
-        return false; // Strict admin check - return false if not an admin
+        if (!groupId) {
+            console.error('isAdmin: groupId is undefined or null');
+            return false;
+        }
+        
+        // Normalize the JID to ensure consistent format
+        // More robust handling of different ID formats
+        let normalizedUserId;
+        if (userId.includes('@')) {
+            // Extract just the number part and re-add the domain
+            normalizedUserId = userId.split('@')[0] + '@s.whatsapp.net';
+        } else {
+            // Just a number, add the domain
+            normalizedUserId = userId + '@s.whatsapp.net';
+        }
+
+        try {
+            // Get group metadata and extract admin list with improved error handling
+            const groupMetadata = await sock.groupMetadata(groupId);
+            
+            if (!groupMetadata || !groupMetadata.participants) {
+                console.error(`Failed to get valid group metadata for ${groupId}`);
+                return false; // Can't determine admin status
+            }
+            
+            // Extract admin list with additional logging
+            const admins = groupMetadata.participants
+                .filter(p => p.admin)
+                .map(p => p.id);
+                
+            console.log(`Found ${admins.length} admins in group ${groupId}`);
+            
+            // Debug log each admin for troubleshooting
+            for (const admin of admins) {
+                console.log(`Admin in group: ${admin}`);
+            }
+            
+            // Check if normalized ID is in admin list with improved matching
+            for (const admin of admins) {
+                // Normalize admin ID for consistent comparison
+                const normalizedAdmin = admin.split('@')[0] + '@s.whatsapp.net';
+                console.log(`Comparing ${normalizedUserId} with ${normalizedAdmin}`);
+                
+                // Do a strict comparison with normalized IDs
+                if (normalizedUserId === normalizedAdmin) {
+                    console.log(`User ${userId} IS an admin in ${groupId}`);
+                    return true;
+                }
+            }
+            
+            console.log(`User ${userId} is NOT an admin in ${groupId}`);
+            return false; // Not found in admin list
+        } catch (metadataErr) {
+            console.error(`Error getting group metadata: ${metadataErr.message}`);
+            return false;
+        }
         
     } catch (err) {
-        console.error('Error checking admin status:', err);
+        console.error(`Error checking admin status: ${err.message}`);
         // Fail closed for security
         return false;
     }
@@ -53,7 +97,11 @@ async function isAdmin(sock, groupId, userId) {
  */
 async function isBotAdmin(sock, groupId) {
     try {
-        const groupMetadata = await sock.groupMetadata(groupId);
+        if (!groupId) {
+            console.error('isBotAdmin: groupId is undefined or null');
+            return false;
+        }
+        
         const botId = sock.user?.id;
         
         if (!botId) {
@@ -61,27 +109,13 @@ async function isBotAdmin(sock, groupId) {
             return false;
         }
         
-        // Normalize the bot ID
-        const normalizedBotId = botId.split('@')[0] + '@s.whatsapp.net';
-        
-        // Get admin list
-        const admins = groupMetadata.participants
-            .filter(p => p.admin)
-            .map(p => p.id);
-        
-        // Check if normalized bot ID is in admin list
-        for (const admin of admins) {
-            const normalizedAdmin = admin.split('@')[0] + '@s.whatsapp.net';
-            if (normalizedBotId === normalizedAdmin) {
-                return true;
-            }
-        }
-        
-        // Return false if bot is not in admin list
-        return false;
+        // Use the enhanced isAdmin function for consistency
+        const isAdminResult = await isAdmin(sock, groupId, botId);
+        console.log(`Bot admin check result for ${botId} in ${groupId}: ${isAdminResult}`);
+        return isAdminResult;
         
     } catch (err) {
-        console.error('Error checking bot admin status:', err);
+        console.error(`Error checking bot admin status: ${err.message}`);
         // For critical group admin commands, it's safer to fail closed
         return false;
     }

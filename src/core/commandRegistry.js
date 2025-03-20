@@ -377,14 +377,25 @@ class CommandRegistry {
             // Check global banned users list
             if (global.bannedUsers && global.bannedUsers.has(userId)) {
                 logger.info(`Blocked command from banned user: ${userId}`);
-                // Option: Send a message telling the user they are banned
+                // Send a message with proper WhatsApp-style mentions telling the user they are banned
                 try {
-                    await safeSendText(
-                        sock,
-                        message.key.remoteJid,
-                        `⛔ @${userId} you are banned from using the bot.`,
-                        {
-                            mentions: [senderJid]
+                    // Create mention text
+                    const mentionText = `@${userId}`;
+                    const fullText = `⛔ ${mentionText} you are banned from using the bot.`;
+                    
+                    // Send with full WhatsApp mention formatting
+                    await sock.sendMessage(
+                        message.key.remoteJid, 
+                        { 
+                            text: fullText, 
+                            mentions: [senderJid],
+                            // Include WhatsApp's required mention formatting
+                            extendedTextMessage: {
+                                text: fullText,
+                                contextInfo: {
+                                    mentionedJid: [senderJid]
+                                }
+                            }
                         }
                     );
                 } catch (error) {
