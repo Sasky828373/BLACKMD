@@ -313,6 +313,39 @@ const funCommands = {
             await safeSendText(sock, sender, '❌ An error occurred while fetching a joke.');
         }
     },
+    
+    async yomama(sock, sender) {
+        try {
+            const yoMamaJokes = [
+                "Yo mama's so fat, when she fell I didn't laugh, but the sidewalk cracked up.",
+                "Yo mama's so fat, when she skips a meal, the stock market drops.",
+                "Yo mama's so fat, when she wears high heels, she strikes oil.",
+                "Yo mama's so fat, when she sits around the house, she REALLY sits around the house.",
+                "Yo mama's so fat, her belt size is 'equator'.",
+                "Yo mama's so fat, she jumped in the air and got stuck.",
+                "Yo mama's so fat, when she goes to a restaurant, she doesn't get a menu, she gets an estimate.",
+                "Yo mama's so fat, when she goes on a scale, it says 'to be continued'.",
+                "Yo mama's so fat, she doesn't need the internet, because she's already worldwide.",
+                "Yo mama's so fat, when she takes a selfie, it needs to be a panorama.",
+                "Yo mama's so fat, when she wears a yellow raincoat, people yell 'taxi!'",
+                "Yo mama's so fat, I had to take a train and two buses just to get on her good side.",
+                "Yo mama's so fat, when she goes to the beach, the whales start singing 'We Are Family'.",
+                "Yo mama's so fat, when she steps on a scale, it displays her phone number.",
+                "Yo mama's so fat, her car has stretch marks.",
+                "Yo mama's so fat, Thanos had to snap twice.",
+                "Yo mama's so fat, when she falls down the stairs, it sounds like Beethoven's 5th Symphony.",
+                "Yo mama's so fat, even Dora couldn't explore her.",
+                "Yo mama's so fat, her blood type is Ragu.",
+                "Yo mama's so fat, when she walked past the TV, I missed 3 episodes."
+            ];
+            
+            const randomYoMamaJoke = yoMamaJokes[Math.floor(Math.random() * yoMamaJokes.length)];
+            await safeSendText(sock, sender, `🔥 ${randomYoMamaJoke}`);
+        } catch (err) {
+            logger.error('Yo Mama joke error:', err);
+            await safeSendText(sock, sender, '❌ An error occurred while fetching a yo mama joke.');
+        }
+    },
 
     async meme(sock, sender) {
         try {

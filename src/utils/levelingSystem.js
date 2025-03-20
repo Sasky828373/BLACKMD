@@ -1066,6 +1066,7 @@ module.exports = {
     initializeUser,
     getUserLevelData,
     calculateLevel,
+    calculateRequiredXP, // Added this export
     addXP,
     setLevelUpNotification,
     hasLevelUpNotificationEnabled,

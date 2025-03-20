@@ -36,6 +36,7 @@
     "form-data": "^4.0.2",
     "genius-lyrics-api": "^3.2.1",
     "jimp": "^0.16.13",
+    "link-preview-js": "^3.0.14",
     "mathjs": "^14.3.1",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.47",

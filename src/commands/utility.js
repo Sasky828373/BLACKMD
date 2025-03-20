@@ -395,8 +395,66 @@ const utilityCommands = {
             await safeSendText(sock, sender, 'Please provide an anime title');
             return;
         }
-        // TODO: Implement anime information search
-        await safeSendText(sock, sender, 'Searching anime info...');
+        
+        try {
+            await safeSendText(sock, sender, `🔍 Searching for anime: *${title}*...`);
+            
+            // Use the Jikan API (MyAnimeList unofficial API)
+            const response = await axios.get(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(title)}&limit=1`);
+            
+            // Check if we got any results
+            if (!response.data.data || response.data.data.length === 0) {
+                await safeSendText(sock, sender, `❌ No results found for: *${title}*`);
+                return;
+            }
+            
+            const anime = response.data.data[0];
+            
+            // Format the anime information
+            let animeInfo = `*🎬 ${anime.title}*`;
+            if (anime.title_japanese) animeInfo += ` (${anime.title_japanese})`;
+            animeInfo += `\n\n`;
+            
+            if (anime.synopsis) {
+                // Trim synopsis if it's too long
+                const maxSynopsisLength = 300;
+                let synopsis = anime.synopsis;
+                if (synopsis.length > maxSynopsisLength) {
+                    synopsis = synopsis.substring(0, maxSynopsisLength) + '...';
+                }
+                animeInfo += `📝 *Synopsis:* ${synopsis}\n\n`;
+            }
+            
+            if (anime.type) animeInfo += `📊 *Type:* ${anime.type}\n`;
+            if (anime.episodes) animeInfo += `🎞️ *Episodes:* ${anime.episodes}\n`;
+            if (anime.status) animeInfo += `📡 *Status:* ${anime.status}\n`;
+            if (anime.aired && anime.aired.string) animeInfo += `📅 *Aired:* ${anime.aired.string}\n`;
+            if (anime.duration) animeInfo += `⏱️ *Duration:* ${anime.duration}\n`;
+            if (anime.rating) animeInfo += `🔞 *Rating:* ${anime.rating}\n`;
+            if (anime.score) animeInfo += `⭐ *Score:* ${anime.score}/10\n`;
+            
+            // Add genres if available
+            if (anime.genres && anime.genres.length > 0) {
+                const genres = anime.genres.map(genre => genre.name).join(', ');
+                animeInfo += `🏷️ *Genres:* ${genres}\n`;
+            }
+            
+            // Add link to MAL
+            if (anime.url) {
+                animeInfo += `\n🔗 *MyAnimeList:* ${anime.url}`;
+            }
+            
+            // Send as text only to avoid image processing errors
+            await safeSendText(sock, sender, animeInfo + "\n\n" + 
+                (anime.images && anime.images.jpg && anime.images.jpg.large_image_url ? 
+                    `🖼️ *Image:* ${anime.images.jpg.large_image_url}` : ""));
+            
+            // Note: Direct image sending is disabled due to processing issues with external URLs
+            // We provide the image URL in the text message instead
+        } catch (error) {
+            logger.error('Error in anime command:', error);
+            await safeSendText(sock, sender, '❌ An error occurred while searching for anime information. Please try again later.');
+        }
     },
 
     async spotify(sock, sender, args) {

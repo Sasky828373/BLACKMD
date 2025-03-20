@@ -8,6 +8,25 @@ const logger = require('../utils/logger');
 const { checkPermission } = require('../utils/permissions');
 const moment = require('moment');
 const fs = require('fs').promises;
+const { isJidGroup } = require('../utils/jidHelper');
+
+/**
+ * Get the appropriate JID for responding to a command
+ * @param {Object} sock - WhatsApp socket connection
+ * @param {string|Object} sender - Sender JID or object
+ * @param {Object} message - Message object (for context)
+ * @returns {string} - The JID to send the response to
+ */
+function getResponseJid(sender, message) {
+    // If message is in a group, respond in the group
+    if (message && message.key && message.key.remoteJid && isJidGroup(message.key.remoteJid)) {
+        return message.key.remoteJid;
+    }
+    
+    // Otherwise respond to the sender directly
+    return typeof sender === 'string' ? sender : 
+           (sender.jid || (sender.participant ? sender.participant.replace(/:[^:]*$/, '') : null));
+}
 const path = require('path');
 const axios = require('axios');
 const userDatabase = require('../utils/userDatabase');
@@ -48,16 +67,48 @@ initDirectories();
 /**
  * Get a user profile or show error message
  * @param {object} sock - WhatsApp socket
- * @param {string} userId - User ID
+ * @param {string|object} userId - User ID or sender object
  * @param {boolean} sendError - Whether to send error message
+ * @param {string} groupJid - Optional group JID for responding in groups
+ * @param {object} message - Optional message object for context
  * @returns {object|null} User profile or null if not found
  */
-async function getUserProfile(sock, userId, sendError = true) {
+async function getUserProfile(sock, userId, sendError = true, groupJid = null, message = null) {
+    // Extract proper userJid from sender object if needed
+    let userJid;
+    if (typeof userId === 'string') {
+        userJid = userId;
+    } else if (typeof userId === 'object') {
+        userJid = userId.jid || (userId.participant ? userId.participant.replace(/:[^:]*$/, '') : null);
+        
+        // If still null, try to extract from raw object
+        if (!userJid && userId) {
+            const keys = Object.keys(userId);
+            for (const key of keys) {
+                if (typeof userId[key] === 'string' && userId[key].includes('@s.whatsapp.net')) {
+                    userJid = userId[key];
+                    break;
+                }
+            }
+        }
+    }
+    
+    // If we have a message object, try to get group context
+    if (!groupJid && message && message.key && message.key.remoteJid && message.key.remoteJid.includes('@g.us')) {
+        groupJid = message.key.remoteJid;
+    }
+    
     // Use the centralized userDatabase.getUserProfile function with JID normalization
-    const profile = userDatabase.getUserProfile(userId);
+    const profile = userDatabase.getUserProfile(userJid);
     
     if (!profile && sendError) {
-        await safeSendText(sock, userId, '*❌ Error:* You need to register first! Use .register to create a profile.'
+        // Send error message to the group if available, otherwise to the user directly
+        const targetJid = groupJid || userJid;
+        
+        console.log(`[DEBUG] getUserProfile: User not found. userJid=${userJid}, groupJid=${groupJid}, targetJid=${targetJid}`);
+        
+        await safeSendText(sock, targetJid, '*❌ Error:* You need to register first! Use .register to create a profile.', 
+            { priority: true }
         );
         return null;
     }
@@ -362,8 +413,11 @@ const adventureLocations = [
 // Define the commands object
 const commands = {
     // 1. Economy System - Crime and Work
-    async crime(sock, sender) {
-        const profile = await getUserProfile(sock, sender);
+    async crime(sock, message) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         // Check cooldown (3 hours)
@@ -372,7 +426,7 @@ const commands = {
         
         if (Date.now() - lastCrime < cooldown) {
             const timeLeft = Math.ceil((lastCrime + cooldown - Date.now()) / (1000 * 60 * 60));
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*⏳ Cooldown:* The police are still looking for you! Try again in ${timeLeft} hours.`
             });
             return;
@@ -439,8 +493,11 @@ const commands = {
         userProfiles.set(sender, profile);
     },
     
-    async work(sock, sender) {
-        const profile = await getUserProfile(sock, sender);
+    async work(sock, message) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         let job = userJobs.get(sender);
@@ -667,8 +724,11 @@ const commands = {
     },
     
     // 3. Mini-games - Fishing and Mining
-    async fish(sock, sender) {
-        const profile = await getUserProfile(sock, sender);
+    async fish(sock, message) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         // Check if player has a fishing rod
@@ -716,7 +776,7 @@ const commands = {
             profile.lastFishing = Date.now();
             userProfiles.set(sender, profile);
             
-            await safeSendText(sock, sender, '*🎣 Fishing:* You didn\'t catch anything this time. Try again later!'
+            await safeSendText(sock, responseJid, '*🎣 Fishing:* You didn\'t catch anything this time. Try again later!'
             );
             return;
         }
@@ -746,25 +806,28 @@ const commands = {
         
         // Add achievement if first fish
         if (addAchievement(profile, 'fishing')) {
-            await safeSendText(sock, sender, '*🏆 Achievement Unlocked:* Fisherman\nYou caught your first fish!'
+            await safeSendText(sock, responseJid, '*🏆 Achievement Unlocked:* Fisherman\nYou caught your first fish!'
             );
         }
         
         // Save profile
         userProfiles.set(sender, profile);
         
-        await safeSendMessage(sock, sender, {
+        await safeSendMessage(sock, responseJid, {
             text: `*🎣 Fishing Success:* You caught a ${caughtFish.name} worth ${caughtFish.value} coins!\n\nYou can sell it with .sell fish [name|all]`
         });
     },
     
-    async mine(sock, sender) {
-        const profile = await getUserProfile(sock, sender);
+    async mine(sock, message) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         // Check if player has a pickaxe
         if (!profile.inventory?.pickaxe) {
-            await safeSendText(sock, sender, '*❌ Error:* You need a pickaxe to mine! Buy one at the shop with .shop items'
+            await safeSendText(sock, responseJid, '*❌ Error:* You need a pickaxe to mine! Buy one at the shop with .shop items'
             );
             return;
         }
@@ -775,7 +838,7 @@ const commands = {
         
         if (Date.now() - lastMining < cooldown) {
             const timeLeft = Math.ceil((lastMining + cooldown - Date.now()) / 1000);
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*⏳ Cooldown:* You need to rest before mining again. Try again in ${formatTimeRemaining(timeLeft)}.`
             });
             return;
@@ -828,25 +891,27 @@ const commands = {
         
         // Add achievement if first mining
         if (addAchievement(profile, 'mining')) {
-            await safeSendText(sock, sender, '*🏆 Achievement Unlocked:* Miner\nYou mined your first resource!'
+            await safeSendText(sock, responseJid, '*🏆 Achievement Unlocked:* Miner\nYou mined your first resource!'
             );
         }
         
         // Save profile
         userProfiles.set(sender, profile);
         
-        await safeSendMessage(sock, sender, {
+        await safeSendMessage(sock, responseJid, {
             text: `*⛏️ Mining Success:* You mined ${quantity} ${minedMineral.name}${quantity !== 1 ? 's' : ''} worth ${minedMineral.value * quantity} coins!\n\nYou can sell them with .sell mineral [name|all]`
         });
     },
     
     async sell(sock, message, args) {
-        const sender = message.key.remoteJid;
-        const profile = await getUserProfile(sock, sender);
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         if (args.length < 2) {
-            await safeSendText(sock, sender, '*⚠️ Usage:* !sell [type] [name|all]\n\nTypes: fish, mineral'
+            await safeSendText(sock, responseJid, '*⚠️ Usage:* !sell [type] [name|all]\n\nTypes: fish, mineral'
             );
             return;
         }
@@ -863,7 +928,7 @@ const commands = {
         const itemName = args.slice(1).join(' ').toLowerCase();
         
         if (type !== 'fish' && type !== 'mineral') {
-            await safeSendText(sock, sender, '*❌ Error:* Invalid type. Use "fish" or "mineral".'
+            await safeSendText(sock, responseJid, '*❌ Error:* Invalid type. Use "fish" or "mineral".'
             );
             return;
         }
@@ -871,7 +936,7 @@ const commands = {
         const inventory = type === 'fish' ? profile.inventory.fish : profile.inventory.minerals;
         
         if (!inventory || Object.keys(inventory).length === 0) {
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*❌ Error:* You don't have any ${type === 'fish' ? 'fish' : 'minerals'} to sell.`
             });
             return;
@@ -917,7 +982,7 @@ const commands = {
             );
             
             if (!matchedItem || !inventory[matchedItem]) {
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*❌ Error:* You don't have any ${itemName}. Check your inventory with .inventory.`
                 });
                 return;
@@ -932,7 +997,7 @@ const commands = {
         profile.coins += totalEarned;
         userProfiles.set(sender, profile);
         
-        await safeSendMessage(sock, sender, {
+        await safeSendMessage(sock, responseJid, {
             text: `*💰 Sale Complete:* You sold ${itemsSold} ${type === 'fish' ? 'fish' : 'minerals'} for ${formatNumber(totalEarned)} coins!\n\nYour balance: ${formatNumber(profile.coins)} coins`
         });
     },
@@ -1029,8 +1094,10 @@ const commands = {
     
     // 4. Crafting System
     async craft(sock, message, args) {
-        const sender = message.key.remoteJid;
-        const profile = await getUserProfile(sock, sender);
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         // Define crafting recipes
@@ -1079,7 +1146,7 @@ const commands = {
             
             recipeText += 'Use .craft [item] to craft an item';
             
-            await safeSendText(sock, sender, recipeText );
+            await safeSendText(sock, responseJid, recipeText );
             return;
         }
         
@@ -1088,7 +1155,7 @@ const commands = {
         const recipe = recipes[requestedItem];
         
         if (!recipe) {
-            await safeSendText(sock, sender, '*❌ Error:* Invalid crafting recipe. Use .craft to see available recipes.'
+            await safeSendText(sock, responseJid, '*❌ Error:* Invalid crafting recipe. Use .craft to see available recipes.'
             );
             return;
         }
@@ -1113,7 +1180,7 @@ const commands = {
         }
         
         if (missingMaterials.length > 0) {
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*❌ Missing Materials:* You don't have all required materials to craft a ${requestedItem}.\n\nMissing: ${missingMaterials.join(', ')}`
             });
             return;
@@ -1121,7 +1188,7 @@ const commands = {
         
         // Check if already has the item
         if (profile.inventory[recipe.result]) {
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*❌ Error:* You already have a ${requestedItem}.`
             });
             return;
@@ -1142,21 +1209,24 @@ const commands = {
         
         // Add achievement if first craft
         if (addAchievement(profile, 'crafting')) {
-            await safeSendText(sock, sender, '*🏆 Achievement Unlocked:* Craftsman\nYou crafted your first item!'
+            await safeSendText(sock, responseJid, '*🏆 Achievement Unlocked:* Craftsman\nYou crafted your first item!'
             );
         }
         
         // Save profile
         userProfiles.set(sender, profile);
         
-        await safeSendMessage(sock, sender, {
+        await safeSendMessage(sock, responseJid, {
             text: `*🔨 Crafting Success:* You have crafted a ${requestedItem}!`
         });
     },
     
     // 5. Investment System
-    async invest(sock, sender, args) {
-        const profile = await getUserProfile(sock, sender);
+    async invest(sock, message, args) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         // Initialize investment data if needed
@@ -1167,7 +1237,7 @@ const commands = {
         // Show current investments if no args
         if (args.length === 0) {
             if (profile.investments.length === 0) {
-                await safeSendText(sock, sender, '*📊 Investments:* You don\'t have any active investments. Use .invest [amount] [duration] to invest.'
+                await safeSendText(sock, responseJid, '*📊 Investments:* You don\'t have any active investments. Use .invest [amount] [duration] to invest.'
                 );
                 return;
             }
@@ -1207,13 +1277,13 @@ const commands = {
             // Save profile after processing matured investments
             userProfiles.set(sender, profile);
             
-            await safeSendText(sock, sender, investmentText );
+            await safeSendText(sock, responseJid, investmentText );
             return;
         }
         
         // Check args
         if (args.length < 2) {
-            await safeSendText(sock, sender, '*⚠️ Usage:* .invest [amount] [duration in days (1-30)]'
+            await safeSendText(sock, responseJid, '*⚠️ Usage:* .invest [amount] [duration in days (1-30)]'
             );
             return;
         }
@@ -1227,13 +1297,13 @@ const commands = {
         }
         
         if (!amount || amount <= 0 || isNaN(amount)) {
-            await safeSendText(sock, sender, '*❌ Error:* Please provide a valid positive amount to invest.'
+            await safeSendText(sock, responseJid, '*❌ Error:* Please provide a valid positive amount to invest.'
             );
             return;
         }
         
         if (amount > profile.coins) {
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*❌ Error:* You don't have enough coins. Your balance: ${formatNumber(profile.coins)} coins.`
             });
             return;
@@ -1243,7 +1313,7 @@ const commands = {
         const duration = parseInt(args[1]);
         
         if (!duration || duration < 1 || duration > 30 || isNaN(duration)) {
-            await safeSendText(sock, sender, '*❌ Error:* Duration must be between 1 and 30 days.'
+            await safeSendText(sock, responseJid, '*❌ Error:* Duration must be between 1 and 30 days.'
             );
             return;
         }
@@ -1266,7 +1336,7 @@ const commands = {
         
         // Add achievement if first investment
         if (addAchievement(profile, 'investor')) {
-            await safeSendText(sock, sender, '*🏆 Achievement Unlocked:* Investor\nYou made your first investment!'
+            await safeSendText(sock, responseJid, '*🏆 Achievement Unlocked:* Investor\nYou made your first investment!'
             );
         }
         
@@ -1275,14 +1345,17 @@ const commands = {
         
         const expectedReturn = Math.floor(amount * (1 + interestRate));
         
-        await safeSendMessage(sock, sender, {
+        await safeSendMessage(sock, responseJid, {
             text: `*📊 Investment Made:*\n\nAmount: ${formatNumber(amount)} coins\nDuration: ${duration} day${duration !== 1 ? 's' : ''}\nInterest Rate: ${(interestRate * 100).toFixed(1)}%\nExpected Return: ${formatNumber(expectedReturn)} coins\n\nYour investment will mature in ${duration} day${duration !== 1 ? 's' : ''}.`
         });
     },
     
     // 6. Email System
-    async mail(sock, sender, args) {
-        const profile = await getUserProfile(sock, sender);
+    async mail(sock, message, args) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const responseJid = getResponseJid(sender, message);
+        
+        const profile = await getUserProfile(sock, sender, true, responseJid, message);
         if (!profile) return;
         
         // Initialize mail system if needed
@@ -1299,7 +1372,7 @@ const commands = {
         // Show inbox
         if (args.length === 0 || args[0].toLowerCase() === 'inbox') {
             if (mailbox.inbox.length === 0) {
-                await safeSendText(sock, sender, '*📬 Inbox:* Your inbox is empty.'
+                await safeSendText(sock, responseJid, '*📬 Inbox:* Your inbox is empty.'
                 );
                 return;
             }
@@ -1308,24 +1381,24 @@ const commands = {
             
             for (let i = 0; i < mailbox.inbox.length; i++) {
                 const mail = mailbox.inbox[i];
-                const sender = mail.senderName || 'Unknown';
+                const senderName = mail.senderName || 'Unknown';
                 
                 inboxText += `*Mail #${i+1}*\n`;
-                inboxText += `From: ${sender}\n`;
+                inboxText += `From: ${senderName}\n`;
                 inboxText += `Subject: ${mail.subject}\n`;
                 inboxText += `Date: ${new Date(mail.timestamp).toLocaleString()}\n\n`;
             }
             
             inboxText += 'Use .mail read [number] to read a mail.';
             
-            await safeSendText(sock, sender, inboxText );
+            await safeSendText(sock, responseJid, inboxText );
             return;
         }
         
         // Read a specific mail
         if (args[0].toLowerCase() === 'read') {
             if (args.length < 2) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .mail read [mail number]'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .mail read [mail number]'
                 );
                 return;
             }
@@ -1333,7 +1406,7 @@ const commands = {
             const mailNumber = parseInt(args[1]);
             
             if (isNaN(mailNumber) || mailNumber < 1 || mailNumber > mailbox.inbox.length) {
-                await safeSendText(sock, sender, '*❌ Error:* Invalid mail number.'
+                await safeSendText(sock, responseJid, '*❌ Error:* Invalid mail number.'
                 );
                 return;
             }
@@ -1351,14 +1424,14 @@ const commands = {
                 mailText += `Use .mail claim ${mailNumber} to claim the attachment.`;
             }
             
-            await safeSendText(sock, sender, mailText );
+            await safeSendText(sock, responseJid, mailText );
             return;
         }
         
         // Claim attachment
         if (args[0].toLowerCase() === 'claim') {
             if (args.length < 2) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .mail claim [mail number]'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .mail claim [mail number]'
                 );
                 return;
             }
@@ -1366,7 +1439,7 @@ const commands = {
             const mailNumber = parseInt(args[1]);
             
             if (isNaN(mailNumber) || mailNumber < 1 || mailNumber > mailbox.inbox.length) {
-                await safeSendText(sock, sender, '*❌ Error:* Invalid mail number.'
+                await safeSendText(sock, responseJid, '*❌ Error:* Invalid mail number.'
                 );
                 return;
             }
@@ -1374,7 +1447,7 @@ const commands = {
             const mail = mailbox.inbox[mailNumber - 1];
             
             if (!mail.attachment) {
-                await safeSendText(sock, sender, '*❌ Error:* This mail has no attachment to claim.'
+                await safeSendText(sock, responseJid, '*❌ Error:* This mail has no attachment to claim.'
                 );
                 return;
             }
@@ -1532,16 +1605,38 @@ const commands = {
     },
     
     // 7. Daily Reward System
-    async reward(sock, sender) {
-        // Get the user's JID from the sender object
-        const userJid = typeof sender === 'object' ? sender.jid || sender : sender;
+    async reward(sock, sender, args = [], message = {}) {
+        // Get the user's JID from the sender object - handle both string and object formats
+        let userJid;
+        if (typeof sender === 'string') {
+            userJid = sender;
+        } else if (typeof sender === 'object') {
+            userJid = sender.jid || (sender.participant ? sender.participant.replace(/:[^:]*$/, '') : null);
+        }
         
-        // Directly access the user profile from userProfiles Map
-        const profile = userProfiles.get(userJid);
+        // Extract message metadata for debugging
+        console.log(`[DEBUG] Reward command: sender type=${typeof sender}, message type=${typeof message}`);
+        if (typeof sender === 'object') console.log(`[DEBUG] Sender keys: ${Object.keys(sender).join(', ')}`);
+        if (typeof message === 'object') console.log(`[DEBUG] Message keys: ${Object.keys(message).join(', ')}`);
+        
+        // Get the group JID if the command was used in a group
+        let groupJid = null;
+        if (message && message.key && message.key.remoteJid && message.key.remoteJid.includes('@g.us')) {
+            groupJid = message.key.remoteJid;
+        }
+        
+        // Get response JID - where to send the response
+        const responseJid = groupJid || userJid;
+        
+        console.log(`[DAILY REWARD DEBUG] User: ${userJid}, Group: ${groupJid}, Response: ${responseJid}`);
+        
+        // Get user profile from the database
+        const profile = userDatabase.getUserProfile(userJid);
         
         // Check if user is registered
         if (!profile) {
-            await safeSendText(sock, userJid, '*❌ Error:* You need to register first! Use .register to create a profile.');
+            await safeSendText(sock, responseJid, '*❌ Error:* You need to register first! Use .register to create a profile.', 
+                { priority: true });
             return;
         }
         
@@ -1552,7 +1647,7 @@ const commands = {
         
         if (now - lastReward < cooldown) {
             const timeLeft = Math.ceil((lastReward + cooldown - now) / (1000 * 60 * 60));
-            await safeSendMessage(sock, userJid, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*⏳ Cooldown:* You've already claimed your daily reward! Try again in ${timeLeft} hours.`
             });
             return;
@@ -1623,7 +1718,12 @@ const commands = {
         // Save data
         streakData.set(userJid, streak);
         checkinData.set(userJid, checkin);
+        
+        // Save profile using the userDatabase
         userProfiles.set(userJid, profile);
+        
+        // Debug log
+        console.log(`[DEBUG] Reward saved for user ${userJid}`);
         
         // Send reward message
         let rewardText = `*🎁 Daily Reward Claimed!*\n\n`;
@@ -1637,7 +1737,8 @@ const commands = {
         rewardText += `Monthly Check-ins: ${checkin.count} day${checkin.count !== 1 ? 's' : ''}\n\n`;
         rewardText += `Your Balance: ${formatNumber(profile.coins)} coins`;
         
-        await safeSendText(sock, userJid, rewardText );
+        // Send reward message to the response JID (group or user)
+        await safeSendText(sock, responseJid, rewardText, { priority: true });
     },
     
     // 8. Passive Income with Idle Game Mechanics
