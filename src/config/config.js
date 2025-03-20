@@ -13,7 +13,7 @@ const config = {
          * Default command prefix
          * This is used to trigger commands, e.g., !help
          */
-        prefix: process.env.BOT_PREFIX || '!',
+        prefix: process.env.BOT_PREFIX || '.',
         
         /**
          * Bot name
@@ -41,7 +41,7 @@ const config = {
          * This can also be set via environment variable OWNER_NUMBER
          * For security, using the environment variable is recommended
          */
-        number: process.env.OWNER_NUMBER || '4915561048015', // Replace this with your WhatsApp number
+        number: process.env.OWNER_NUMBER || '4915563151347, // Replace this with your WhatsApp number
         
         /**
          * Whether to strictly validate owner number
@@ -77,7 +77,7 @@ const config = {
          * Default command prefix
          * This is used to trigger commands, e.g., !help
          */
-        prefix: process.env.BOT_PREFIX || '!',
+        prefix: process.env.BOT_PREFIX || '.',
         
         /**
          * Whether to allow multiple prefixes
@@ -131,7 +131,7 @@ const config = {
          * Used for weather commands
          * Get key at: https://openweathermap.org/api
          */
-        openweather: process.env.OPENWEATHERMAP_API_KEY || '',
+        openweather: process.env.OPENWEATHERMAP_API_KEY || '0176411203b847c32979f7f06f8fe762',
         
         /**
          * Google API Key
@@ -169,7 +169,7 @@ const config = {
          * Used for AI features
          * Get key at: https://platform.openai.com/
          */
-        openai: process.env.OPENAI_API_KEY || '',
+        openai: process.env.OPENAI_API_KEY || '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',
         
         /**
          * RemoveBG API Key
