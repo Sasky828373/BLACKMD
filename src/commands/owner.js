@@ -1,7 +1,11 @@
 const logger = require('../utils/logger');
 const globalConfig = require('../config/globalConfig');
 const os = require('os');
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
 const { safeSendText, safeSendMessage, safeSendImage } = require('../utils/jidHelper');
+const { normalizeUserIdForBanSystem } = require('../utils/userDatabase');
 
 // Save banned users to file for persistence
 async function saveBannedUsers() {
@@ -67,10 +71,6 @@ function formatTime(seconds) {
     
     return `${days}d ${hours}h ${minutes}m ${secs}s`;
 }
-
-const fs = require('fs');
-const path = require('path');
-const dotenv = require('dotenv');
 
 const ownerCommands = {
     /**
@@ -339,11 +339,13 @@ Note: Use your number in international format without any + sign, spaces, or das
             // Handle mention
             if (message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length > 0) {
                 targetJid = message.message.extendedTextMessage.contextInfo.mentionedJid[0];
-                targetNumber = targetJid.split('@')[0];
+                // Use our normalization function for consistency
+                targetNumber = normalizeUserIdForBanSystem(targetJid);
             } 
             // Handle provided as argument
             else if (args[0]) {
-                targetNumber = args[0].replace(/[^0-9]/g, '');
+                // Use our normalization function for consistency
+                targetNumber = normalizeUserIdForBanSystem(args[0]);
                 targetJid = `${targetNumber}@s.whatsapp.net`;
             } else {
                 await safeSendText(sock, remoteJid, '⚠️ Please mention a user or specify a number to ban');
@@ -360,7 +362,7 @@ Note: Use your number in international format without any + sign, spaces, or das
             // Create WhatsApp-style mention format
             const mentionText = `@${targetNumber}`;
             
-            logger.info(`Banned user: ${targetNumber}`);
+            logger.info(`Banned user: ${targetNumber} (normalized from input)`);
             
             // Send with proper mention format
             await safeSendMessage(sock, remoteJid, { 
@@ -390,11 +392,13 @@ Note: Use your number in international format without any + sign, spaces, or das
             // Handle mention
             if (message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length > 0) {
                 targetJid = message.message.extendedTextMessage.contextInfo.mentionedJid[0];
-                targetNumber = targetJid.split('@')[0];
+                // Use our normalization function for consistency
+                targetNumber = normalizeUserIdForBanSystem(targetJid);
             } 
             // Handle provided as argument
             else if (args[0]) {
-                targetNumber = args[0].replace(/[^0-9]/g, '');
+                // Use our normalization function for consistency
+                targetNumber = normalizeUserIdForBanSystem(args[0]);
                 targetJid = `${targetNumber}@s.whatsapp.net`;
             } else {
                 await safeSendText(sock, remoteJid, '⚠️ Please mention a user or specify a number to unban');
@@ -403,7 +407,9 @@ Note: Use your number in international format without any + sign, spaces, or das
 
             // Remove from banned users list
             if (global.bannedUsers) {
+                // Also try to remove any alternative formats of the same JID
                 global.bannedUsers.delete(targetNumber);
+                
                 // Save updated banned users list to file
                 await saveBannedUsers();
             }
@@ -411,7 +417,7 @@ Note: Use your number in international format without any + sign, spaces, or das
             // Create WhatsApp-style mention format
             const mentionText = `@${targetNumber}`;
             
-            logger.info(`Unbanned user: ${targetNumber}`);
+            logger.info(`Unbanned user: ${targetNumber} (normalized from input)`);
             
             // Send with proper mention format
             await safeSendMessage(sock, remoteJid, { 

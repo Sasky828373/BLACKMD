@@ -1,5 +1,5 @@
 const logger = require('../utils/logger');
-const { isAdmin, isBotAdmin } = require('../utils/permissions');
+const { isAdmin, isBotAdmin, isOwner, normalizeJidForComparison } = require('../utils/permissions');
 const { downloadMediaMessage, formatPhoneNumber, formatPhoneForMention, formatNumber } = require('../utils/helpers');
 const { getGroupSettings, saveGroupSettings } = require('../utils/groupSettings');
 const { safeSendText, safeSendMessage, safeSendImage } = require('../utils/jidHelper');
@@ -423,7 +423,15 @@ const groupCommands = {
                 return;
             }
 
-            const isTargetOwner = await isAdmin(sock, remoteJid, target, true);
+            // First check if target is an admin at all
+            const isTargetAdmin = await isAdmin(sock, remoteJid, target);
+            if (!isTargetAdmin) {
+                await safeSendText(sock, remoteJid, '❌ This user is not an admin' );
+                return;
+            }
+            
+            // Check if target is the group owner using the isOwner function
+            const isTargetOwner = await isOwner(sock, remoteJid, target);
             if (isTargetOwner) {
                 await safeSendText(sock, remoteJid, '❌ Cannot demote the group owner' );
                 return;

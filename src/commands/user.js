@@ -4,6 +4,23 @@ const moment = require('moment');
 const fs = require('fs').promises;
 const path = require('path');
 const { createCanvas, loadImage, registerFont } = require('canvas');
+
+/**
+ * Safely check if a JID is for a group
+ * @param {any} jid - JID to check
+ * @returns {boolean} - Whether the JID is for a group
+ */
+function isGroupJid(jid) {
+    if (!jid) return false;
+    
+    try {
+        const jidStr = typeof jid === 'string' ? jid : String(jid);
+        return jidStr.includes('@g.us');
+    } catch (err) {
+        console.error(`Error checking if JID is group: ${err.message}`);
+        return false;
+    }
+}
 const Jimp = require('jimp');
 const randomstring = require('randomstring');
 // Remove crypto-random-string as it's an ESM module and not used in this file
@@ -412,12 +429,52 @@ function wrapText(ctx, text, maxWidth, fontSize) {
 const userCommands = {
     async register(sock, message, args) {
         try {
-            // Get the proper user JID, checking if we're in a group chat
+            // Get the proper user JID, checking if we're in a group chat - using our helper function
             const remoteJid = message.key.remoteJid;
-            const isGroup = remoteJid.endsWith('@g.us');
+            const isGroup = isGroupJid(remoteJid);
             
             // Get the actual sender JID, whether in group or not
             const sender = isGroup ? (message.key.participant || remoteJid) : remoteJid;
+            
+            // Log for debugging
+            console.log(`Register command received from: ${sender}`);
+            
+            // For testing, create a default profile if no args are provided
+            if (!args || args.length === 0) {
+                const name = "Default User";
+                const ageInt = 25;
+                
+                // Create new user profile with achievements
+                const newProfile = {
+                    name: name,
+                    age: ageInt,
+                    xp: 0,
+                    level: 1,
+                    coins: 100, // Starting coins
+                    bio: '',
+                    registeredAt: new Date().toISOString(),
+                    lastDaily: null,
+                    inventory: [],
+                    achievements: ['New Arrival'], // First achievement for registering
+                    customTitle: '',
+                    warnings: 0,
+                    profilePic: null,
+                    theme: 'default' // Default theme
+                };
+                
+                // Add to user database
+                userDatabase.updateUserProfile(sender, newProfile);
+                
+                // Log debug info for registration
+                console.log(`User profile created (default):`, {
+                    sender: sender,
+                    normalized: userDatabase.normalizeUserIdForBanSystem(sender),
+                    profile: newProfile
+                });
+                
+                await safeSendText(sock, sender, '*✅ Default registration successful:*\nCreated profile with name "Default User" and age 25.\n\nYou can update your profile later with these commands:\n.setname [new name]\n.setage [new age]\n.setbio [your bio]');
+                return;
+            }
             
             // Extract name and age from arguments
             const name = args.slice(0, -1).join(' ') || args[0];
@@ -429,8 +486,24 @@ const userCommands = {
                 return;
             }
 
-            if (userProfiles.has(sender)) {
-                await safeSendText(sock, sender, '*❌ Error:* You are already registered!' 
+            // Get user profile with normalization from the userDatabase
+            const existingProfile = userDatabase.getUserProfile(sender);
+            if (existingProfile) {
+                // Extract user name from existing profile for a more personalized message
+                const name = existingProfile.name || 'User';
+                const profileAge = existingProfile.age || '?';
+                const registeredDate = existingProfile.registeredAt ? 
+                    new Date(existingProfile.registeredAt).toLocaleDateString() : 'unknown date';
+                
+                // Send a detailed "already registered" message with profile info
+                await safeSendText(sock, sender, 
+                    `*❌ You are already registered!*\n\n` +
+                    `*👤 Name:* ${name}\n` +
+                    `*🎯 Age:* ${profileAge}\n` +
+                    `*📊 Level:* ${existingProfile.level || 1}\n` +
+                    `*🕒 Registered since:* ${registeredDate}\n\n` +
+                    `Use *.profile* to see your full profile information.\n` +
+                    `Use *.setname*, *.setage*, and *.setbio* to update your profile.`
                 );
                 return;
             }
@@ -463,6 +536,13 @@ const userCommands = {
 
             // Add to user database
             userDatabase.updateUserProfile(sender, newProfile);
+            
+            // Log debug info for registration
+            console.log(`User profile created:`, {
+                sender: sender,
+                normalized: userDatabase.normalizeUserIdForBanSystem(sender),
+                profile: newProfile
+            });
 
             // Create welcome message
             const welcomeMsg = `*✅ Registration Successful!*\n
@@ -513,9 +593,9 @@ const userCommands = {
 
     async profile(sock, message, args) {
         try {
-            // Get the proper user JID, checking if we're in a group chat
+            // Get the proper user JID, checking if we're in a group chat - using our helper function
             const remoteJid = message.key.remoteJid;
-            const isGroup = remoteJid.endsWith('@g.us');
+            const isGroup = isGroupJid(remoteJid);
             
             // Get the actual sender JID, whether in group or not
             const sender = isGroup ? (message.key.participant || remoteJid) : remoteJid;
@@ -576,9 +656,10 @@ const userCommands = {
                     // Try to get profile picture URL from WhatsApp with better error handling for group participants
                     let ppUrl = null;
                     
-                    // If this is a group participant, ensure we're using the correct JID format
-                    const normalizedJid = targetJid.endsWith('@g.us') ? 
-                        (message.key.participant || targetJid) : targetJid;
+                    // If this is a group participant, ensure we're using the correct JID format - with string safety
+                    const targetJidStr = typeof targetJid === 'string' ? targetJid : String(targetJid);
+                    const normalizedJid = targetJidStr.includes('@g.us') ? 
+                        (message.key.participant || targetJidStr) : targetJidStr;
                     
                     // Try to fetch the profile picture with proper error handling
                     try {

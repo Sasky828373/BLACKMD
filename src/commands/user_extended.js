@@ -53,7 +53,8 @@ initDirectories();
  * @returns {object|null} User profile or null if not found
  */
 async function getUserProfile(sock, userId, sendError = true) {
-    const profile = userProfiles.get(userId);
+    // Use the centralized userDatabase.getUserProfile function with JID normalization
+    const profile = userDatabase.getUserProfile(userId);
     
     if (!profile && sendError) {
         await safeSendText(sock, userId, '*❌ Error:* You need to register first! Use .register to create a profile.'

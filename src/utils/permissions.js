@@ -13,12 +13,6 @@ const { owner: ownerConfig } = require('../config/config');
  */
 async function isAdmin(sock, groupId, userId) {
     try {
-        // Check for self - the bot itself can do admin commands
-        const isSelf = userId === sock.user?.id;
-        if (isSelf) {
-            return true; // Bot is considered admin for its own commands
-        }
-        
         // Enhanced error logging
         if (!userId) {
             console.error('isAdmin: userId is undefined or null');
@@ -30,16 +24,22 @@ async function isAdmin(sock, groupId, userId) {
             return false;
         }
         
-        // Normalize the JID to ensure consistent format
-        // More robust handling of different ID formats
-        let normalizedUserId;
-        if (userId.includes('@')) {
-            // Extract just the number part and re-add the domain
-            normalizedUserId = userId.split('@')[0] + '@s.whatsapp.net';
-        } else {
-            // Just a number, add the domain
-            normalizedUserId = userId + '@s.whatsapp.net';
+        // Handle the case of the bot itself using bot ID from sock.user
+        const botId = sock.user?.id;
+        const isSelf = userId === botId || 
+                     (userId.split('@')[0] === botId?.split('@')[0]);
+        
+        console.log(`Admin check: User ${userId}, Bot ${botId}, isSelf=${isSelf}`);
+        
+        // Bot always has admin privileges over itself
+        if (isSelf) {
+            console.log(`Self-check: Bot (${botId}) is always admin for its own commands`);
+            return true;
         }
+        
+        // Normalize the user ID for more reliable matching
+        const normalizedUserId = normalizeJidForComparison(userId);
+        console.log(`Normalized user ID for admin check: ${normalizedUserId}`);
 
         try {
             // Get group metadata and extract admin list with improved error handling
@@ -51,32 +51,49 @@ async function isAdmin(sock, groupId, userId) {
             }
             
             // Extract admin list with additional logging
-            const admins = groupMetadata.participants
-                .filter(p => p.admin)
-                .map(p => p.id);
+            const adminParticipants = groupMetadata.participants.filter(p => p.admin);
+            const admins = adminParticipants.map(p => p.id);
                 
             console.log(`Found ${admins.length} admins in group ${groupId}`);
             
-            // Debug log each admin for troubleshooting
-            for (const admin of admins) {
-                console.log(`Admin in group: ${admin}`);
+            // Debug log participants to check format
+            console.log(`Group ${groupId} participants (${groupMetadata.participants.length}):`, 
+                groupMetadata.participants.map(p => `${p.id} (${p.admin ? 'admin' : 'member'})`).join(', '));
+            
+            // First try exact match
+            if (admins.includes(userId)) {
+                console.log(`Exact match: User ${userId} IS an admin in ${groupId}`);
+                return true;
             }
             
-            // Check if normalized ID is in admin list with improved matching
+            // Try with normalized IDs for more reliable matching
             for (const admin of admins) {
-                // Normalize admin ID for consistent comparison
-                const normalizedAdmin = admin.split('@')[0] + '@s.whatsapp.net';
-                console.log(`Comparing ${normalizedUserId} with ${normalizedAdmin}`);
+                const normalizedAdmin = normalizeJidForComparison(admin);
+                console.log(`Comparing normalized IDs: ${normalizedUserId} with ${normalizedAdmin}`);
                 
-                // Do a strict comparison with normalized IDs
-                if (normalizedUserId === normalizedAdmin) {
-                    console.log(`User ${userId} IS an admin in ${groupId}`);
+                // Check both ways for maximum compatibility
+                if (normalizedUserId === normalizedAdmin || 
+                    normalizedUserId.split('@')[0] === normalizedAdmin.split('@')[0]) {
+                    console.log(`Normalized match: User ${userId} IS an admin in ${groupId}`);
                     return true;
                 }
             }
             
-            console.log(`User ${userId} is NOT an admin in ${groupId}`);
-            return false; // Not found in admin list
+            // Try with just the number part (most reliable for admin checks)
+            const userNumber = userId.split('@')[0];
+            for (const admin of admins) {
+                const adminNumber = admin.split('@')[0];
+                console.log(`Comparing just numbers: ${userNumber} with ${adminNumber}`);
+                
+                if (userNumber === adminNumber) {
+                    console.log(`Number match: User ${userId} IS an admin in ${groupId}`);
+                    return true;
+                }
+            }
+            
+            console.log(`All checks failed: User ${userId} is NOT an admin in ${groupId}`);
+            return false; // Not found in admin list with any method
+            
         } catch (metadataErr) {
             console.error(`Error getting group metadata: ${metadataErr.message}`);
             return false;
@@ -87,6 +104,25 @@ async function isAdmin(sock, groupId, userId) {
         // Fail closed for security
         return false;
     }
+}
+
+/**
+ * Normalize a JID for consistent comparison
+ * @param {string} jid - JID to normalize
+ * @returns {string} - Normalized JID
+ */
+function normalizeJidForComparison(jid) {
+    if (!jid) return '';
+    
+    // Already has domain part, extract it
+    if (jid.includes('@')) {
+        const [user, domain] = jid.split('@');
+        // Standardize on s.whatsapp.net domain
+        return `${user}@${domain === 'c.us' ? 's.whatsapp.net' : domain}`;
+    } 
+    
+    // Just a number, add the standard domain
+    return `${jid}@s.whatsapp.net`;
 }
 
 /**

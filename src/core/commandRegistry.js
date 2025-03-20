@@ -9,6 +9,7 @@ const logger = require('../utils/logger');
 const { loadCommandModule, isValidCommandModule, initializeModule } = require('../utils/moduleAdapter');
 const { safeSendText } = require('../utils/jidHelper');
 const { languageManager } = require('../utils/language');
+const { normalizeUserIdForBanSystem } = require('../utils/userDatabase');
 
 /**
  * Command registry for managing bot commands
@@ -371,15 +372,16 @@ class CommandRegistry {
         
         // Check if the sender is banned (unless it's a message from the bot itself)
         if (!message.key.fromMe && senderJid) {
-            // Extract user ID from JID (remove the @s.whatsapp.net or @g.us part)
-            const userId = senderJid.split('@')[0];
+            // Normalize the JID for consistent ban checking across different JID formats
+            const normalizedUserId = normalizeUserIdForBanSystem(senderJid);
             
-            // Check global banned users list
-            if (global.bannedUsers && global.bannedUsers.has(userId)) {
-                logger.info(`Blocked command from banned user: ${userId}`);
+            // Check global banned users list with normalized ID
+            if (global.bannedUsers && global.bannedUsers.has(normalizedUserId)) {
+                logger.info(`Blocked command from banned user: ${normalizedUserId} (JID: ${senderJid})`);
                 // Send a message with proper WhatsApp-style mentions telling the user they are banned
                 try {
-                    // Create mention text
+                    // Create mention text using the original userId format for WhatsApp mentions
+                    const userId = senderJid.split('@')[0]; // Original format for display
                     const mentionText = `@${userId}`;
                     const fullText = `⛔ ${mentionText} you are banned from using the bot.`;
                     

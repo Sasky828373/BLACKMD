@@ -35,15 +35,28 @@ function extractImageUrl(response) {
         if (response.message && (response.message.startsWith('http://') || response.message.startsWith('https://'))) {
             return response.message;
         }
+        
+        // Handle waifu.im API format
+        if (response.images && Array.isArray(response.images) && response.images.length > 0) {
+            if (response.images[0].url) return response.images[0].url;
+            if (response.images[0].image) return response.images[0].image;
+            if (typeof response.images[0] === 'string') return response.images[0];
+        }
+        
+        // Handle results array
         if (response.results && response.results.length > 0) {
             return response.results[0].url || response.results[0].image || response.results[0];
         }
-        if (response.images && response.images.length > 0) {
-            return response.images[0].url || response.images[0].image || response.images[0];
-        }
+        
+        // Handle nekos.life API format
+        if (response.neko) return response.neko;
+        
+        // Handle posts array
         if (response.posts && response.posts.length > 0) {
             return response.posts[0].url || response.posts[0].image || response.posts[0].file || response.posts[0];
         }
+        
+        // Handle plain array response
         if (Array.isArray(response) && response.length > 0) {
             return response[0].url || response[0].image || response[0];
         }
@@ -53,6 +66,7 @@ function extractImageUrl(response) {
         const urlMatch = responseStr.match(/(https?:\/\/[^"'\s]+)\.(jpg|jpeg|png|gif)/i);
         return urlMatch ? urlMatch[0] : null;
     } catch (err) {
+        logger.error(`Error extracting URL from response: ${err.message}`);
         return null;
     }
 }
@@ -273,113 +287,161 @@ const DIRECT_GIFS = {
 // Category mapping to maximize image/API compatibility
 const CATEGORY_MAPPING = {
     'waifu': {
-        primary: 'https://api.waifu.pics/nsfw/waifu',
+        primary: 'https://nekos.life/api/v2/img/waifu',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/hentai'
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=waifu'
         ]
     },
     'neko': {
-        primary: 'https://api.waifu.pics/nsfw/neko',
+        primary: 'https://nekos.life/api/v2/img/neko',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/neko'
+            'https://api.waifu.pics/nsfw/neko',
+            'https://api.waifu.im/search/?included_tags=maid'
         ]
     },
     'hentai': { 
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/hentai',
+        primary: 'https://nekos.life/api/v2/img/lewd',
         fallbacks: [
-            'https://api.waifu.pics/nsfw/waifu'
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=hentai'
         ],
         directFallback: DIRECT_GIFS.hentai
     },
     'boobs': {
-        primary: 'https://api.nekos.fun/api/boobs',
+        primary: 'https://nekos.life/api/v2/img/boobs',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/boobs'
+            'https://api.waifu.im/search/?included_tags=oppai',
+            'https://api.waifu.pics/nsfw/waifu'
         ],
         directFallback: DIRECT_GIFS.boobs
     },
     'ass': {
-        primary: 'https://api.nekos.fun/api/ass',
+        primary: 'https://nekos.life/api/v2/img/les',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/ass'
+            'https://api.waifu.im/search/?included_tags=ass',
+            'https://api.waifu.pics/nsfw/waifu'
         ],
         directFallback: DIRECT_GIFS.ass
     },
     'pussy': {
-        primary: 'https://api.nekos.fun/api/pussy',
+        primary: 'https://nekos.life/api/v2/img/pussy',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/pussy'
+            'https://api.waifu.im/search/?included_tags=ecchi',
+            'https://api.waifu.pics/nsfw/waifu'
         ],
         directFallback: DIRECT_GIFS.pussy
     },
     'blowjob': {
-        primary: 'https://api.nekos.fun/api/blowjob',
+        primary: 'https://nekos.life/api/v2/img/blowjob',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/blowjob'
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=ecchi'
         ]
     },
     'anal': {
-        primary: 'https://api.nekos.fun/api/anal',
+        primary: 'https://nekos.life/api/v2/img/pussy',
         fallbacks: [
-            'https://hmtai.hatsunia.cfd/v2/nsfw/anal'
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=ecchi'
         ]
     },
     'feet': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/foot',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/feet',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=selfies'
+        ]
     },
     'gifboobs': {
-        primary: 'https://api.waifu.pics/nsfw/waifu',
-        fallbacks: [],
+        primary: 'https://nekos.life/api/v2/img/boobs',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=oppai'
+        ],
         directFallback: DIRECT_GIFS.gifboobs,
         gif: true
     },
     'gifass': {
-        primary: 'https://api.waifu.pics/nsfw/waifu',
-        fallbacks: [],
+        primary: 'https://nekos.life/api/v2/img/les',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=ass'
+        ],
         directFallback: DIRECT_GIFS.gifass,
         gif: true
     },
     'gifhentai': {
-        primary: 'https://api.waifu.pics/nsfw/waifu',
-        fallbacks: [],
+        primary: 'https://nekos.life/api/v2/img/lewd',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=hentai'
+        ],
         directFallback: DIRECT_GIFS.gifhentai,
         gif: true
     },
     'gifblowjob': {
-        primary: 'https://api.waifu.pics/nsfw/waifu',
-        fallbacks: [],
+        primary: 'https://nekos.life/api/v2/img/blowjob',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=ecchi'
+        ],
         directFallback: DIRECT_GIFS.gifblowjob,
         gif: true
     },
     'uniform': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/uniform',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/uniform',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=uniform'
+        ]
     },
     'thighs': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/thighs',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/thighs',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=ecchi'
+        ]
     },
     'femdom': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/femdom',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/femdom',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=maid'
+        ]
     },
     'tentacle': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/tentacle',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/lewd',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=hentai'
+        ]
     },
     'pantsu': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/pantsu',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/pussy',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=ecchi'
+        ]
     },
     'kitsune': {
-        primary: 'https://hmtai.hatsunia.cfd/v2/nsfw/kitsune',
-        fallbacks: []
+        primary: 'https://nekos.life/api/v2/img/fox_girl',
+        fallbacks: [
+            'https://api.waifu.pics/nsfw/waifu',
+            'https://api.waifu.im/search/?included_tags=maid'
+        ]
     }
 };
 
 // Common API endpoints that we can use
 const API_ENDPOINTS = [
+    {
+        name: 'nekos.life', 
+        url: 'https://nekos.life/api/v2/img/{category}',
+        format: 'url',
+        supports: ['waifu', 'neko', 'lewd', 'boobs', 'les', 'pussy', 'blowjob', 'feet', 'uniform', 'thighs', 'femdom', 'fox_girl'],
+        supportsGif: true
+    },
     {
         name: 'waifu.pics', 
         url: 'https://api.waifu.pics/nsfw/{category}',
@@ -388,17 +450,10 @@ const API_ENDPOINTS = [
         supportsGif: false
     },
     {
-        name: 'hmtai',
-        url: 'https://hmtai.hatsunia.cfd/v2/nsfw/{category}',
-        format: 'url',
-        supports: ['hentai', 'ass', 'bdsm', 'cum', 'manga', 'femdom', 'hentai', 'masturbation', 'neko', 'blowjob'],
-        supportsGif: false
-    },
-    {
-        name: 'nekos.fun',
-        url: 'https://api.nekos.fun/api/{category}',
-        format: 'image',
-        supports: ['ass', 'boobs', 'pussy', 'blowjob', 'cum', 'anal', '4k', 'hentai'],
+        name: 'waifu.im',
+        url: 'https://api.waifu.im/search/?included_tags={category}',
+        format: 'images.0.url',
+        supports: ['waifu', 'maid', 'hentai', 'oppai', 'ass', 'ecchi', 'selfies', 'uniform'],
         supportsGif: false
     }
 ];
@@ -496,6 +551,20 @@ async function fetchNsfwImage(category, requireGif = false) {
                     logger.error(`Error reading GIF file: ${fileErr.message}`);
                     // Continue with other fallback methods
                 }
+            }
+            
+            // If no local GIF is available, prioritize the nekos.life API which has better GIF support
+            try {
+                const nekosLifeUrl = `https://nekos.life/api/v2/img/${normalizedCategory}`;
+                logger.info(`Trying nekos.life API for GIF: ${nekosLifeUrl}`);
+                const response = await getAxiosInstance(nekosLifeUrl).get(nekosLifeUrl, { timeout: 4000 });
+                
+                if (response.data && response.data.url) {
+                    return response.data.url;
+                }
+            } catch (err) {
+                logger.debug(`Error fetching from nekos.life API for GIF: ${err.message}`);
+                // Continue with other methods
             }
             
             // Then try direct fallbacks
