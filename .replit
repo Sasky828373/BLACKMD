@@ -1,5 +1,5 @@
 modules = ["nodejs-20", "bash", "web", "python-3.11"]
-run = "npm run dev"
+run = "npm run src/index.js"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
@@ -20,10 +20,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "Blacksky-Md"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Blacksky-Md"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -34,5 +34,5 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "npm run src/index.js"
 waitForPort = 5000
