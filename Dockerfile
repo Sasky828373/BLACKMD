@@ -17,8 +17,12 @@ RUN apt-get update && apt-get install -y \
     g++ \
     build-essential \
     python3-dev \
-    python-is-python3 \
+    python3 \
+    python3-pip \
     pkg-config
+
+# Create symlink for python
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 # Copy package files and rename our special Heroku package.json
 COPY package-heroku.json ./package.json
@@ -30,8 +34,8 @@ RUN npm ci --only=production
 # Copy app source code
 COPY . .
 
-# Fix canvas installation
-RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+# Install Python requirements
+RUN pip3 install -r requirements.txt
 
 # Expose port for web server
 EXPOSE $PORT
