@@ -67,7 +67,7 @@ async function loadCommands() {
                                     throw err;
                                 }
                             },
-                            cooldown: config?.cooldown || 5,
+                            cooldown: 0, // Cooldowns disabled
                             groupOnly: config?.groupOnly || false,
                             category: config?.configCategory || 'uncategorized',
                             description: config?.description || `Command: ${name}`,
@@ -154,7 +154,7 @@ async function loadCommands() {
                                         throw err;
                                     }
                                 },
-                                cooldown: config?.cooldown || 5,
+                                cooldown: 0, // Cooldowns disabled
                                 groupOnly: config?.groupOnly || name === 'group',
                                 category: config?.configCategory || category,
                                 description: config?.description || `Command: ${cmdName}`,
@@ -187,7 +187,7 @@ async function loadCommands() {
                         throw err;
                     }
                 },
-                cooldown: 5,
+                cooldown: 0, // Cooldowns disabled
                 groupOnly: false
             });
         }
@@ -229,7 +229,7 @@ async function loadCommands() {
                                 text: `*Command: ${cmdName}*\n\n` +
                                       `Description: ${cmd.description || 'No description'}\n` +
                                       `Usage: ${cmd.usage || '.' + cmdName}\n` +
-                                      `Cooldown: ${cmd.cooldown || 3}s\n` +
+                                      `Cooldown: None (disabled)\n` +
                                       `Category: ${cmd.category || 'Uncategorized'}\n` +
                                       `Group Only: ${cmd.groupOnly ? 'Yes' : 'No'}`
                             });
@@ -262,7 +262,7 @@ async function loadCommands() {
                         throw err;
                     }
                 },
-                cooldown: 10,
+                cooldown: 0, // Cooldowns disabled
                 groupOnly: false,
                 description: 'Get help with bot commands',
                 usage: '.help [category/command]',
@@ -301,7 +301,7 @@ async function loadCommands() {
                         throw err;
                     }
                 },
-                cooldown: 5,
+                cooldown: 0, // Cooldowns disabled
                 groupOnly: false
             });
             
@@ -316,7 +316,7 @@ async function loadCommands() {
                         throw err;
                     }
                 },
-                cooldown: 10,
+                cooldown: 0, // Cooldowns disabled
                 groupOnly: false
             });
             

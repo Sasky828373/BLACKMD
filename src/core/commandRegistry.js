@@ -286,20 +286,8 @@ class CommandRegistry {
      * @returns {number} Remaining cooldown in seconds, or 0 if not on cooldown
      */
     checkCooldown(jid, commandName) {
-        const key = `${jid}:${commandName}`;
-        const cooldownData = this.cooldowns.get(key);
-        
-        if (!cooldownData) return 0;
-        
-        const now = Date.now();
-        const remaining = cooldownData.expires - now;
-        
-        if (remaining <= 0) {
-            this.cooldowns.delete(key);
-            return 0;
-        }
-        
-        return Math.ceil(remaining / 1000);
+        // Cooldowns are disabled
+        return 0;
     }
     
     /**
@@ -309,21 +297,8 @@ class CommandRegistry {
      * @param {number} duration Cooldown duration in milliseconds (default: 3000)
      */
     setCooldown(jid, commandName, duration = 3000) {
-        const key = `${jid}:${commandName}`;
-        const expires = Date.now() + duration;
-        
-        this.cooldowns.set(key, {
-            jid,
-            command: commandName,
-            expires
-        });
-        
-        // Set timer to clean up expired cooldown
-        setTimeout(() => {
-            if (this.cooldowns.has(key) && this.cooldowns.get(key).expires <= Date.now()) {
-                this.cooldowns.delete(key);
-            }
-        }, duration + 100);
+        // Cooldowns are disabled - do nothing
+        return;
     }
 
     /**
@@ -391,29 +366,18 @@ class CommandRegistry {
             return false;
         }
         
-        // Add special handling for self-messages to prevent command loops
+        // Special handling for self-messages to prevent command loops
         if (message.key.fromMe) {
-            // If this is a self-message with a command prefix, use higher cooldown
-            // to prevent accidental loops while still allowing self-commands
+            // If this is a self-message with a command prefix
             const anyText = message.message.conversation || 
                            message.message.extendedTextMessage?.text || '';
             
             const hasCommandPrefix = this.prefixes.some(prefix => anyText.startsWith(prefix));
             
+            // We still allow self-messages, but we'll track them for logging
             if (hasCommandPrefix) {
-                // Apply a longer cooldown for self-commands to prevent loops
-                const jid = message.key.remoteJid;
-                const cooldownKey = `${jid}:self-command`;
-                
-                // Check if there's already a self-command cooldown
-                const selfCooldown = this.checkCooldown(jid, 'self-command');
-                if (selfCooldown > 0) {
-                    logger.warn(`Self-command rate limit exceeded, cooldown: ${selfCooldown}s`);
-                    return false;
-                }
-                
-                // Apply longer cooldown for self-commands (5 seconds)
-                this.setCooldown(jid, 'self-command', 5000);
+                logger.info(`Processing self-command: ${anyText}`);
+                // No cooldown applied - cooldowns disabled
             }
         }
         

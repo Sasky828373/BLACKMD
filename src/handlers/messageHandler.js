@@ -138,15 +138,7 @@ function checkRateLimit(userId) {
  * Check command cooldown
  */
 function checkCommandCooldown(userId, command) {
-    const now = Date.now();
-    const key = `${userId}:${command}`;
-    const cooldownExpiry = commandCooldowns.get(key);
-
-    if (cooldownExpiry && now < cooldownExpiry) {
-        return Math.ceil((cooldownExpiry - now) / 1000);
-    }
-
-    commandCooldowns.set(key, now + 3000);
+    // Cooldowns are disabled
     return 0;
 }
 

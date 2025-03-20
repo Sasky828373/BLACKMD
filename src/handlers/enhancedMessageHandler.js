@@ -224,23 +224,7 @@ class EnhancedMessageHandler {
      * @returns {Promise<boolean>} Whether the command is on cooldown
      */
     async isOnCooldown(message, command) {
-        // Get sender ID
-        const senderId = message.key.remoteJid;
-        
-        // Get command cooldown
-        const cooldownAmount = (command.config.cooldown || this.config.defaultCooldown) * 1000;
-        
-        // Check cooldown
-        const timestamps = this.config.cooldowns.get(command.config.name);
-        if (timestamps) {
-            const expirationTime = timestamps.get(senderId) + cooldownAmount;
-            
-            if (Date.now() < expirationTime) {
-                const timeLeft = (expirationTime - Date.now()) / 1000;
-                return true;
-            }
-        }
-        
+        // Cooldowns are disabled
         return false;
     }
     
@@ -250,16 +234,8 @@ class EnhancedMessageHandler {
      * @param {Object} command Command object
      */
     setCooldown(message, command) {
-        // Get sender ID
-        const senderId = message.key.remoteJid;
-        
-        // Get command cooldown map
-        if (!this.config.cooldowns.has(command.config.name)) {
-            this.config.cooldowns.set(command.config.name, new Map());
-        }
-        
-        const timestamps = this.config.cooldowns.get(command.config.name);
-        timestamps.set(senderId, Date.now());
+        // Cooldowns are disabled - do nothing
+        return;
     }
     
     /**

@@ -277,50 +277,97 @@ Note: Use your number in international format without any + sign, spaces, or das
     async ban(sock, message, args) {
         const remoteJid = message.key.remoteJid;
         try {
-            const target = args[0];
-            if (!target) {
-                await safeSendText(sock, remoteJid, '⚠️ Please specify a user to ban' );
+            // Check if user is mentioned in the message
+            let targetJid = '';
+            let targetNumber = '';
+            
+            // Handle mention
+            if (message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length > 0) {
+                targetJid = message.message.extendedTextMessage.contextInfo.mentionedJid[0];
+                targetNumber = targetJid.split('@')[0];
+            } 
+            // Handle provided as argument
+            else if (args[0]) {
+                targetNumber = args[0].replace(/[^0-9]/g, '');
+                targetJid = `${targetNumber}@s.whatsapp.net`;
+            } else {
+                await safeSendText(sock, remoteJid, '⚠️ Please mention a user or specify a number to ban');
                 return;
             }
 
-            // Normalize the phone number
-            const normalizedNumber = target.replace(/[^0-9]/g, '');
-
-            // Add to banned users list (implement in database)
-            // For now using temporary array
+            // Add to banned users list
             if (!global.bannedUsers) global.bannedUsers = new Set();
-            global.bannedUsers.add(normalizedNumber);
+            global.bannedUsers.add(targetNumber);
 
-            logger.info(`Banned user: ${normalizedNumber}`);
-            await safeSendMessage(sock, remoteJid, { text: `🚫 User ${target} has been banned` });
+            // Create WhatsApp-style mention format
+            const mentionText = `@${targetNumber}`;
+            
+            logger.info(`Banned user: ${targetNumber}`);
+            
+            // Send with proper mention format
+            await safeSendMessage(sock, remoteJid, { 
+                text: `🚫 ${mentionText} has been banned`, 
+                mentions: [targetJid],
+                // Include WhatsApp's required mention formatting
+                extendedTextMessage: {
+                    text: `🚫 ${mentionText} has been banned`,
+                    contextInfo: {
+                        mentionedJid: [targetJid]
+                    }
+                }
+            });
         } catch (err) {
             logger.error('Error banning user:', err);
-            await safeSendText(sock, remoteJid, '❌ Error banning user. Please check logs.' );
+            await safeSendText(sock, remoteJid, '❌ Error banning user. Please check logs.');
         }
     },
 
     async unban(sock, message, args) {
         const remoteJid = message.key.remoteJid;
         try {
-            const target = args[0];
-            if (!target) {
-                await safeSendText(sock, remoteJid, '⚠️ Please specify a user to unban' );
+            // Check if user is mentioned in the message
+            let targetJid = '';
+            let targetNumber = '';
+            
+            // Handle mention
+            if (message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length > 0) {
+                targetJid = message.message.extendedTextMessage.contextInfo.mentionedJid[0];
+                targetNumber = targetJid.split('@')[0];
+            } 
+            // Handle provided as argument
+            else if (args[0]) {
+                targetNumber = args[0].replace(/[^0-9]/g, '');
+                targetJid = `${targetNumber}@s.whatsapp.net`;
+            } else {
+                await safeSendText(sock, remoteJid, '⚠️ Please mention a user or specify a number to unban');
                 return;
             }
 
-            // Normalize the phone number
-            const normalizedNumber = target.replace(/[^0-9]/g, '');
-
             // Remove from banned users list
             if (global.bannedUsers) {
-                global.bannedUsers.delete(normalizedNumber);
+                global.bannedUsers.delete(targetNumber);
             }
 
-            logger.info(`Unbanned user: ${normalizedNumber}`);
-            await safeSendMessage(sock, remoteJid, { text: `✅ User ${target} has been unbanned` });
+            // Create WhatsApp-style mention format
+            const mentionText = `@${targetNumber}`;
+            
+            logger.info(`Unbanned user: ${targetNumber}`);
+            
+            // Send with proper mention format
+            await safeSendMessage(sock, remoteJid, { 
+                text: `✅ ${mentionText} has been unbanned`, 
+                mentions: [targetJid],
+                // Include WhatsApp's required mention formatting
+                extendedTextMessage: {
+                    text: `✅ ${mentionText} has been unbanned`,
+                    contextInfo: {
+                        mentionedJid: [targetJid]
+                    }
+                }
+            });
         } catch (err) {
             logger.error('Error unbanning user:', err);
-            await safeSendText(sock, remoteJid, '❌ Error unbanning user. Please check logs.' );
+            await safeSendText(sock, remoteJid, '❌ Error unbanning user. Please check logs.');
         }
     },
 
@@ -328,17 +375,38 @@ Note: Use your number in international format without any + sign, spaces, or das
         const remoteJid = message.key.remoteJid;
         try {
             if (!global.bannedUsers || global.bannedUsers.size === 0) {
-                await safeSendText(sock, remoteJid, '📋 No banned users' );
+                await safeSendText(sock, remoteJid, '📋 No banned users');
                 return;
             }
 
-            const bannedList = Array.from(global.bannedUsers).join('\n• ');
-            await safeSendMessage(sock, remoteJid, { 
-                text: `📋 Banned users list:\n• ${bannedList}` 
+            // Create formatted message with mentions
+            const bannedNumbers = Array.from(global.bannedUsers);
+            const bannedJids = bannedNumbers.map(num => `${num}@s.whatsapp.net`);
+            
+            let formattedText = `*📋 Banned Users*\n\n`;
+            
+            // Add each banned user with proper WhatsApp mention format
+            bannedNumbers.forEach((number, index) => {
+                formattedText += `${index + 1}. @${number}\n`;
             });
+            
+            // Send the formatted message with mentions
+            await safeSendMessage(sock, remoteJid, { 
+                text: formattedText,
+                mentions: bannedJids,
+                // Include WhatsApp's required mention formatting
+                extendedTextMessage: {
+                    text: formattedText,
+                    contextInfo: {
+                        mentionedJid: bannedJids
+                    }
+                }
+            });
+            
+            logger.info(`Displayed banned list with ${bannedJids.length} users`);
         } catch (err) {
             logger.error('Error getting banned list:', err);
-            await safeSendText(sock, remoteJid, '❌ Error getting banned list. Please check logs.' );
+            await safeSendText(sock, remoteJid, '❌ Error getting banned list. Please check logs.');
         }
     },
 
