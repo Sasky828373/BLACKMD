@@ -1,45 +1,104 @@
-# Heroku Deployment Troubleshooting Guide
+# Heroku Deployment Guide for BlackSky-MD
 
-## Error: "Couldn't find any supported Python package manager files"
+This guide explains how to deploy the BlackSky-MD WhatsApp bot to Heroku.
 
-If you encounter this error when deploying to Heroku, here's how to fix it:
+## Prerequisites
 
-1. **Make sure you have a requirements.txt file** in the root of your repository
-   - This file should list all Python dependencies
-   - Our project already has this file with `trafilatura` and `twilio` listed
+1. A [Heroku](https://www.heroku.com/) account
+2. [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed
+3. [Git](https://git-scm.com/) installed
 
-2. **Check that you have the correct buildpacks** in your Heroku app settings
-   - Go to the Settings tab in your Heroku dashboard
-   - Scroll down to the Buildpacks section
-   - Make sure you have both `heroku/nodejs` and `heroku/python` in this exact order
-   - If not, add them using the "Add buildpack" button
+## Deployment Steps
 
-3. **Verify runtime.txt** is present with a valid Python version
-   - Our project has `python-3.11.8` specified
+### 1. Clone the Repository (if you haven't already)
 
-4. **Make sure all files are committed** to your repository
-   - The following files must be present:
-     - requirements.txt
-     - runtime.txt
-     - Procfile
-     - app.json
-     - .buildpacks
+```bash
+git clone https://github.com/YOUR_USERNAME/BLACKMD.git
+cd BLACKMD
+```
 
-5. **Try a clean deployment**
-   - In Heroku Dashboard, go to the Deploy tab
-   - Scroll down to the Manual Deploy section
-   - Choose the branch and click "Deploy Branch"
+### 2. Login to Heroku
 
-6. **Check your logs** after deployment
-   - In Heroku Dashboard, click "More" at the top right
-   - Select "View logs" to see what's happening during the build process
+```bash
+heroku login
+```
 
-## Important Files for Deployment
+### 3. Create a Heroku App
 
-- `requirements.txt` - Python dependencies
-- `runtime.txt` - Python version specification
-- `Procfile` - Command to run the application
-- `app.json` - Application metadata
-- `.buildpacks` - Explicit buildpack declaration
-- `package.json` - Node.js dependencies and scripts
-- `.node-version` - Node.js version specification
+```bash
+heroku create your-app-name
+```
+
+Or connect to an existing app:
+
+```bash
+heroku git:remote -a your-app-name
+```
+
+### 4. Set Stack to Container
+
+```bash
+heroku stack:set container
+```
+
+### 5. Push to Heroku
+
+```bash
+git push heroku main
+```
+
+### 6. Scale the Dyno
+
+```bash
+heroku ps:scale web=1
+```
+
+### 7. View the Logs
+
+```bash
+heroku logs --tail
+```
+
+## Troubleshooting
+
+### Connection Issues
+
+If the bot has connection issues:
+
+1. Check the logs: `heroku logs --tail`
+2. You may need to scan the QR code again. You can do this by:
+   - Opening the app in your browser: `heroku open`
+   - Or by temporarily enabling development mode and viewing logs
+
+### Session Management
+
+To persist WhatsApp session data between deployments:
+
+1. Use the built-in session backup feature
+2. You can manually upload session data using the environment variable:
+
+```bash
+heroku config:set CREDS_DATA="your-base64-encoded-creds-data"
+```
+
+## Environment Variables
+
+Set these environment variables for configuration:
+
+```bash
+# Required
+heroku config:set OWNER_NUMBER="your-phone-number"
+
+# Optional
+heroku config:set BOT_NAME="Your Bot Name"
+heroku config:set PREFIX="!"
+```
+
+## Additional Resources
+
+- [Heroku Node.js Support](https://devcenter.heroku.com/articles/nodejs-support)
+- [Docker Deployment on Heroku](https://devcenter.heroku.com/articles/container-registry-and-runtime)
+
+## Need Help?
+
+If you encounter issues, check the project issues on GitHub or reach out to the community for support.

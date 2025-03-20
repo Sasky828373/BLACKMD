@@ -2,21 +2,55 @@
   "name": "Blacksky-MD",
   "description": "WhatsApp Multi-Device bot with advanced command handling",
   "keywords": ["whatsapp", "bot", "baileys", "nodejs"],
-  "repository": "https://github.com/yourusername/blacksky-md",
-  "logo": "https://example.com/logo.png",
+  "repository": "https://github.com/madariss5/BLACKMD",
+  "logo": "https://raw.githubusercontent.com/madariss5/BLACKMD/main/generated-icon.png",
   "success_url": "/",
+  "website": "https://github.com/madariss5/BLACKMD",
+  "stack": "container",
   "env": {
     "CREDS_DATA": {
       "description": "WhatsApp session credentials data (base64 encoded)",
       "required": false
+    },
+    "OWNER_NUMBER": {
+      "description": "Owner's WhatsApp number with country code, no '+' sign (e.g., 1234567890)",
+      "required": true
+    },
+    "BOT_NAME": {
+      "description": "Name of your WhatsApp bot",
+      "required": false,
+      "value": "BlackskyMD"
+    },
+    "PREFIX": {
+      "description": "Command prefix (e.g., !, ., #)",
+      "required": false,
+      "value": "!"
+    },
+    "NODE_VERSION": {
+      "description": "Node.js version",
+      "required": false,
+      "value": "16.20.0" 
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
     }
   },
   "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-apt"
+    },
     {
       "url": "heroku/nodejs"
     },
     {
       "url": "heroku/python"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
     }
-  ]
+  ],
+  "addons": []
 }
