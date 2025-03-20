@@ -1,0 +1,9 @@
+libcairo2-dev
+libjpeg-dev
+libpango1.0-dev
+libgif-dev
+librsvg2-dev
+g++
+build-essential
+python3-dev
+python-is-python3
