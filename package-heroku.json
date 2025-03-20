@@ -1,0 +1,15 @@
+{
+  "name": "blacksky-md",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "keywords": ["whatsapp", "bot", "baileys", "multi-device"],
+  "author": "",
+  "license": "ISC",
+  "description": "WhatsApp Multi-Device bot with advanced command handling"
+}

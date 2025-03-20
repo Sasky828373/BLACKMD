@@ -8,12 +8,14 @@ This guide explains how to deploy the BlackSky-MD WhatsApp bot to Heroku.
 2. [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed
 3. [Git](https://git-scm.com/) installed
 
-## Deployment Steps
+## Container-based Deployment (Recommended)
+
+This approach uses Docker to create a controlled environment with the exact Node.js version and system dependencies needed. It's the most reliable way to deploy this bot.
 
 ### 1. Clone the Repository (if you haven't already)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/BLACKMD.git
+git clone https://github.com/madariss5/BLACKMD.git
 cd BLACKMD
 ```
 
@@ -47,13 +49,19 @@ heroku stack:set container
 git push heroku main
 ```
 
-### 6. Scale the Dyno
+### 6. Set Required Environment Variables
+
+```bash
+heroku config:set OWNER_NUMBER="your-phone-number"
+```
+
+### 7. Scale the Dyno
 
 ```bash
 heroku ps:scale web=1
 ```
 
-### 7. View the Logs
+### 8. View the Logs
 
 ```bash
 heroku logs --tail

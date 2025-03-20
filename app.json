@@ -26,10 +26,10 @@
       "required": false,
       "value": "!"
     },
-    "NODE_VERSION": {
-      "description": "Node.js version",
+    "NODE_OPTIONS": {
+      "description": "Node.js options",
       "required": false,
-      "value": "16.20.0" 
+      "value": "--max-old-space-size=2560"
     }
   },
   "formation": {
