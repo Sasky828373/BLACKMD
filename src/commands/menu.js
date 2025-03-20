@@ -484,10 +484,15 @@ async function loadAllCommands() {
                     // Get commands from module
                     let commands = moduleData.commands || moduleData;
                     if (typeof commands === 'object') {
-                        // Filter valid commands
-                        const commandList = Object.keys(commands).filter(cmd =>
-                            typeof commands[cmd] === 'function' && cmd !== 'init'
-                        );
+                        // Filter valid commands - with additional error checking
+                        const commandList = Object.keys(commands).filter(cmd => {
+                            try {
+                                return typeof commands[cmd] === 'function' && cmd !== 'init';
+                            } catch (e) {
+                                logger.error(`Error accessing command ${cmd} in ${file}:`, e);
+                                return false;
+                            }
+                        });
 
                         if (commandList.length > 0) {
                             if (!allCommands[category]) {
@@ -508,9 +513,14 @@ async function loadAllCommands() {
         try {
             const indexCommands = require('./index').commands;
             if (indexCommands && typeof indexCommands === 'object') {
-                const mainCommands = Object.keys(indexCommands).filter(cmd =>
-                    typeof indexCommands[cmd] === 'function' && cmd !== 'init'
-                );
+                const mainCommands = Object.keys(indexCommands).filter(cmd => {
+                    try {
+                        return typeof indexCommands[cmd] === 'function' && cmd !== 'init';
+                    } catch (e) {
+                        logger.error(`Error accessing command ${cmd} in index.js:`, e);
+                        return false;
+                    }
+                });
 
                 if (mainCommands.length > 0) {
                     if (!allCommands['main']) {

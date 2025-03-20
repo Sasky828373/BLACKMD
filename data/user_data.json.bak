@@ -1,5 +1,153 @@
 {
-  "profiles": {},
+  "profiles": {
+    "4915561048015@s.whatsapp.net": {
+      "name": "Martin",
+      "age": 20,
+      "xp": 133,
+      "level": 2,
+      "coins": 244,
+      "bio": "ich bin ein hund",
+      "language": "en",
+      "registeredAt": "2025-03-15T10:48:32.301Z",
+      "lastDaily": "2025-03-15T19:40:08.435Z",
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "120363407638585565@g.us": {
+      "name": "Martin",
+      "age": 21,
+      "xp": 100,
+      "level": 2,
+      "coins": 220,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-15T10:57:08.783Z",
+      "lastDaily": "2025-03-16T23:15:03.169Z",
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "4915562378343@s.whatsapp.net": {
+      "name": "Martin",
+      "age": 21,
+      "xp": 9,
+      "level": 1,
+      "coins": 100,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T00:09:29.037Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "4915563151347@s.whatsapp.net": {
+      "name": "Martin",
+      "age": 21,
+      "xp": 0,
+      "level": 1,
+      "coins": 100,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T00:27:07.597Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "120363373031297929@g.us": {
+      "name": "Martin",
+      "age": 21,
+      "xp": 0,
+      "level": 1,
+      "coins": 100,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T00:30:22.465Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "120363404894058220@g.us": {
+      "name": "Martin",
+      "age": 21,
+      "xp": 0,
+      "level": 1,
+      "coins": 100,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T00:38:04.095Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "923286432632@s.whatsapp.net": {
+      "name": "User",
+      "age": 0,
+      "xp": 27,
+      "level": 1,
+      "coins": 0,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T00:42:50.156Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "923145423218@s.whatsapp.net": {
+      "name": "User",
+      "age": 0,
+      "xp": 13,
+      "level": 1,
+      "coins": 0,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T00:43:04.864Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "4917681284781@s.whatsapp.net": {
+      "name": "User",
+      "age": 0,
+      "xp": 15,
+      "level": 1,
+      "coins": 0,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-17T01:13:07.389Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [],
+      "customTitle": "",
+      "warnings": 0
+    }
+  },
   "games": {},
   "marriages": {},
   "bank": {},
@@ -8,5 +156,11 @@
   "afk": {},
   "streaks": {},
   "checkins": {},
-  "lottery": []
+  "lottery": [],
+  "_meta": {
+    "version": 1,
+    "savedAt": "2025-03-20T18:45:48.091Z",
+    "profileCount": 9,
+    "invalidProfileCount": 0
+  }
 }
