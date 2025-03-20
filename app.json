@@ -1,69 +1,22 @@
 {
-  "name": "BLACKSKY-MD WhatsApp Bot",
-  "description": "A robust WhatsApp multi-device bot with 24/7 operation capability",
-  "repository": "https://github.com/madariss5/BLACKMD",
-  "logo": "https://raw.githubusercontent.com/madariss5/BLACKMD/main/generated-icon.png",
-  "keywords": ["whatsapp-bot", "baileys", "nodejs", "whatsapp-multi-device", "24-7-bot"],
+  "name": "Blacksky-MD",
+  "description": "WhatsApp Multi-Device bot with advanced command handling",
+  "keywords": ["whatsapp", "bot", "baileys", "nodejs"],
+  "repository": "https://github.com/yourusername/blacksky-md",
+  "logo": "https://example.com/logo.png",
+  "success_url": "/",
+  "env": {
+    "CREDS_DATA": {
+      "description": "WhatsApp session credentials data (base64 encoded)",
+      "required": false
+    }
+  },
   "buildpacks": [
     {
       "url": "heroku/nodejs"
-    }
-  ],
-  "env": {
-    "BOT_NAME": {
-      "description": "Name for your WhatsApp bot",
-      "value": "BLACKSKY-MD",
-      "required": false
     },
-    "OWNER_NUMBER": {
-      "description": "Your WhatsApp number (without +)",
-      "required": true
-    },
-    "PREFIX": {
-      "description": "Prefix for bot commands",
-      "value": ".",
-      "required": false
-    },
-    "PLATFORM": {
-      "description": "Platform identifier - leave as 'heroku'",
-      "value": "heroku",
-      "required": true
-    },
-    "NODE_ENV": {
-      "description": "Environment mode - leave as 'production'",
-      "value": "production",
-      "required": true
-    },
-    "CREDS_DATA": {
-      "description": "WhatsApp credentials data from the '.getcreds' command (compressed/base64)",
-      "required": true
-    },
-    "AUTH_DIR": {
-      "description": "Directory to store auth data",
-      "value": "auth_info_baileys",
-      "required": false
-    },
-    "DEBUG_LOGS": {
-      "description": "Enable verbose debug logs (true/false)",
-      "value": "false",
-      "required": false
-    }
-  },
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "eco"
-    }
-  },
-  "stack": "heroku-22",
-  "success_url": "/",
-  "addons": [
     {
-      "plan": "papertrail:choklad",
-      "as": "PAPERTRAIL"
+      "url": "heroku/python"
     }
-  ],
-  "scripts": {
-    "postdeploy": "node src/utils/postdeployCheck.js"
-  }
+  ]
 }
