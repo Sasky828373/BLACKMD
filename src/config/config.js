@@ -13,19 +13,19 @@ const config = {
          * Default command prefix
          * This is used to trigger commands, e.g., !help
          */
-        prefix: '!',
+        prefix: process.env.BOT_PREFIX || '!',
         
         /**
          * Bot name
          * Used in welcome messages and responses
          */
-        name: 'BLACKSKY-MD',
+        name: process.env.BOT_NAME || 'BLACKSKY-MD',
         
         /**
          * Bot language
          * Default language for responses
          */
-        language: 'en'
+        language: process.env.BOT_LANG || 'en'
     },
 
     /**
@@ -39,8 +39,9 @@ const config = {
          * Example: '12025550199'
          * 
          * This can also be set via environment variable OWNER_NUMBER
+         * For security, using the environment variable is recommended
          */
-        number: process.env.OWNER_NUMBER || '',
+        number: process.env.OWNER_NUMBER || '4915561048015', // Replace this with your WhatsApp number
         
         /**
          * Whether to strictly validate owner number
@@ -76,7 +77,7 @@ const config = {
          * Default command prefix
          * This is used to trigger commands, e.g., !help
          */
-        prefix: '!',
+        prefix: process.env.BOT_PREFIX || '!',
         
         /**
          * Whether to allow multiple prefixes
@@ -116,6 +117,121 @@ const config = {
          * Whether to send "typing..." indicator before responding
          */
         sendTypingIndicator: true
+    },
+    
+    /**
+     * External API Keys
+     * These keys are used for various commands
+     * You can set these via environment variables or directly here
+     * IMPORTANT: Never commit your actual API keys to a public repository
+     */
+    apis: {
+        /**
+         * OpenWeatherMap API Key
+         * Used for weather commands
+         * Get key at: https://openweathermap.org/api
+         */
+        openweather: process.env.OPENWEATHERMAP_API_KEY || '',
+        
+        /**
+         * Google API Key
+         * Used for various Google services
+         * Get key at: https://console.cloud.google.com/
+         */
+        google: process.env.GOOGLE_API_KEY || '',
+        
+        /**
+         * YouTube API Key
+         * Used for YouTube commands
+         * Get key at: https://console.cloud.google.com/
+         */
+        youtube: process.env.YOUTUBE_API_KEY || '',
+        
+        /**
+         * Spotify API Credentials
+         * Used for music info commands
+         * Get keys at: https://developer.spotify.com/
+         */
+        spotify: {
+            clientId: process.env.SPOTIFY_CLIENT_ID || '',
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET || ''
+        },
+        
+        /**
+         * News API Key
+         * Used for news commands
+         * Get key at: https://newsapi.org/
+         */
+        news: process.env.NEWS_API_KEY || '',
+        
+        /**
+         * OpenAI API Key
+         * Used for AI features
+         * Get key at: https://platform.openai.com/
+         */
+        openai: process.env.OPENAI_API_KEY || '',
+        
+        /**
+         * RemoveBG API Key
+         * Used for background removal in images
+         * Get key at: https://www.remove.bg/api
+         */
+        removebg: process.env.REMOVEBG_API_KEY || '',
+        
+        /**
+         * Wolfram Alpha App ID
+         * Used for scientific calculations
+         * Get ID at: https://products.wolframalpha.com/api/
+         */
+        wolfram: process.env.WOLFRAM_APP_ID || '',
+        
+        /**
+         * TMDB API Key
+         * Used for movie and TV info
+         * Get key at: https://www.themoviedb.org/documentation/api
+         */
+        tmdb: process.env.TMDB_API_KEY || '',
+        
+        /**
+         * DeepL API Key
+         * Used for translations
+         * Get key at: https://www.deepl.com/pro-api
+         */
+        deepl: process.env.DEEPL_API_KEY || '',
+        
+        /**
+         * Twilio API Credentials
+         * Used for SMS functionality
+         * Get keys at: https://www.twilio.com/
+         */
+        twilio: {
+            accountSid: process.env.TWILIO_ACCOUNT_SID || '',
+            authToken: process.env.TWILIO_AUTH_TOKEN || '',
+            phoneNumber: process.env.TWILIO_PHONE_NUMBER || ''
+        }
+    },
+    
+    /**
+     * Heroku Configuration
+     * Settings specific to Heroku deployment
+     */
+    heroku: {
+        /**
+         * Whether the bot is running on Heroku
+         * This is detected automatically based on environment
+         */
+        isHeroku: process.env.PLATFORM === 'heroku' || !!process.env.DYNO,
+        
+        /**
+         * Heroku app name
+         * Used for generating app URL
+         */
+        appName: process.env.HEROKU_APP_NAME || '',
+        
+        /**
+         * HTTP server port (set by Heroku)
+         */
+        port: process.env.PORT || 3000
     }
 };
 

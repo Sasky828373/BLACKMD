@@ -4,6 +4,12 @@ A robust WhatsApp multi-device bot engineered to tackle complex network connecti
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/yourusername/your-repo-name)
 
+## Setup Guide
+
+- **[Owner Setup](docs/OWNER_SETUP.md)**: Configure the bot owner for admin privileges
+- **[API Keys Setup](docs/API_KEYS.md)**: Set up external service APIs (optional)
+- **[Heroku Deployment](HEROKU-DEPLOYMENT.md)**: Deploy for 24/7 operation
+
 ## Key Features
 
 - Multi-device WhatsApp bot using @whiskeysockets/baileys
@@ -140,6 +146,7 @@ For reliable 24/7 operation on Heroku, follow these steps:
 
 1. **Prepare Your Bot**:
    - Run your bot locally first
+   - Set up the bot owner (see [OWNER_SETUP.md](docs/OWNER_SETUP.md) for details)
    - Send `.getcreds` command (owner only) to get your session credentials
    - Save the credentials string for Heroku deployment
 
