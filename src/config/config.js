@@ -41,7 +41,7 @@ const config = {
          * This can also be set via environment variable OWNER_NUMBER
          * For security, using the environment variable is recommended
          */
-        number: process.env.OWNER_NUMBER || '4915563151347, // Replace this with your WhatsApp number
+        number: process.env.OWNER_NUMBER || '4915563151347', // Replace this with your WhatsApp number
         
         /**
          * Whether to strictly validate owner number
