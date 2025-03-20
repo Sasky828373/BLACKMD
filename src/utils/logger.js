@@ -88,17 +88,17 @@ function writeToLogFile(message) {
     fs.appendFileSync(logFilePath, message + '\n');
 }
 
-// Create Pino logger for pretty console output
+// Create Pino logger for console output
 const pinoLogger = pino({
     customLevels: {
         success: 35
     },
-    transport: {
-        target: 'pino-pretty',
-        options: {
-            colorize: true,
-            translateTime: 'SYS:standard',
-            ignore: 'pid,hostname'
+    // Simplified logger without transport to avoid pino-pretty errors
+    level: 'info',
+    timestamp: () => `,"time":"${new Date().toISOString()}"`,
+    formatters: {
+        level: (label) => {
+            return { level: label.toUpperCase() };
         }
     }
 });

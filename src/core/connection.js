@@ -77,11 +77,11 @@ class ConnectionManager {
         
         this.logger = pino({ 
             level: this.logLevel,
-            transport: {
-                target: 'pino-pretty',
-                options: {
-                    colorize: true,
-                    translateTime: true
+            // Simplified logger without transport to avoid pino-pretty errors
+            timestamp: () => `,"time":"${new Date().toISOString()}"`,
+            formatters: {
+                level: (label) => {
+                    return { level: label.toUpperCase() };
                 }
             }
         });

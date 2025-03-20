@@ -45,7 +45,7 @@ const categoryNames = {
 };
 
 // Import necessary utilities
-const { safeSendText, safeSendMessage, safeSendImage } = require('../utils/jidHelper');
+const { safeSendText, safeSendMessage, safeSendImage, safeSendGroupMessage } = require('../utils/jidHelper');
 
 // Symbols for menu formatting
 const symbols = {

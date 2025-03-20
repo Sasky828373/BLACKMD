@@ -391,6 +391,39 @@ async function safeReply(sock, message, text, options = {}) {
     );
 }
 
+/**
+ * Safely send a message to a group with optimized performance
+ * @param {Object} sock - WhatsApp socket connection
+ * @param {string} jid - Group JID
+ * @param {Object} content - Message content
+ * @param {Object} options - Additional options
+ * @returns {Promise<Object>} - Send result
+ */
+async function safeSendGroupMessage(sock, jid, content, options = {}) {
+    if (!sock || !sock.sendMessage) {
+        logger.error('Invalid socket for safeSendGroupMessage');
+        return null;
+    }
+    
+    const safeJid = ensureJidString(jid);
+    if (!safeJid) {
+        logger.error('Invalid JID for safeSendGroupMessage');
+        return null;
+    }
+    
+    // Ensure this is actually a group JID
+    if (!isJidGroup(safeJid)) {
+        logger.warn(`safeSendGroupMessage called with non-group JID: ${formatJidForLogging(safeJid)}`);
+    }
+    
+    try {
+        return await sock.sendMessage(safeJid, content, options);
+    } catch (error) {
+        logger.error(`Error sending group message to ${formatJidForLogging(safeJid)}:`, error);
+        return null;
+    }
+}
+
 module.exports = {
     isJidGroup,
     isJidUser,
@@ -402,5 +435,6 @@ module.exports = {
     safeSendMessage,
     safeSendImage,
     safeSendAnimatedGif,
-    safeReply
+    safeReply,
+    safeSendGroupMessage
 };
