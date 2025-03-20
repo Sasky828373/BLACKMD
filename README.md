@@ -2,7 +2,7 @@
 
 A robust WhatsApp multi-device bot engineered to tackle complex network connectivity challenges with intelligent communication resilience.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/yourusername/your-repo-name)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/madariss5/BLACKMD)
 
 ## Setup Guide
 
@@ -116,7 +116,7 @@ This bot supports multiple deployment methods:
 
 ### 1. Heroku One-Click Deploy 
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/yourusername/your-repo-name)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/madariss5/BLACKMD)
 
 ### 2. Local Deployment
 

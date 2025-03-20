@@ -1,8 +1,8 @@
 {
   "name": "BLACKSKY-MD WhatsApp Bot",
   "description": "A robust WhatsApp multi-device bot with 24/7 operation capability",
-  "repository": "https://github.com/yourusername/blacksky-md",
-  "logo": "https://raw.githubusercontent.com/yourusername/blacksky-md/main/generated-icon.png",
+  "repository": "https://github.com/madariss5/BLACKMD",
+  "logo": "https://raw.githubusercontent.com/madariss5/BLACKMD/main/generated-icon.png",
   "keywords": ["whatsapp-bot", "baileys", "nodejs", "whatsapp-multi-device", "24-7-bot"],
   "buildpacks": [
     {
