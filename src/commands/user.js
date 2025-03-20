@@ -436,8 +436,61 @@ const userCommands = {
             // Get the actual sender JID, whether in group or not
             const sender = isGroup ? (message.key.participant || remoteJid) : remoteJid;
             
-            // Log for debugging
+            // Add EXTRA logging for troubleshooting
+            console.log(`========== REGISTER COMMAND DEBUG ==========`);
             console.log(`Register command received from: ${sender}`);
+            console.log(`Remote JID: ${remoteJid}, Is Group: ${isGroup}`);
+            console.log(`Message key:`, JSON.stringify(message.key));
+            
+            // Direct message feedback to confirm the command was recognized
+            try {
+                console.log(`Attempting to send initial feedback...`);
+                // Always use direct sender JID instead of relying on isGroup logic
+                await safeSendText(sock, sender, '🔄 Processing registration request...');
+                console.log(`Initial feedback message sent successfully`);
+            } catch (feedbackErr) {
+                console.error(`Error sending initial feedback:`, feedbackErr.message);
+                // Try an alternative method
+                try {
+                    console.log(`Trying alternative feedback method...`);
+                    await sock.sendMessage(sender, { text: '🔄 Processing registration request...' });
+                    console.log(`Alternative feedback method succeeded`);
+                } catch (altErr) {
+                    console.error(`Alternative feedback failed:`, altErr.message);
+                }
+                // Continue with registration process even if feedback fails
+            }
+            
+            // FIRST CHECK for existing profile BEFORE doing anything else
+            // This ensures we always check if user is already registered
+            console.log(`Looking up existing profile for ${sender}...`);
+            const existingProfile = userDatabase.getUserProfile(sender);
+            console.log(`Existing profile lookup result:`, existingProfile ? "FOUND PROFILE" : "NO PROFILE FOUND");
+            
+            if (existingProfile) {
+                // Extract user name from existing profile for a more personalized message
+                const name = existingProfile.name || 'User';
+                const profileAge = existingProfile.age || '?';
+                const registeredDate = existingProfile.registeredAt ? 
+                    new Date(existingProfile.registeredAt).toLocaleDateString() : 'unknown date';
+                
+                // Log that we found an existing profile
+                console.log(`User ${sender} tried to register but already has a profile:`, existingProfile);
+                
+                // Send a detailed "already registered" message with profile info
+                console.log(`Sending "already registered" message...`);
+                await safeSendText(sock, sender, 
+                    `*❌ You are already registered!*\n\n` +
+                    `*👤 Name:* ${name}\n` +
+                    `*🎯 Age:* ${profileAge}\n` +
+                    `*📊 Level:* ${existingProfile.level || 1}\n` +
+                    `*🕒 Registered since:* ${registeredDate}\n\n` +
+                    `Use *.profile* to see your full profile information.\n` +
+                    `Use *.setname*, *.setage*, and *.setbio* to update your profile.`
+                );
+                console.log(`"Already registered" message sent successfully`);
+                return;
+            }
             
             // For testing, create a default profile if no args are provided
             if (!args || args.length === 0) {
@@ -482,28 +535,6 @@ const userCommands = {
 
             if (!name || !age || isNaN(age)) {
                 await safeSendText(sock, sender, '*📝 Registration Usage:*\n.register [name] [age]\n\n*Examples:*\n.register John 25\n.register John Doe 25' 
-                );
-                return;
-            }
-
-            // Get user profile with normalization from the userDatabase
-            const existingProfile = userDatabase.getUserProfile(sender);
-            if (existingProfile) {
-                // Extract user name from existing profile for a more personalized message
-                const name = existingProfile.name || 'User';
-                const profileAge = existingProfile.age || '?';
-                const registeredDate = existingProfile.registeredAt ? 
-                    new Date(existingProfile.registeredAt).toLocaleDateString() : 'unknown date';
-                
-                // Send a detailed "already registered" message with profile info
-                await safeSendText(sock, sender, 
-                    `*❌ You are already registered!*\n\n` +
-                    `*👤 Name:* ${name}\n` +
-                    `*🎯 Age:* ${profileAge}\n` +
-                    `*📊 Level:* ${existingProfile.level || 1}\n` +
-                    `*🕒 Registered since:* ${registeredDate}\n\n` +
-                    `Use *.profile* to see your full profile information.\n` +
-                    `Use *.setname*, *.setage*, and *.setbio* to update your profile.`
                 );
                 return;
             }
