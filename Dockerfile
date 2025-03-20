@@ -21,8 +21,9 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     pkg-config
 
-# Create symlink for python
-RUN ln -sf /usr/bin/python3 /usr/bin/python
+# Create symlink for python and upgrade pip
+RUN ln -sf /usr/bin/python3 /usr/bin/python && \
+    pip3 install --upgrade pip setuptools wheel
 
 # Copy package files and rename our special Heroku package.json
 COPY package-heroku.json ./package.json
@@ -34,8 +35,8 @@ RUN npm ci --only=production
 # Copy app source code
 COPY . .
 
-# Install Python requirements
-RUN pip3 install -r requirements.txt
+# Install Python requirements (using pip directly to avoid TOML parsing issues)
+RUN pip3 install trafilatura twilio --no-cache-dir
 
 # Expose port for web server
 EXPOSE $PORT
