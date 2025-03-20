@@ -1,0 +1,186 @@
+{
+  "name": "reactions",
+  "description": "Animated reaction commands",
+  "commands": [
+    {
+      "name": "hug",
+      "description": "Hug someone!",
+      "usage": ".hug @user",
+      "aliases": ["embracement"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "pat",
+      "description": "Pat someone!",
+      "usage": ".pat @user",
+      "aliases": ["headpat", "patpat"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "kiss",
+      "description": "Kiss someone!",
+      "usage": ".kiss @user",
+      "aliases": ["smooch"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "cuddle",
+      "description": "Cuddle someone!",
+      "usage": ".cuddle @user",
+      "aliases": ["snuggle"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "slap",
+      "description": "Slap someone!",
+      "usage": ".slap @user",
+      "aliases": ["smack"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "bonk",
+      "description": "Bonk someone!",
+      "usage": ".bonk @user",
+      "aliases": ["boop"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "punch",
+      "description": "Punch someone!",
+      "usage": ".punch @user",
+      "aliases": ["hit"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "poke",
+      "description": "Poke someone!",
+      "usage": ".poke @user",
+      "aliases": ["nudge"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "bite",
+      "description": "Bite someone!",
+      "usage": ".bite @user",
+      "aliases": ["nom"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "highfive",
+      "description": "High five someone!",
+      "usage": ".highfive @user",
+      "aliases": ["hi5"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "smile",
+      "description": "Show a smile!",
+      "usage": ".smile",
+      "aliases": ["grin"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "happy",
+      "description": "Show that you're happy!",
+      "usage": ".happy",
+      "aliases": ["joy"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "wave",
+      "description": "Wave at someone!",
+      "usage": ".wave @user",
+      "aliases": ["hello"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "dance",
+      "description": "Dance!",
+      "usage": ".dance",
+      "aliases": ["groove"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "cry",
+      "description": "Show that you're sad!",
+      "usage": ".cry",
+      "aliases": ["sob", "tears"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "blush",
+      "description": "Show that you're blushing!",
+      "usage": ".blush",
+      "aliases": ["embarrassed"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "laugh",
+      "description": "Laugh!",
+      "usage": ".laugh",
+      "aliases": ["lol", "haha"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "wink",
+      "description": "Wink at someone!",
+      "usage": ".wink @user",
+      "aliases": [],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "yeet",
+      "description": "Yeet someone!",
+      "usage": ".yeet @user",
+      "aliases": ["throw"],
+      "cooldown": 5,
+      "category": "reactions",
+      "enabled": true
+    },
+    {
+      "name": "kill",
+      "description": "Kill someone!",
+      "usage": ".kill @user",
+      "aliases": ["murder", "slay"],
+      "cooldown": 10,
+      "category": "reactions",
+      "enabled": true
+    }
+  ]
+}

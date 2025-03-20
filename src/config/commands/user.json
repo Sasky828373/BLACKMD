@@ -1,0 +1,485 @@
+{
+  "category": "user",
+  "commands": [
+    {
+      "name": "register",
+      "description": "Register your user profile",
+      "usage": ".register [name] [age]",
+      "example": ".register John 25",
+      "cooldown": 0,
+      "permissions": ["user"]
+    },
+    {
+      "name": "profile",
+      "description": "View user profile",
+      "usage": ".profile [@user]",
+      "example": ".profile @user",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "setbio",
+      "description": "Set your profile bio",
+      "usage": ".setbio [text]",
+      "example": ".setbio Hello World!",
+      "cooldown": 300,
+      "permissions": ["user"]
+    },
+    {
+      "name": "daily",
+      "description": "Claim your daily rewards",
+      "usage": ".daily",
+      "example": ".daily",
+      "cooldown": 86400,
+      "permissions": ["user"]
+    },
+    {
+      "name": "settitle",
+      "description": "Set your custom title",
+      "usage": ".settitle [text]",
+      "example": ".settitle Master Coder",
+      "cooldown": 300,
+      "permissions": ["user"]
+    },
+    {
+      "name": "settheme",
+      "description": "Set your profile theme",
+      "usage": ".settheme [theme]",
+      "example": ".settheme blue",
+      "cooldown": 0,
+      "permissions": ["user"]
+    },
+    {
+      "name": "setprofilepic",
+      "description": "Set your profile picture",
+      "usage": ".setprofilepic [reply to image]",
+      "example": "Reply to an image with .setprofilepic",
+      "cooldown": 300,
+      "permissions": ["user"]
+    },
+    {
+      "name": "level",
+      "description": "Check your current level and XP",
+      "usage": ".level",
+      "example": ".level",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "leaderboard",
+      "description": "View the user XP leaderboard",
+      "usage": ".leaderboard [global|group]",
+      "example": ".leaderboard global",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "inventory",
+      "description": "View your inventory of items",
+      "usage": ".inventory",
+      "example": ".inventory",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "work",
+      "description": "Work to earn coins",
+      "usage": ".work",
+      "example": ".work",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "crime",
+      "description": "Attempt criminal activities for coins (risky)",
+      "usage": ".crime",
+      "example": ".crime",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "mine",
+      "description": "Mine for resources and coins",
+      "usage": ".mine",
+      "example": ".mine",
+      "cooldown": 1800,
+      "permissions": ["user"]
+    },
+    {
+      "name": "fish",
+      "description": "Go fishing for resources",
+      "usage": ".fish",
+      "example": ".fish",
+      "cooldown": 1800,
+      "permissions": ["user"]
+    },
+    {
+      "name": "hunt",
+      "description": "Go hunting for resources",
+      "usage": ".hunt",
+      "example": ".hunt",
+      "cooldown": 1800,
+      "permissions": ["user"]
+    },
+    {
+      "name": "farm",
+      "description": "Farm for crops and resources",
+      "usage": ".farm",
+      "example": ".farm",
+      "cooldown": 1800,
+      "permissions": ["user"]
+    },
+    {
+      "name": "chop",
+      "description": "Chop trees for wood resources",
+      "usage": ".chop",
+      "example": ".chop",
+      "cooldown": 1800,
+      "permissions": ["user"]
+    },
+    {
+      "name": "craft",
+      "description": "Craft items from your resources",
+      "usage": ".craft [item]",
+      "example": ".craft axe",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "recipes",
+      "description": "View available crafting recipes",
+      "usage": ".recipes",
+      "example": ".recipes",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "sell",
+      "description": "Sell items from your inventory",
+      "usage": ".sell [item] [amount]",
+      "example": ".sell fish 5",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "buy",
+      "description": "Buy items from the shop",
+      "usage": ".buy [item] [amount]",
+      "example": ".buy fishing_rod 1",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "shop",
+      "description": "View available items in the shop",
+      "usage": ".shop [category]",
+      "example": ".shop tools",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "balance",
+      "description": "Check your coin balance",
+      "usage": ".balance",
+      "example": ".balance",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "transfer",
+      "description": "Transfer coins to another user",
+      "usage": ".transfer [@user] [amount]",
+      "example": ".transfer @user 100",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "getjob",
+      "description": "Get a job for steady income",
+      "usage": ".getjob [jobname]",
+      "example": ".getjob farmer",
+      "cooldown": 86400,
+      "permissions": ["user"]
+    },
+    {
+      "name": "joblist",
+      "description": "View available jobs",
+      "usage": ".joblist",
+      "example": ".joblist",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "resign",
+      "description": "Resign from your current job",
+      "usage": ".resign",
+      "example": ".resign",
+      "cooldown": 86400,
+      "permissions": ["user"]
+    },
+    {
+      "name": "hourly",
+      "description": "Claim hourly rewards",
+      "usage": ".hourly",
+      "example": ".hourly",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "weekly",
+      "description": "Claim weekly rewards",
+      "usage": ".weekly",
+      "example": ".weekly",
+      "cooldown": 604800,
+      "permissions": ["user"]
+    },
+    {
+      "name": "monthly",
+      "description": "Claim monthly rewards",
+      "usage": ".monthly",
+      "example": ".monthly",
+      "cooldown": 2592000,
+      "permissions": ["user"]
+    },
+    {
+      "name": "achievements",
+      "description": "View your achievements",
+      "usage": ".achievements",
+      "example": ".achievements",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "quest",
+      "description": "View available quests",
+      "usage": ".quest [claim|list]",
+      "example": ".quest list",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "stats",
+      "description": "View your detailed stats",
+      "usage": ".stats",
+      "example": ".stats",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "lottery",
+      "description": "Buy lottery tickets",
+      "usage": ".lottery [buy|check] [tickets]",
+      "example": ".lottery buy 5",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "gamble",
+      "description": "Gamble your coins",
+      "usage": ".gamble [amount]",
+      "example": ".gamble 100",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "slots",
+      "description": "Play slot machine with coins",
+      "usage": ".slots [amount]",
+      "example": ".slots 50",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "blackjack",
+      "description": "Play blackjack with coins",
+      "usage": ".blackjack [amount]",
+      "example": ".blackjack 200",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "roulette",
+      "description": "Play roulette with coins",
+      "usage": ".roulette [amount] [bet]",
+      "example": ".roulette 100 red",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "coinflip",
+      "description": "Flip a coin to win or lose coins",
+      "usage": ".coinflip [amount] [heads|tails]",
+      "example": ".coinflip 50 heads",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "dicebet",
+      "description": "Bet coins on dice roll",
+      "usage": ".dicebet [amount] [number 1-6]",
+      "example": ".dicebet 100 6",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "invest",
+      "description": "Invest coins for potential returns",
+      "usage": ".invest [amount] [stock]",
+      "example": ".invest 1000 tesla",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "portfolio",
+      "description": "View your investment portfolio",
+      "usage": ".portfolio",
+      "example": ".portfolio",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "stocks",
+      "description": "View stock prices",
+      "usage": ".stocks [stockname]",
+      "example": ".stocks tesla",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "bank",
+      "description": "Manage your bank account",
+      "usage": ".bank [deposit|withdraw|balance] [amount]",
+      "example": ".bank deposit 1000",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "heist",
+      "description": "Organize a heist with other users",
+      "usage": ".heist [amount]",
+      "example": ".heist 5000",
+      "cooldown": 7200,
+      "permissions": ["user"]
+    },
+    {
+      "name": "rob",
+      "description": "Attempt to rob another user",
+      "usage": ".rob [@user]",
+      "example": ".rob @user",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "upgrade",
+      "description": "Upgrade your tools and equipment",
+      "usage": ".upgrade [item]",
+      "example": ".upgrade pickaxe",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "adventure",
+      "description": "Go on an adventure for rewards",
+      "usage": ".adventure",
+      "example": ".adventure",
+      "cooldown": 7200,
+      "permissions": ["user"]
+    },
+    {
+      "name": "explore",
+      "description": "Explore different regions for resources",
+      "usage": ".explore [region]",
+      "example": ".explore forest",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "pet",
+      "description": "Manage your virtual pet",
+      "usage": ".pet [action]",
+      "example": ".pet feed",
+      "cooldown": 600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "adopt",
+      "description": "Adopt a virtual pet",
+      "usage": ".adopt [pet type]",
+      "example": ".adopt dog",
+      "cooldown": 86400,
+      "permissions": ["user"]
+    },
+    {
+      "name": "gift",
+      "description": "Gift items to another user",
+      "usage": ".gift [@user] [item] [amount]",
+      "example": ".gift @user apple 5",
+      "cooldown": 600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "market",
+      "description": "View user marketplace listings",
+      "usage": ".market [list|buy|sell]",
+      "example": ".market list",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "clan",
+      "description": "Manage or join a clan",
+      "usage": ".clan [create|join|leave|info]",
+      "example": ".clan create Warriors",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "marriage",
+      "description": "Propose or manage virtual marriage",
+      "usage": ".marriage [propose|divorce|status] [@user]",
+      "example": ".marriage propose @user",
+      "cooldown": 3600,
+      "permissions": ["user"]
+    },
+    {
+      "name": "reputation",
+      "description": "Give reputation points to a user",
+      "usage": ".reputation [@user]",
+      "example": ".reputation @user",
+      "cooldown": 86400,
+      "permissions": ["user"]
+    },
+    {
+      "name": "checkin",
+      "description": "Check in daily for streaks and rewards",
+      "usage": ".checkin",
+      "example": ".checkin",
+      "cooldown": 86400,
+      "permissions": ["user"]
+    },
+    {
+      "name": "streaks",
+      "description": "View your daily login streaks",
+      "usage": ".streaks",
+      "example": ".streaks",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "afk",
+      "description": "Set your status as AFK (Away From Keyboard)",
+      "usage": ".afk [reason]",
+      "example": ".afk Sleeping",
+      "cooldown": 0,
+      "permissions": ["user"]
+    },
+    {
+      "name": "unafk",
+      "description": "Remove your AFK status",
+      "usage": ".unafk",
+      "example": ".unafk",
+      "cooldown": 0,
+      "permissions": ["user"]
+    }
+  ]
+}

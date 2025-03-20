@@ -1,0 +1,25 @@
+{
+  "warnings": {},
+  "antispam": false,
+  "antilink": false,
+  "antitoxic": false,
+  "antiraid": false,
+  "raidThreshold": 5,
+  "polls": {},
+  "scheduled": [],
+  "pinnedMessages": [],
+  "features": {
+    "leveling": true,
+    "welcome": true,
+    "goodbye": true,
+    "nsfw": false,
+    "games": true,
+    "economy": true,
+    "reactions": true,
+    "media": true
+  },
+  "nsfw": {
+    "enabled": true,
+    "updatedAt": 1742034900677
+  }
+}

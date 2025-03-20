@@ -1,0 +1,636 @@
+const logger = require('../utils/logger');
+const config = require('../config/config');
+const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const sharp = require('sharp');
+const fs = require('fs').promises;
+const path = require('path');
+const { writeExifToWebp } = require('../utils/stickerMetadata');
+const axios = require('axios');
+const FormData = require('form-data');
+const audioQueue = new Map();
+const ytdl = require('ytdl-core');
+const yts = require('yt-search'); // Added import for yts
+const { getLyrics } = require('genius-lyrics-api'); // Added import for genius-lyrics-api
+const webp = require('node-webpmux');
+
+
+const playNextInQueue = async (sock, sender) => {
+    const queue = audioQueue.get(sender);
+    if (queue.length > 0) {
+        const audioBuffer = queue.shift();
+        try {
+            await sock.sendMessage(sender, { audio: { url: audioBuffer } });
+            if(queue.length > 0) {
+                setTimeout(() => playNextInQueue(sock, sender), 1000); // Short delay to simulate smooth playback
+            } else {
+                audioQueue.delete(sender);
+            }
+        } catch (err) {
+            logger.error('Error playing audio:', err);
+            await sock.sendMessage(sender, { text: 'Error playing audio. Try again.' });
+        }
+    }
+};
+
+
+const mediaCommands = {
+    async sticker(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage && !message.message?.videoMessage) {
+                await sock.sendMessage(remoteJid, { 
+                    text: 'Please send an image or short video with caption .sticker' 
+                });
+                return;
+            }
+
+            // Create temp directory if it doesn't exist
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            // Download media
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const inputPath = path.join(tempDir, `input_${Date.now()}`);
+            const outputPath = path.join(tempDir, `${Date.now()}.webp`);
+
+            try {
+                // Save input buffer
+                await fs.writeFile(inputPath, buffer);
+
+                if (message.message.imageMessage) {
+                    // Process image to sticker
+                    await sharp(buffer)
+                        .resize(512, 512, {
+                            fit: 'contain',
+                            background: { r: 0, g: 0, b: 0, alpha: 0 }
+                        })
+                        .webp()
+                        .toFile(outputPath);
+
+                    // Add metadata
+                    await writeExifToWebp(outputPath, {
+                        packname: config.sticker?.packname || "WhatsApp Bot",
+                        author: config.sticker?.author || "Made with ❤️"
+                    });
+
+                    // Send sticker
+                    await sock.sendMessage(remoteJid, { 
+                        sticker: { url: outputPath }
+                    });
+                } else if (message.message.videoMessage) {
+                    // Video sticker support
+                    const ffmpeg = require('fluent-ffmpeg');
+                    const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+                    ffmpeg.setFfmpegPath(ffmpegPath);
+
+                    // Convert video to WebP
+                    await new Promise((resolve, reject) => {
+                        ffmpeg(inputPath)
+                            .inputFormat('mp4')
+                            .on('error', reject)
+                            .on('end', resolve)
+                            .addOutputOptions([
+                                "-vcodec", "libwebp",
+                                "-vf", "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse",
+                                "-loop", "0",
+                                "-ss", "00:00:00",
+                                "-t", "00:00:05",
+                                "-preset", "default",
+                                "-an",
+                                "-vsync", "0"
+                            ])
+                            .toFormat('webp')
+                            .save(outputPath);
+                    });
+
+                    // Add metadata
+                    await writeExifToWebp(outputPath, {
+                        packname: config.sticker?.packname || "WhatsApp Bot",
+                        author: config.sticker?.author || "Made with ❤️"
+                    });
+
+                    // Send sticker
+                    await sock.sendMessage(remoteJid, { 
+                        sticker: { url: outputPath }
+                    });
+                }
+            } finally {
+                // Cleanup temp files
+                try {
+                    await fs.unlink(inputPath);
+                    await fs.unlink(outputPath);
+                } catch (cleanupErr) {
+                    logger.error('Error cleaning up temp files:', cleanupErr);
+                }
+            }
+        } catch (err) {
+            logger.error('Error in sticker command:', err);
+            await sock.sendMessage(message.key.remoteJid, { 
+                text: 'Failed to create sticker. Please ensure the media is valid.' 
+            });
+        }
+    },
+    async toimg(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.stickerMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please reply to a sticker'
+                });
+                return;
+            }
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+            await sharp(buffer)
+                .png()
+                .toFile(outputPath);
+
+            await sock.sendMessage(remoteJid, {
+                image: { url: outputPath },
+                caption: 'Here\'s your image!'
+            });
+
+            await fs.unlink(outputPath);
+
+        } catch (err) {
+            logger.error('Error in toimg command:', err);
+            await sock.sendMessage(message.key.remoteJid, { text: 'Failed to convert sticker to image.' });
+        }
+    },
+    async brightness(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please send an image with caption .brightness [level]'
+                });
+                return;
+            }
+
+            const level = parseInt(args[0]) || 100;
+            if (level < 0 || level > 200) {
+                await sock.sendMessage(remoteJid, { 
+                    text: 'Brightness level must be between 0 and 200' 
+                });
+                return;
+            }
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+            await sharp(buffer)
+                .modulate({
+                    brightness: level / 100
+                })
+                .png()
+                .toFile(outputPath);
+
+            await sock.sendMessage(remoteJid, {
+                image: { url: outputPath },
+                caption: `Adjusted brightness to ${level}%`
+            });
+
+            await fs.unlink(outputPath);
+
+        } catch (err) {
+            logger.error('Error in brightness command:', err);
+            await sock.sendMessage(message.key.remoteJid, { text: 'Failed to adjust brightness.' });
+        }
+    },
+    async contrast(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please send an image with caption .contrast [level]'
+                });
+                return;
+            }
+
+            const level = parseInt(args[0]) || 100;
+            if (level < 0 || level > 200) {
+                await sock.sendMessage(remoteJid, { 
+                    text: 'Contrast level must be between 0 and 200' 
+                });
+                return;
+            }
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+            await sharp(buffer)
+                .modulate({
+                    contrast: level / 100
+                })
+                .png()
+                .toFile(outputPath);
+
+            await sock.sendMessage(remoteJid, {
+                image: { url: outputPath },
+                caption: `Adjusted contrast to ${level}%`
+            });
+
+            await fs.unlink(outputPath);
+
+        } catch (err) {
+            logger.error('Error in contrast command:', err);
+            await sock.sendMessage(message.key.remoteJid, { text: 'Failed to adjust contrast.' });
+        }
+    },
+    async blur(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please send an image with caption .blur [level]'
+                });
+                return;
+            }
+
+            const level = parseInt(args[0]) || 5;
+            if (level < 0.3 || level > 20) {
+                await sock.sendMessage(remoteJid, { 
+                    text: 'Blur level must be between 0.3 and 20' 
+                });
+                return;
+            }
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+            await sharp(buffer)
+                .blur(level)
+                .png()
+                .toFile(outputPath);
+
+            await sock.sendMessage(remoteJid, {
+                image: { url: outputPath },
+                caption: `Applied blur effect with radius ${level}`
+            });
+
+            await fs.unlink(outputPath);
+
+        } catch (err) {
+            logger.error('Error in blur command:', err);
+            await sock.sendMessage(message.key.remoteJid, { text: 'Failed to apply blur effect.' });
+        }
+    },
+    async pixelate(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please send an image with caption .pixelate [level]'
+                });
+                return;
+            }
+
+            const level = parseInt(args[0]) || 8;
+            if (level < 2 || level > 100) {
+                await sock.sendMessage(remoteJid, { 
+                    text: 'Pixelation level must be between 2 and 100' 
+                });
+                return;
+            }
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+
+            // Get image dimensions first
+            const metadata = await sharp(buffer).metadata();
+            const width = metadata.width;
+            const height = metadata.height;
+
+            // Create pixelation effect by scaling down and up
+            await sharp(buffer)
+                .resize(Math.max(1, Math.floor(width / level)), 
+                       Math.max(1, Math.floor(height / level)), 
+                       { fit: 'fill' })
+                .resize(width, height, { fit: 'fill', kernel: 'nearest' })
+                .png()
+                .toFile(outputPath);
+
+            await sock.sendMessage(remoteJid, {
+                image: { url: outputPath },
+                caption: `Applied pixelation effect with level ${level}`
+            });
+
+            await fs.unlink(outputPath);
+
+        } catch (err) {
+            logger.error('Error in pixelate command:', err);
+            await sock.sendMessage(message.key.remoteJid, { text: 'Failed to pixelate image.' });
+        }
+    },
+    async cartoon(sock, message) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please send an image with caption .cartoon'
+                });
+                return;
+            }
+
+            await sock.sendMessage(remoteJid, { text: '*⏳ Processing:* Creating cartoon effect...' });
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+
+            try {
+                await sharp(buffer)
+                    .median(5)
+                    .normalize()
+                    .modulate({
+                        brightness: 1.1,
+                        saturation: 1.5
+                    })
+                    .posterize(5)
+                    .png()
+                    .toFile(outputPath);
+
+                await sock.sendMessage(remoteJid, {
+                    image: { url: outputPath },
+                    caption: 'Here\'s your cartoon effect!'
+                });
+
+                await fs.unlink(outputPath);
+            } catch (err) {
+                throw err;
+            }
+
+        } catch (err) {
+            logger.error('Error in cartoon command:', err);
+            await sock.sendMessage(message.key.remoteJid, { 
+                text: 'Failed to apply cartoon effect. Please try again.' 
+            });
+        }
+    },
+
+    async painting(sock, message, args) {
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please send an image with caption .painting [style]'
+                });
+                return;
+            }
+
+            const style = args[0]?.toLowerCase() || 'oil';
+            const validStyles = ['oil', 'watercolor'];
+
+            if (!validStyles.includes(style)) {
+                await sock.sendMessage(remoteJid, {
+                    text: 'Please choose a valid style: oil, watercolor'
+                });
+                return;
+            }
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            const outputPath = path.join(tempDir, `${Date.now()}.png`);
+
+            try {
+                // Apply different effects based on style
+                const sharpInstance = sharp(buffer);
+
+                if (style === 'oil') {
+                    await sharpInstance
+                        .median(10)
+                        .modulate({
+                            brightness: 1.1,
+                            saturation: 1.5
+                        })
+                        .gamma(1.5)
+                        .png()
+                        .toFile(outputPath);
+                } else if (style === 'watercolor') {
+                    await sharpInstance
+                        .blur(2)
+                        .modulate({
+                            brightness: 1.1,
+                            saturation: 1.2
+                        })
+                        .gamma(0.8)
+                        .png()
+                        .toFile(outputPath);
+                }
+
+                await sock.sendMessage(remoteJid, {
+                    image: { url: outputPath },
+                    caption: `Here's your ${style} painting effect!`
+                });
+
+                await fs.unlink(outputPath);
+            } catch (err) {
+                throw err;
+            }
+
+        } catch (err) {
+            logger.error('Error in painting command:', err);
+            await sock.sendMessage(message.key.remoteJid, { 
+                text: 'Failed to apply painting effect. Please try again.' 
+            });
+        }
+    },
+
+    async reverse(sock, message) {
+        let inputPath, outputPath;
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.videoMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: '*📝 Usage:* Send a video with caption .reverse'
+                });
+                return;
+            }
+
+            await sock.sendMessage(remoteJid, { text: '*⏳ Processing:* Reversing video...' });
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            inputPath = path.join(tempDir, `input_${Date.now()}.mp4`);
+            outputPath = path.join(tempDir, `output_${Date.now()}.mp4`);
+
+            await fs.writeFile(inputPath, buffer);
+
+            // Process video using fluent-ffmpeg
+            const ffmpeg = require('fluent-ffmpeg');
+            const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+            ffmpeg.setFfmpegPath(ffmpegPath);
+
+            await new Promise((resolve, reject) => {
+                ffmpeg(inputPath)
+                    .videoFilters('reverse')
+                    .save(outputPath)
+                    .on('end', resolve)
+                    .on('error', reject);
+            });
+
+            await sock.sendMessage(remoteJid, {
+                video: { url: outputPath },
+                caption: '✅ Here\'s your reversed video!'
+            });
+
+            // Cleanup
+            await fs.unlink(inputPath);
+            await fs.unlink(outputPath);
+
+        } catch (err) {
+            logger.error('Error in reverse command:', err);
+            await sock.sendMessage(message.key.remoteJid, { 
+                text: '*❌ Error:* Failed to reverse video. Please try again later.' 
+            });
+            
+            // Cleanup in case of error
+            try {
+                if (inputPath) await fs.unlink(inputPath);
+                if (outputPath) await fs.unlink(outputPath);
+            } catch (cleanupErr) {
+                logger.error('Error during cleanup:', cleanupErr);
+            }
+        }
+    },
+
+    async enhance(sock, message) {
+        let outputPath;
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: '*📝 Usage:* Reply to an image with .enhance'
+                });
+                return;
+            }
+
+            await sock.sendMessage(remoteJid, { text: '*⏳ Processing:* Enhancing image quality...' });
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            outputPath = path.join(tempDir, `${Date.now()}.png`);
+
+            try {
+                await sharp(buffer)
+                    .normalize() // Enhance contrast
+                    .modulate({
+                        brightness: 1.1,
+                        saturation: 1.2
+                    })
+                    .sharpen({
+                        sigma: 1.5,
+                        m1: 1.5,
+                        m2: 0.7
+                    })
+                    .png()
+                    .toFile(outputPath);
+
+                await sock.sendMessage(remoteJid, {
+                    image: { url: outputPath },
+                    caption: '✅ Here\'s your enhanced image!'
+                });
+
+                await fs.unlink(outputPath);
+            } catch (processErr) {
+                throw new Error(`Failed to enhance image: ${processErr.message}`);
+            }
+
+        } catch (err) {
+            logger.error('Error in enhance command:', err);
+            await sock.sendMessage(message.key.remoteJid, {
+                text: '*❌ Error:* Failed to enhance image. Please try again later.'
+            });
+            // Cleanup in case of error
+            try {
+                if (outputPath) await fs.unlink(outputPath);
+            } catch (cleanupErr) {
+                logger.error('Error during cleanup:', cleanupErr);
+            }
+        }
+    },
+
+    async sharpen(sock, message, args) {
+        let outputPath;
+        try {
+            const remoteJid = message.key.remoteJid;
+            if (!message.message?.imageMessage) {
+                await sock.sendMessage(remoteJid, {
+                    text: '*📝 Usage:* .sharpen [level]\n\n*Example:* .sharpen 5'
+                });
+                return;
+            }
+
+            const level = parseInt(args[0]) || 5;
+            if (level < 1 || level > 10) {
+                await sock.sendMessage(remoteJid, {
+                    text: '*❌ Error:* Sharpening level must be between 1 and 10'
+                });
+                return;
+            }
+
+            await sock.sendMessage(remoteJid, { text: '*⏳ Processing:* Sharpening image...' });
+
+            const buffer = await downloadMediaMessage(message, 'buffer', {});
+            const tempDir = path.join(__dirname, '../../temp');
+            await fs.mkdir(tempDir, { recursive: true });
+
+            outputPath = path.join(tempDir, `${Date.now()}.png`);
+
+            try {
+                await sharp(buffer)
+                    .sharpen({
+                        sigma: level * 0.5,
+                        m1: level * 0.2,
+                        m2: level * 0.1
+                    })
+                    .png()
+                    .toFile(outputPath);
+
+                await sock.sendMessage(remoteJid, {
+                    image: { url: outputPath },
+                    caption: `✅ Image sharpened with level ${level}!`
+                });
+
+                await fs.unlink(outputPath);
+            } catch (processErr) {
+                throw new Error(`Failed to sharpen image: ${processErr.message}`);
+            }
+
+        } catch (err) {
+            logger.error('Error in sharpen command:', err);
+            await sock.sendMessage(message.key.remoteJid, {
+                text: '*❌ Error:* Failed to sharpen image. Please try again later.'
+            });
+            // Cleanup in case of error
+            try {
+                if (outputPath) await fs.unlink(outputPath);
+            } catch (cleanupErr) {
+                logger.error('Error during cleanup:', cleanupErr); 
+            }
+        }
+    },
+
+    // Export the commands
+    module.exports = mediaCommands;

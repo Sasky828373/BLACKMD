@@ -1,0 +1,762 @@
+{
+  "category": "group",
+  "commands": [
+    {
+      "name": "kick",
+      "description": "Kick a member from the group",
+      "usage": "!kick @user",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "add",
+      "description": "Add a user to the group",
+      "usage": "!add [number]",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "promote",
+      "description": "Promote user to admin",
+      "usage": "!promote @user",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "demote",
+      "description": "Demote user from admin",
+      "usage": "!demote @user",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antispam",
+      "description": "Configure anti-spam protection",
+      "usage": "!antispam <on|off|status> [limit]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antilink",
+      "description": "Configure anti-link protection",
+      "usage": "!antilink <on|off|status>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antitoxic",
+      "description": "Configure toxic message filter",
+      "usage": "!antitoxic <on|off|status>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antiraid",
+      "description": "Configure anti-raid protection",
+      "usage": "!antiraid <on|off|status>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "warn",
+      "description": "Warn a user",
+      "usage": "!warn @user [reason]",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "removewarn",
+      "description": "Remove a warning",
+      "usage": "!removewarn @user",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "warnings",
+      "description": "Check warnings",
+      "usage": "!warnings [@user]",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "mute",
+      "description": "Mute the group",
+      "usage": "!mute [duration]",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unmute",
+      "description": "Unmute the group",
+      "usage": "!unmute",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "setdesc",
+      "description": "Set group description",
+      "usage": "!setdesc [description]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "setname",
+      "description": "Set group name",
+      "usage": "!setname [name]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "setppic",
+      "description": "Set group profile picture",
+      "usage": "!setppic",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "poll",
+      "description": "Create a poll",
+      "usage": "!poll [title] [option1] [option2] ...",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "vote",
+      "description": "Vote in a poll",
+      "usage": "!vote [poll_id] [choice]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "endpoll",
+      "description": "End an active poll",
+      "usage": "!endpoll [poll_id]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "quiz",
+      "description": "Manage group quiz",
+      "usage": "!quiz <start|stop|score>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "trivia",
+      "description": "Start trivia game",
+      "usage": "!trivia [category]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "wordchain",
+      "description": "Manage word chain game",
+      "usage": "!wordchain <start|play|end>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "announce",
+      "description": "Send group announcement",
+      "usage": "!announce [message]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "schedule",
+      "description": "Schedule announcement",
+      "usage": "!schedule [time] [message]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "setwelcome",
+      "description": "Set welcome message",
+      "usage": "!setwelcome [message]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "setgoodbye",
+      "description": "Set goodbye message",
+      "usage": "!setgoodbye [message]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "rules",
+      "description": "Manage group rules",
+      "usage": "!rules <add|remove|list> [rule]",
+      "example": "!rules add No spamming",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "stats",
+      "description": "View group statistics",
+      "usage": "!stats",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "activity",
+      "description": "View group activity report",
+      "usage": "!activity",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "report",
+      "description": "Generate group report",
+      "usage": "!report <daily|weekly|monthly>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "autorules",
+      "description": "Configure auto rules sending",
+      "usage": "!autorules <on|off>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "tagall",
+      "description": "Tag all members",
+      "usage": "!tagall [message]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "admins",
+      "description": "Tag all admins",
+      "usage": "!admins [message]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "link",
+      "description": "Get group invite link",
+      "usage": "!link",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "revoke",
+      "description": "Revoke group invite link",
+      "usage": "!revoke",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "blacklist",
+      "description": "Manage blacklisted users",
+      "usage": "!blacklist <add|remove|list> [user]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "whitelist",
+      "description": "Manage whitelisted users",
+      "usage": "!whitelist <add|remove|list> [user]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "groupbackup",
+      "description": "Create group backup",
+      "usage": "!groupbackup",
+      "cooldown": 3600,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "grouprestore",
+      "description": "Restore group from backup",
+      "usage": "!grouprestore [backup_id]",
+      "cooldown": 3600,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antivirus",
+      "description": "Configure anti-virus protection",
+      "usage": "!antivirus <on|off|status>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antibadwords",
+      "description": "Manage bad words filter",
+      "usage": "!antibadwords <add|remove|list> [word]",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "purge",
+      "description": "Delete multiple messages",
+      "usage": "!purge [number]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "lock",
+      "description": "Lock group chat (only admins can send messages)",
+      "usage": "!lock",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unlock",
+      "description": "Unlock group chat",
+      "usage": "!unlock",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "templink",
+      "description": "Create temporary invite link",
+      "usage": "!templink [duration]",
+      "example": "!templink 1h",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "mutetime",
+      "description": "Mute a user for a specific time",
+      "usage": "!mutetime @user [duration]",
+      "example": "!mutetime @user 1h",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unmutetime",
+      "description": "Remove timed mute from a user",
+      "usage": "!unmutetime @user",
+      "example": "!unmutetime @user",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "mutegroup",
+      "description": "Mute entire group for a specific time",
+      "usage": "!mutegroup [duration]",
+      "example": "!mutegroup 1h",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unmutegroup",
+      "description": "Unmute the entire group",
+      "usage": "!unmutegroup",
+      "example": "!unmutegroup",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "groupmode",
+      "description": "Set group mode (public, private, announcement)",
+      "usage": "!groupmode [mode]",
+      "example": "!groupmode private",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antiflood",
+      "description": "Configure anti-flood protection",
+      "usage": "!antiflood <on|off|status> [limit]",
+      "example": "!antiflood on 5",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antifake",
+      "description": "Filter fake numbers/accounts",
+      "usage": "!antifake <on|off|status>",
+      "example": "!antifake on",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "welcome",
+      "description": "Toggle welcome messages",
+      "usage": "!welcome <on|off>",
+      "example": "!welcome on",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "goodbye",
+      "description": "Toggle goodbye messages",
+      "usage": "!goodbye <on|off>",
+      "example": "!goodbye on",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "restrict",
+      "description": "Restrict a user (can't send media)",
+      "usage": "!restrict @user [duration]",
+      "example": "!restrict @user 1d",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unrestrict",
+      "description": "Remove restrictions from a user",
+      "usage": "!unrestrict @user",
+      "example": "!unrestrict @user",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "groupinfo",
+      "description": "Show detailed group information",
+      "usage": "!groupinfo",
+      "example": "!groupinfo",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "groupsettings",
+      "description": "Configure group settings",
+      "usage": "!groupsettings [setting] [value]",
+      "example": "!groupsettings language en",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "memberlist",
+      "description": "Display list of all members",
+      "usage": "!memberlist [format]",
+      "example": "!memberlist table",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "adminlist",
+      "description": "Display list of all admins",
+      "usage": "!adminlist",
+      "example": "!adminlist",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "filtermedia",
+      "description": "Filter specific media types",
+      "usage": "!filtermedia <type> <on|off>",
+      "example": "!filtermedia sticker on",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antibot",
+      "description": "Prevent other bots from joining",
+      "usage": "!antibot <on|off>",
+      "example": "!antibot on",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "resetwarns",
+      "description": "Reset all warnings for a user",
+      "usage": "!resetwarns @user",
+      "example": "!resetwarns @user",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "warnlimit",
+      "description": "Set warning limit before auto-kick",
+      "usage": "!warnlimit [number]",
+      "example": "!warnlimit 3",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "autowarning",
+      "description": "Configure automatic warnings",
+      "usage": "!autowarning <feature> <on|off>",
+      "example": "!autowarning spam on",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "grouprename",
+      "description": "Allow/prevent group name changes",
+      "usage": "!grouprename <allow|prevent>",
+      "example": "!grouprename prevent",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "ghostcheck",
+      "description": "Check for inactive members",
+      "usage": "!ghostcheck [days]",
+      "example": "!ghostcheck 30",
+      "cooldown": 86400,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "notifyadmins",
+      "description": "Send private notifications to admins",
+      "usage": "!notifyadmins [message]",
+      "example": "!notifyadmins Important message",
+      "cooldown": 3600,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "chatfilter",
+      "description": "Filter specific words or phrases",
+      "usage": "!chatfilter <add|remove|list> [word]",
+      "example": "!chatfilter add badword",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "bantemp",
+      "description": "Temporarily ban a user from group",
+      "usage": "!bantemp @user [duration]",
+      "example": "!bantemp @user 1d",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unbantemp",
+      "description": "Remove temporary ban from a user",
+      "usage": "!unbantemp @user",
+      "example": "!unbantemp @user",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "activitycheck",
+      "description": "Check group activity levels",
+      "usage": "!activitycheck [days]",
+      "example": "!activitycheck 7",
+      "cooldown": 86400,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "grouptime",
+      "description": "Set group local time settings",
+      "usage": "!grouptime [timezone]",
+      "example": "!grouptime UTC+1",
+      "cooldown": 86400,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "pinnedmessage",
+      "description": "Set or view pinned message",
+      "usage": "!pinnedmessage [set|view]",
+      "example": "!pinnedmessage set",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unpinmessage",
+      "description": "Unpin the currently pinned message",
+      "usage": "!unpinmessage",
+      "example": "!unpinmessage",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "mentionall",
+      "description": "Another way to mention all members",
+      "usage": "!mentionall [message]",
+      "example": "!mentionall Hello everyone",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "everyone",
+      "description": "BocchiBot-style mention with arrows",
+      "usage": "!everyone [message]",
+      "example": "!everyone was geht",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "bocchi",
+      "description": "Simple BocchiBot mention format",
+      "usage": "!bocchi [message]",
+      "example": "!bocchi BocchiBot style mention",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "hier",
+      "description": "WhatsApp Business-style hier mention",
+      "usage": "!hier [message]",
+      "example": "!hier was geht",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "antibots",
+      "description": "Prevent other bots in the group",
+      "usage": "!antibots <on|off>",
+      "example": "!antibots on",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "groupconfig",
+      "description": "Configure multiple group settings at once",
+      "usage": "!groupconfig [setting] [value]",
+      "example": "!groupconfig antilink on",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "activeranking",
+      "description": "Show most active members ranking",
+      "usage": "!activeranking [timeframe]",
+      "example": "!activeranking week",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "levelrole",
+      "description": "Assign roles based on activity levels",
+      "usage": "!levelrole [level] [role]",
+      "example": "!levelrole 10 Veteran",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "removelevelrole",
+      "description": "Remove level-based role assignment",
+      "usage": "!removelevelrole [level]",
+      "example": "!removelevelrole 10",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "rolemenu",
+      "description": "Create role selection menu",
+      "usage": "!rolemenu [create|list]",
+      "example": "!rolemenu create",
+      "cooldown": 86400,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "rolelist",
+      "description": "Show available roles in the group",
+      "usage": "!rolelist",
+      "example": "!rolelist",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "selfrole",
+      "description": "Assign yourself a role",
+      "usage": "!selfrole [role]",
+      "example": "!selfrole Gamer",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "removeselfrole",
+      "description": "Remove a self-assigned role",
+      "usage": "!removeselfrole [role]",
+      "example": "!removeselfrole Gamer",
+      "cooldown": 60,
+      "permissions": ["user"]
+    },
+    {
+      "name": "mutemember",
+      "description": "Mute specific member",
+      "usage": "!mutemember @user [duration]",
+      "example": "!mutemember @user 30m",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "unmutemember",
+      "description": "Unmute a specific member",
+      "usage": "!unmutemember @user",
+      "example": "!unmutemember @user",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "grouptype",
+      "description": "Set group type (casual, business, education)",
+      "usage": "!grouptype [type]",
+      "example": "!grouptype education",
+      "cooldown": 86400,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "renameuser",
+      "description": "Change a user's display name in group",
+      "usage": "!renameuser @user [newname]",
+      "example": "!renameuser @user Newbie",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "bannedwords",
+      "description": "View list of banned words",
+      "usage": "!bannedwords",
+      "example": "!bannedwords",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "allowedbots",
+      "description": "Manage allowed bots list",
+      "usage": "!allowedbots <add|remove|list> [number]",
+      "example": "!allowedbots add 123456789",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "autosticker",
+      "description": "Auto-convert images to stickers",
+      "usage": "!autosticker <on|off>",
+      "example": "!autosticker on",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "grouplog",
+      "description": "Configure group activity logging",
+      "usage": "!grouplog <on|off>",
+      "example": "!grouplog on",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "viewlog",
+      "description": "View recent group activity logs",
+      "usage": "!viewlog [limit]",
+      "example": "!viewlog 20",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "exportlog",
+      "description": "Export group chat logs",
+      "usage": "!exportlog [timeframe]",
+      "example": "!exportlog week",
+      "cooldown": 86400,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "slowmode",
+      "description": "Enable slow mode in chat",
+      "usage": "!slowmode [seconds]",
+      "example": "!slowmode 10",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "disableslowmode",
+      "description": "Disable slow mode in chat",
+      "usage": "!disableslowmode",
+      "example": "!disableslowmode",
+      "cooldown": 60,
+      "permissions": ["admin"]
+    }
+  ]
+}

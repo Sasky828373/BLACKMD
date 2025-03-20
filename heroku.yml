@@ -1,0 +1,10 @@
+build:
+  docker:
+    web: Dockerfile
+  config:
+    PLATFORM: heroku
+    NODE_ENV: production
+
+run:
+  web: node src/index.js
+  worker: node src/index.js

@@ -1,0 +1,75 @@
+{
+  "category": "educational",
+  "commands": [
+    {
+      "name": "define",
+      "description": "Get detailed word definition and examples",
+      "usage": ".define [word]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "translate",
+      "description": "Translate text between languages",
+      "usage": ".translate [target_language] [text]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "grammar",
+      "description": "Check text for grammatical errors",
+      "usage": ".grammar [text]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "calculate",
+      "description": "Solve mathematical expressions",
+      "usage": ".calculate [expression]",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "wikipedia",
+      "description": "Search Wikipedia articles",
+      "usage": ".wikipedia [query]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "quiz",
+      "description": "Start an educational quiz session",
+      "usage": ".quiz [subject]",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "flashcards",
+      "description": "Create and review flashcards",
+      "usage": ".flashcards [create|review|list] [subject]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "studytimer",
+      "description": "Set a Pomodoro study timer",
+      "usage": ".studytimer [minutes]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "periodic",
+      "description": "Get periodic table information",
+      "usage": ".periodic [element]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "history",
+      "description": "Learn about historical events",
+      "usage": ".history [period|event]",
+      "cooldown": 10,
+      "permissions": ["user"]
+    }
+  ]
+}

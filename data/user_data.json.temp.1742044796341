@@ -1,0 +1,53 @@
+{
+  "profiles": {
+    "4915561048015@s.whatsapp.net": {
+      "name": "Martin",
+      "age": 20,
+      "xp": 0,
+      "level": 1,
+      "coins": 100,
+      "bio": "ich bin ein hund",
+      "language": "en",
+      "registeredAt": "2025-03-15T10:48:32.301Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    },
+    "120363407638585565@g.us": {
+      "name": "Martin",
+      "age": 21,
+      "xp": 0,
+      "level": 1,
+      "coins": 100,
+      "bio": "",
+      "language": "en",
+      "registeredAt": "2025-03-15T10:57:08.783Z",
+      "lastDaily": null,
+      "inventory": [],
+      "achievements": [
+        "New Arrival"
+      ],
+      "customTitle": "",
+      "warnings": 0
+    }
+  },
+  "games": {},
+  "marriages": {},
+  "bank": {},
+  "jobs": {},
+  "pets": {},
+  "afk": {},
+  "streaks": {},
+  "checkins": {},
+  "lottery": [],
+  "_meta": {
+    "version": 1,
+    "savedAt": "2025-03-15T13:19:56.346Z",
+    "profileCount": 2,
+    "invalidProfileCount": 0
+  }
+}

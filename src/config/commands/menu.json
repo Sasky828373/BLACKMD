@@ -1,0 +1,34 @@
+{
+  "name": "Menu System",
+  "description": "Commands for displaying and navigating the bot's command menu",
+  "category": "menu",
+  "commands": [
+    {
+      "name": "menu",
+      "description": "Display the main menu with all command categories",
+      "usage": "!menu [category]",
+      "examples": ["!menu", "!menu fun", "!menu utility"],
+      "permissions": ["user"],
+      "group_compatible": true,
+      "cooldown": 5
+    },
+    {
+      "name": "list",
+      "description": "List all available commands by category",
+      "usage": "!list [category]",
+      "examples": ["!list", "!list media", "!list group"],
+      "permissions": ["user"],
+      "group_compatible": true,
+      "cooldown": 5
+    },
+    {
+      "name": "help",
+      "description": "Get detailed help for a specific command",
+      "usage": "!help <command>",
+      "examples": ["!help sticker", "!help play", "!help ping"],
+      "permissions": ["user"],
+      "group_compatible": true,
+      "cooldown": 5
+    }
+  ]
+}

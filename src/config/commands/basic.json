@@ -1,0 +1,110 @@
+{
+  "category": "basic",
+  "commands": [
+    {
+      "name": "help",
+      "description": "Show help message and command list",
+      "usage": ".help [command]",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "ping",
+      "description": "Check bot response time and status",
+      "usage": ".ping",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "info",
+      "description": "Get detailed bot information",
+      "usage": ".info",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "botinfo",
+      "description": "Show detailed bot statistics and system info",
+      "usage": ".botinfo",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "dashboard",
+      "description": "View bot performance dashboard",
+      "usage": ".dashboard",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "rules",
+      "description": "Show bot usage rules and guidelines",
+      "usage": ".rules",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "faq",
+      "description": "Show frequently asked questions",
+      "usage": ".faq",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "status",
+      "description": "Check bot and server status",
+      "usage": ".status",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "changelog",
+      "description": "Show recent bot updates and changes",
+      "usage": ".changelog",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "about",
+      "description": "Show bot information and credits",
+      "usage": ".about",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "privacy",
+      "description": "Show privacy policy",
+      "usage": ".privacy",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "terms",
+      "description": "Show terms of service",
+      "usage": ".terms",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "uptime",
+      "description": "Show bot uptime and performance stats",
+      "usage": ".uptime",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "stats",
+      "description": "Show detailed bot usage statistics",
+      "usage": ".stats",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "speed",
+      "description": "Test bot response speed",
+      "usage": ".speed",
+      "cooldown": 10,
+      "permissions": ["user"]
+    }
+  ]
+}

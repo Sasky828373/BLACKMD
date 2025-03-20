@@ -1,0 +1,382 @@
+{
+  "system": {
+    "language_changed": "Sprache auf Deutsch eingestellt",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "command_not_found": "Befehl nicht gefunden",
+    "insufficient_permissions": "Du hast keine Berechtigung, diesen Befehl zu verwenden",
+    "cooldown": "Bitte warte bevor du diesen Befehl erneut verwendest",
+    "bot_info": "BLACKSKY-MD WhatsApp Bot\nVersion: %s\nBesitzer: %s\nPräfix: %s",
+    "unknown_error": "Ein unbekannter Fehler ist aufgetreten",
+    "try_again": "Bitte versuche es später noch einmal",
+    "basic_commands": "Grundlegende Befehle"
+  },
+  "basic": {
+    "help": "Hier sind die verfügbaren Befehle: %s",
+    "help_detail": "Gib %shelp [Befehl] ein für detaillierte Hilfe zu einem Befehl.",
+    "help_title": "Hilfe",
+    "help_welcome": "Willkommen bei 𝔹𝕃𝔸ℂ𝕂𝕊𝕂𝕐-𝕄𝔻! Hier sind einige Befehle für den Einstieg:",
+    "main_commands": "Hauptbefehle",
+    "quick_start": "Schnellstart",
+    "view_categories": "Alle Befehlskategorien anzeigen",
+    "list_commands": "Alle verfügbaren Befehle auflisten",
+    "get_help": "Hilfe zu bestimmtem Befehl erhalten",
+    "check_online": "Prüfen, ob Bot online ist",
+    "get_info": "Bot-Informationen erhalten",
+    "view_stats": "Bot-Statistiken anzeigen",
+    "more_commands": "Für weitere Befehle, gib ein",
+    "ping": "Pong! Antwortzeit: %s ms",
+    "ping_checking": "Pinge... 🏓",
+    "ping_response": "Pong!",
+    "ping_speed": "Geschwindigkeit",
+    "ping_status": "Status",
+    "ping_active": "Aktiv",
+    "info": "Bot-Informationen",
+    "about": "Über BLACKSKY-MD Bot",
+    "status": "Bot-Status: Online\nLaufzeit: %s",
+    "owner": "Bot-Besitzer Kontakt",
+    "version": "Bot-Version: %s",
+    "system_info": "Systeminformationen",
+    "os": "Betriebssystem",
+    "architecture": "Architektur",
+    "cpu_cores": "CPU-Kerne",
+    "total_memory": "Gesamtspeicher",
+    "free_memory": "Freier Speicher",
+    "platform": "Plattform",
+    "hostname": "Hostname",
+    "kernel": "Kernel",
+    "nodejs": "Node.js",
+    "runtime_info": "Bot-Laufzeitdetails",
+    "days": "Tage",
+    "hours": "Stunden",
+    "minutes": "Minuten",
+    "seconds": "Sekunden",
+    "total_uptime": "Gesamtlaufzeit",
+    "premium": "Premium-Funktionen",
+    "priority_support": "Vorrangiger Support",
+    "unlimited_usage": "Unbegrenzte Nutzung",
+    "exclusive_commands": "Exklusive Befehle",
+    "no_cooldown": "Keine Abklingzeiten",
+    "custom_features": "Angepasste Funktionen",
+    "early_access": "Frühzeitiger Zugang",
+    "contact_owner_upgrade": "Kontaktiere den Besitzer für ein Upgrade!",
+    "need_help": "Brauchst du Hilfe?",
+    "use_help": "Nutze .help für Befehle",
+    "use_report": "Nutze .report für Fehler",
+    "use_feedback": "Nutze .feedback für Vorschläge",
+    "join_group": "Tritt der Support-Gruppe bei",
+    "contact_owner_cmd": "Kontaktiere den Besitzer",
+    "credits": "Danksagungen & Anerkennungen",
+    "core_library": "Kern-Bibliothek",
+    "node_community": "Node.js Gemeinschaft",
+    "bot_contributors": "Bot-Mitwirkende",
+    "api_providers": "API-Anbieter",
+    "resource_providers": "Ressourcenanbieter",
+    "beta_testers": "Beta-Tester",
+    "active_users": "Aktive Nutzer",
+    "special_thanks": "Besonderer Dank an alle, die geholfen haben, diesen Bot zu ermöglichen!",
+    "donate_title": "Unterstütze die Bot-Entwicklung",
+    "paypal": "PayPal",
+    "kofi": "Ko-fi",
+    "patreon": "Patreon",
+    "source_info": "Bot-Quellinformationen",
+    "framework": "Framework",
+    "license": "Lizenz",
+    "repository": "Repository",
+    "contributors": "Mitwirkende",
+    "contribute_message": "Möchtest du mitwirken? Kontaktiere den Besitzer!",
+    "report_usage": "report [Beschreibung]",
+    "feedback_usage": "feedback [Nachricht]",
+    "report_success": "Dein Bericht wurde übermittelt. Vielen Dank!",
+    "feedback_success": "Dein Feedback wurde übermittelt. Vielen Dank!",
+    "support_message": "Deine Unterstützung hilft, den Bot am Laufen zu halten und zu verbessern!",
+    "owner_info": "Bot-Besitzer Informationen",
+    "name": "Name",
+    "creator": "Entwickler",
+    "contact": "Kontakt",
+    "website": "Webseite",
+    "social": "Soziale Medien",
+    "business": "Geschäftliche Anfragen",
+    "contact_for_support": "Kontaktiere für Support oder Anfragen",
+    "bot_statistics": "Bot-Statistiken",
+    "users": "Benutzer",
+    "groups": "Gruppen",
+    "commands": "Befehle",
+    "uptime": "Laufzeit",
+    "memory_usage": "Speicherverbrauch",
+    "cpu_usage": "CPU-Auslastung",
+    "bot_dashboard": "Bot-Dashboard",
+    "performance": "Leistung",
+    "error_rate": "Fehlerrate",
+    "api_status": "API-Status",
+    "database": "Datenbank",
+    "cache": "Cache",
+    "last_restart": "Letzter Neustart",
+    "recent_updates": "Aktuelle Updates",
+    "current": "Aktuell",
+    "initial_release": "Erstveröffentlichung",
+    "faq_title": "Häufig gestellte Fragen",
+    "privacy_policy": "Datenschutzrichtlinie",
+    "terms_of_service": "Nutzungsbedingungen",
+    "about_description": "Ein leistungsstarker WhatsApp-Bot mit nützlichen Funktionen und Befehlen.",
+    "features": "Funktionen",
+    "group_management": "Gruppenverwaltung",
+    "fun_commands": "Spaßbefehle",
+    "utilities": "Hilfsprogramme",
+    "educational_tools": "Lernwerkzeuge",
+    "and_more": "Und vieles mehr!",
+    "support_contact": "Für Unterstützung kontaktieren Sie den Bot-Besitzer.",
+    "language": "Sprache",
+    "description": "Beschreibung",
+    "usage": "Verwendung",
+    "category": "Grundlegende Befehle",
+    "bot_commands": "Bot-Befehle"
+  },
+  "group": {
+    "admin_only": "Dieser Befehl ist nur für Administratoren",
+    "bot_admin_required": "Der Bot muss Admin sein, um diesen Befehl zu verwenden",
+    "kick_success": "Benutzer erfolgreich entfernt",
+    "add_success": "Benutzer erfolgreich hinzugefügt",
+    "promote_success": "Benutzer zum Admin befördert",
+    "demote_success": "Admin zum Benutzer herabgestuft",
+    "group_only": "Dieser Befehl kann nur in Gruppen verwendet werden",
+    "category": "Gruppenverwaltung",
+    "commands": "Gruppenbefehle"
+  },
+  "media": {
+    "sticker_created": "Sticker erfolgreich erstellt",
+    "processing": "Medien werden verarbeitet...",
+    "download_failed": "Fehler beim Herunterladen der Medien",
+    "missing_query": "Bitte gebe eine Suchanfrage an",
+    "video_too_large": "Video ist zu groß zum Verarbeiten",
+    "category": "Medienwerkzeuge",
+    "commands": "Medienbefehle"
+  },
+  "fun": {
+    "quote": "Zitat: %s",
+    "joke": "Witz: %s",
+    "fact": "Fakt: %s",
+    "trivia": "Trivia: %s",
+    "challenge": "Hier ist deine Herausforderung: %s",
+    "tictactoe_start": "Tic-Tac-Toe Spiel gestartet!",
+    "hangman_start": "Galgenmännchen Spiel gestartet!",
+    "game_win": "Glückwunsch! Du hast gewonnen!",
+    "game_loss": "Spiel vorbei! Du hast verloren.",
+    "game_draw": "Spiel endet unentschieden.",
+    "category": "Spaß & Spiele",
+    "commands": "Spaßbefehle"
+  },
+  "nsfw": {
+    "not_enabled": "NSFW-Befehle sind für diesen Chat nicht aktiviert",
+    "verification_required": "Du musst zuerst dein Alter verifizieren. Benutze !verify (passwort)",
+    "content_warning": "NSFW-Inhaltswarnung",
+    "restricted_chat": "Dieser Chat darf keine NSFW-Befehle verwenden",
+    "cooldown": "Bitte warte, bevor du weitere NSFW-Inhalte anforderst",
+    "usage_toggle": "Verwendung: !togglensfw <on|off>",
+    "enabled": "NSFW-Inhalte für diese Gruppe aktiviert",
+    "disabled": "NSFW-Inhalte für diese Gruppe deaktiviert",
+    "verify_usage": "Altersverifikation erforderlich. Bitte verwende den Befehl: !verify <dein_alter>",
+    "age_requirement": "Du musst mindestens 18 Jahre alt sein, um auf NSFW-Inhalte zuzugreifen.",
+    "verification_success": "Altersverifikation erfolgreich. Du kannst jetzt NSFW-Befehle verwenden.",
+    "verification_failed": "Altersverifikation fehlgeschlagen. Bitte versuche es erneut.",
+    "fetching": "NSFW-Inhalte werden abgerufen...",
+    "category": "NSFW Inhalte",
+    "commands": "NSFW Befehle"
+  },
+  "reactions": {
+    "sending": "Sende %s Reaktion...",
+    "self_target": "Du kannst dich nicht selbst als Ziel für diese Reaktion auswählen",
+    "missing_target": "Bitte erwähne jemanden, um diese Reaktion zu senden",
+    "menu": {
+      "title": "🎬 Reaktions-GIF Menü",
+      "workingGifs": "Funktionierende GIFs: %s/%s",
+      "howToUse": "Wie zu verwenden",
+      "selfUsage": "Für Selbstreaktionen: !befehlsname",
+      "targetUsage": "Um jemanden zu erwähnen: !befehlsname @benutzer",
+      "testGif": "Versuche !testgif [name] um ein Reaktions-GIF anzusehen!"
+    },
+    "categories": {
+      "basicreactions": "Grundreaktionen",
+      "expressions": "Ausdrücke",
+      "physicalactions": "Physische Aktionen",
+      "walkingdead": "The Walking Dead",
+      "fastfurious": "Schnell und Wütend"
+    },
+    "hug": {
+      "self": "%s gibt Umarmungen %s",
+      "toTarget": "%s umarmt %s %s",
+      "toEveryone": "%s umarmt alle %s"
+    },
+    "pat": {
+      "self": "%s tätschelt %s",
+      "toTarget": "%s tätschelt %s %s",
+      "toEveryone": "%s tätschelt alle %s"
+    },
+    "kiss": {
+      "self": "%s wirft Küsse zu %s",
+      "toTarget": "%s küsst %s %s",
+      "toEveryone": "%s küsst alle %s"
+    },
+    "cuddle": {
+      "self": "%s kuschelt %s",
+      "toTarget": "%s kuschelt mit %s %s",
+      "toEveryone": "%s kuschelt mit allen %s"
+    },
+    "smile": {
+      "self": "%s lächelt %s",
+      "toTarget": "%s lächelt %s an %s",
+      "toEveryone": "%s lächelt alle an %s"
+    },
+    "happy": {
+      "self": "%s ist glücklich %s",
+      "toTarget": "%s ist glücklich mit %s %s",
+      "toEveryone": "%s ist glücklich mit allen %s"
+    },
+    "wave": {
+      "self": "%s winkt %s",
+      "toTarget": "%s winkt %s zu %s",
+      "toEveryone": "%s winkt allen zu %s"
+    },
+    "dance": {
+      "self": "%s tanzt %s",
+      "toTarget": "%s tanzt mit %s %s",
+      "toEveryone": "%s tanzt mit allen %s"
+    },
+    "cry": {
+      "self": "%s weint %s",
+      "toTarget": "%s weint wegen %s %s",
+      "toEveryone": "%s weint mit allen %s"
+    },
+    "blush": {
+      "self": "%s errötet %s",
+      "toTarget": "%s errötet wegen %s %s",
+      "toEveryone": "%s errötet wegen allen %s"
+    },
+    "laugh": {
+      "self": "%s lacht %s",
+      "toTarget": "%s lacht mit %s %s",
+      "toEveryone": "%s lacht mit allen %s"
+    },
+    "wink": {
+      "self": "%s zwinkert %s",
+      "toTarget": "%s zwinkert %s zu %s",
+      "toEveryone": "%s zwinkert allen zu %s"
+    },
+    "poke": {
+      "self": "%s stupst %s",
+      "toTarget": "%s stupst %s an %s",
+      "toEveryone": "%s stupst alle an %s"
+    },
+    "slap": {
+      "self": "%s gibt Ohrfeigen %s",
+      "toTarget": "%s gibt %s eine Ohrfeige %s",
+      "toEveryone": "%s gibt allen eine Ohrfeige %s"
+    },
+    "bonk": {
+      "self": "%s bonkt %s",
+      "toTarget": "%s bonkt %s %s",
+      "toEveryone": "%s bonkt alle %s"
+    },
+    "bite": {
+      "self": "%s beißt %s",
+      "toTarget": "%s beißt %s %s",
+      "toEveryone": "%s beißt alle %s"
+    },
+    "punch": {
+      "self": "%s boxt %s",
+      "toTarget": "%s boxt %s %s",
+      "toEveryone": "%s boxt alle %s"
+    },
+    "highfive": {
+      "self": "%s gibt High-Fives %s",
+      "toTarget": "%s gibt %s ein High-Five %s",
+      "toEveryone": "%s gibt allen ein High-Five %s"
+    },
+    "yeet": {
+      "self": "%s yeeetet %s",
+      "toTarget": "%s yeeetet %s %s",
+      "toEveryone": "%s yeeetet alle %s"
+    },
+    "category": "Reaktionen",
+    "commands": "Reaktionsbefehle"
+  },
+  "menu": {
+    "name": "Menü",
+    "commands": "Menübefehle",
+    "basic_category": "Grundlagen",
+    "utility_category": "Hilfsprogramme",
+    "group_category": "Gruppenverwaltung",
+    "media_category": "Medienwerkzeuge",
+    "fun_category": "Spaß & Spiele",
+    "reactions_category": "Reaktionen",
+    "user_category": "Benutzerprofil",
+    "user_extended_category": "Erweitertes Profil",
+    "educational_category": "Bildung",
+    "nsfw_category": "NSFW Inhalte",
+    "example-with-error-handling_category": "Beispiele",
+    "group_new_category": "Erweiterte Gruppe",
+    "owner_category": "Besitzerbefehle",
+    "main_category": "Hauptbefehle",
+    "command_help": "Befehlshilfe",
+    "command_info": "Befehlsinformationen",
+    "available_commands": "Verfügbare Befehle",
+    "categories": "Befehlskategorien anzeigen",
+    "bot_menu": "Bot-Menü anzeigen",
+    "category": "Kategorie",
+    "help_examples": "Beispiele",
+    "description": "Beschreibung",
+    "usage": "Verwendung",
+    "no_info_available": "Keine zusätzlichen Informationen verfügbar",
+    "command_not_found": "Befehl '%s' nicht gefunden. Versuche %shelp für eine Liste der Befehle."
+  },
+  "user": {
+    "category": "Benutzerprofil",
+    "commands": "Profilbefehle",
+    "profile": "Profil",
+    "level": "Stufe",
+    "xp": "XP",
+    "rank": "Rang",
+    "progress": "Fortschritt",
+    "next_level": "Nächstes Level",
+    "coins": "Münzen",
+    "inventory": "Inventar",
+    "stats": "Statistiken",
+    "profile_updated": "Profil aktualisiert",
+    "cache_hit": "Aus Cache geladen",
+    "balance": "Guthaben",
+    "daily_reward": "Tägliche Belohnung",
+    "daily_streak": "Tägliche Serie",
+    "claimed": "Beansprucht",
+    "achievements": "Errungenschaften",
+    "basic_commands": "Grundlegende Befehle"
+  },
+  "commands": {
+    "help": {
+      "command_info": "Befehl: %s",
+      "description": "Zeigt Hilfe für bestimmte Befehle an",
+      "error": "Beim Abrufen der Hilfeinformationen ist ein Fehler aufgetreten"
+    }
+  },
+  "educational": {
+    "category": "Bildung",
+    "commands": "Bildungsbefehle"
+  },
+  "owner": {
+    "category": "Besitzerbefehle",
+    "commands": "Besitzerbefehle"
+  },
+  "utility": {
+    "category": "Hilfsprogramme",
+    "commands": "Hilfsbefehle"
+  },
+  "errors": {
+    "fetch_failed": "Fehler beim Abrufen von Daten von der API",
+    "invalid_arguments": "Ungültige Argumente. Verwendung: %s",
+    "api_error": "API-Fehler: %s",
+    "not_implemented": "Diese Funktion ist noch nicht implementiert",
+    "network_error": "Netzwerkfehler. Bitte überprüfe deine Verbindung",
+    "timeout": "Zeitüberschreitung bei der Anfrage",
+    "toggle_failed": "Fehler beim Umschalten der NSFW-Einstellungen.",
+    "command_execution": "Fehler bei der Ausführung des Befehls"
+  }
+}

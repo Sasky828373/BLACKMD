@@ -1,0 +1,488 @@
+{
+  "category": "nsfw",
+  "commands": [
+    {
+      "name": "togglensfw",
+      "description": "Toggle NSFW content filter for the group",
+      "usage": "!togglensfw <on|off>",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "isnsfw",
+      "description": "Check if content is NSFW",
+      "usage": "!isnsfw [image_url]",
+      "cooldown": 10,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "nsfwsettings",
+      "description": "Configure NSFW filter settings",
+      "usage": "!nsfwsettings [setting] [value]",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "nsfwstats",
+      "description": "View NSFW filter statistics",
+      "usage": "!nsfwstats",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "verify",
+      "description": "Verify your age to access NSFW content",
+      "usage": "!verify <your_age>",
+      "cooldown": 60,
+      "permissions": []
+    },
+    {
+      "name": "nsfwhelp",
+      "description": "Show available NSFW commands",
+      "usage": "!nsfwhelp",
+      "cooldown": 10,
+      "permissions": []
+    },
+    {
+      "name": "waifu",
+      "description": "Get NSFW waifu image",
+      "usage": "!waifu",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "neko",
+      "description": "Get NSFW neko image",
+      "usage": "!neko",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "hentai",
+      "description": "Get hentai image",
+      "usage": "!hentai",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "boobs",
+      "description": "Get breast image",
+      "usage": "!boobs",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "ass",
+      "description": "Get butt image",
+      "usage": "!ass",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "pussy",
+      "description": "Get vagina image",
+      "usage": "!pussy",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "blowjob",
+      "description": "Get oral act image",
+      "usage": "!blowjob",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "anal",
+      "description": "Get anal act image",
+      "usage": "!anal",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "feet",
+      "description": "Get feet image",
+      "usage": "!feet",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "gifboobs",
+      "description": "Get breast animation",
+      "usage": "!gifboobs",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "gifass",
+      "description": "Get butt animation",
+      "usage": "!gifass",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "gifhentai",
+      "description": "Get hentai animation",
+      "usage": "!gifhentai",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "gifblowjob",
+      "description": "Get oral animation",
+      "usage": "!gifblowjob",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "uniform",
+      "description": "Get school/work uniform image",
+      "usage": "!uniform",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "thighs",
+      "description": "Get thigh image",
+      "usage": "!thighs",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "femdom",
+      "description": "Get female dominance image",
+      "usage": "!femdom",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "tentacle",
+      "description": "Get tentacle genre image",
+      "usage": "!tentacle",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "pantsu",
+      "description": "Get underwear image",
+      "usage": "!pantsu",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "kitsune",
+      "description": "Get fox girl image",
+      "usage": "!kitsune",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "yuri",
+      "description": "Get female/female image",
+      "usage": "!yuri",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "yaoi",
+      "description": "Get male/male image",
+      "usage": "!yaoi",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "trap",
+      "description": "Get trap character image",
+      "usage": "!trap",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "futa",
+      "description": "Get futanari character image",
+      "usage": "!futa",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "cumsluts",
+      "description": "Get climax image",
+      "usage": "!cumsluts",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "glasses",
+      "description": "Get bespectacled characters image",
+      "usage": "!glasses",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "cuckold",
+      "description": "Get netorare genre image",
+      "usage": "!cuckold",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "orgy",
+      "description": "Get group act image",
+      "usage": "!orgy",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "manga",
+      "description": "Get hentai manga panel",
+      "usage": "!manga",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "gifs",
+      "description": "Get random NSFW animation",
+      "usage": "!gifs",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "gif",
+      "description": "Get generic NSFW animation",
+      "usage": "!gif",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "porn",
+      "description": "Get real-life NSFW image",
+      "usage": "!porn",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "gifsolo",
+      "description": "Get solo animation",
+      "usage": "!gifsolo",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "gifpussy",
+      "description": "Get vagina animation",
+      "usage": "!gifpussy",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "gifanal",
+      "description": "Get anal animation",
+      "usage": "!gifanal",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "solo",
+      "description": "Get solo act image",
+      "usage": "!solo",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "random",
+      "description": "Get random NSFW image",
+      "usage": "!random",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "cum",
+      "description": "Get climax image",
+      "usage": "!cum",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "spank",
+      "description": "Get spanking image",
+      "usage": "!spank",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "classic",
+      "description": "Get classic style NSFW image",
+      "usage": "!classic",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "bdsm",
+      "description": "Get bondage image",
+      "usage": "!bdsm",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "public",
+      "description": "Get outdoor NSFW image",
+      "usage": "!public",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "beach",
+      "description": "Get beach NSFW image",
+      "usage": "!beach",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "cosplay",
+      "description": "Get cosplay NSFW image",
+      "usage": "!cosplay",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "panties",
+      "description": "Get panty image",
+      "usage": "!panties",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "school",
+      "description": "Get school uniform image",
+      "usage": "!school",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "gangbang",
+      "description": "Get multiple partners image",
+      "usage": "!gangbang",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "pussy4k",
+      "description": "Get high quality vagina image",
+      "usage": "!pussy4k",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "boobs4k",
+      "description": "Get high quality breast image",
+      "usage": "!boobs4k",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "ass4k",
+      "description": "Get high quality butt image",
+      "usage": "!ass4k",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "ahegao",
+      "description": "Get pleasure expression image",
+      "usage": "!ahegao",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "doujin",
+      "description": "Get doujinshi manga page",
+      "usage": "!doujin",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "succubus",
+      "description": "Get succubus character image",
+      "usage": "!succubus",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "lesbian",
+      "description": "Get lesbian image",
+      "usage": "!lesbian",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "masturbation",
+      "description": "Get self-pleasure image",
+      "usage": "!masturbation",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "giflewd",
+      "description": "Get lewd animation",
+      "usage": "!giflewd",
+      "cooldown": 45,
+      "permissions": []
+    },
+    {
+      "name": "bunny",
+      "description": "Get bunny girl costume image",
+      "usage": "!bunny",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "nsfwavatar",
+      "description": "Get NSFW profile picture",
+      "usage": "!nsfwavatar",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "nsfwmobile",
+      "description": "Get mobile-optimized NSFW image",
+      "usage": "!nsfwmobile",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "wallpaper",
+      "description": "Get NSFW wallpaper image",
+      "usage": "!wallpaper",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "nsfwloli",
+      "description": "Check if NSFW Loli is enabled",
+      "usage": "!nsfwloli",
+      "cooldown": 30,
+      "permissions": ["admin"]
+    },
+    {
+      "name": "catgirl",
+      "description": "Get cat girl character image",
+      "usage": "!catgirl",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "zettairyouiki",
+      "description": "Get thigh-high territory image",
+      "usage": "!zettairyouiki",
+      "cooldown": 30,
+      "permissions": []
+    },
+    {
+      "name": "swimsuit",
+      "description": "Get swimwear image",
+      "usage": "!swimsuit",
+      "cooldown": 30,
+      "permissions": []
+    }
+  ]
+}

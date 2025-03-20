@@ -1,0 +1,593 @@
+{
+  "category": "owner",
+  "commands": [
+    {
+      "name": "setowner",
+      "description": "Change bot owner number",
+      "usage": ".setowner your_number",
+      "cooldown": 60,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "system",
+      "description": "Show system information",
+      "usage": "!system",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "restart",
+      "description": "Restart the bot",
+      "usage": "!restart",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "shutdown",
+      "description": "Shutdown the bot",
+      "usage": "!shutdown",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "update",
+      "description": "Update bot to latest version",
+      "usage": "!update",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "clearcache",
+      "description": "Clear bot cache",
+      "usage": "!clearcache",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "maintenance",
+      "description": "Toggle maintenance mode",
+      "usage": "!maintenance <on|off>",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setname",
+      "description": "Set bot display name",
+      "usage": "!setname [name]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setbio",
+      "description": "Set bot bio",
+      "usage": "!setbio [text]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setppic",
+      "description": "Set bot profile picture",
+      "usage": "!setppic",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setstatus",
+      "description": "Set bot status",
+      "usage": "!setstatus [text]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setprefix",
+      "description": "Set command prefix",
+      "usage": "!setprefix [prefix]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setlanguage",
+      "description": "Set bot language",
+      "usage": "!setlanguage [code]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "ban",
+      "description": "Ban a user",
+      "usage": "!ban @user",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "unban",
+      "description": "Unban a user",
+      "usage": "!unban @user",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "banlist",
+      "description": "List banned users",
+      "usage": "!banlist",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "whitelist",
+      "description": "Manage whitelist",
+      "usage": "!whitelist <add|remove|list> [user]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "blacklist",
+      "description": "Manage blacklist",
+      "usage": "!blacklist <add|remove|list> [user]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "ratelimit",
+      "description": "Configure rate limits",
+      "usage": "!ratelimit <set|view|reset> [limit]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "listusers",
+      "description": "List all users",
+      "usage": "!listusers",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "addpremium",
+      "description": "Add premium user",
+      "usage": "!addpremium @user [days]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "delpremium",
+      "description": "Remove premium user",
+      "usage": "!delpremium @user",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "premiumlist",
+      "description": "List premium users",
+      "usage": "!premiumlist",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "resetuser",
+      "description": "Reset user data",
+      "usage": "!resetuser @user",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "backup",
+      "description": "Create database backup",
+      "usage": "!backup",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "restore",
+      "description": "Restore from backup",
+      "usage": "!restore [backup_id]",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "listbackups",
+      "description": "List available backups",
+      "usage": "!listbackups",
+      "cooldown": 60,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "resetdb",
+      "description": "Reset database",
+      "usage": "!resetdb",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "vacuum",
+      "description": "Optimize database",
+      "usage": "!vacuum",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "plugin",
+      "description": "Manage plugins",
+      "usage": "!plugin <install|remove|update|list> [name]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "plugins",
+      "description": "List installed plugins",
+      "usage": "!plugins",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "broadcast",
+      "description": "Broadcast message to all users",
+      "usage": "!broadcast [message]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "bcgroups",
+      "description": "Broadcast to all groups",
+      "usage": "!bcgroups [message]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "bcpremium",
+      "description": "Broadcast to premium users",
+      "usage": "!bcpremium [message]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "performance",
+      "description": "Show performance stats",
+      "usage": "!performance",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "health",
+      "description": "Show bot health status",
+      "usage": "!health",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "logs",
+      "description": "View bot logs",
+      "usage": "!logs [lines]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "clearlogs",
+      "description": "Clear log files",
+      "usage": "!clearlogs",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "errorlog",
+      "description": "View error logs",
+      "usage": "!errorlog",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "eval",
+      "description": "Evaluate JavaScript code",
+      "usage": "!eval [code]",
+      "cooldown": 5,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "shell",
+      "description": "Execute shell command",
+      "usage": "!shell [command]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "ping",
+      "description": "Check bot latency",
+      "usage": "!ping",
+      "cooldown": 5,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "setapi",
+      "description": "Set API key",
+      "usage": "!setapi [service] [key]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "listapis",
+      "description": "List configured APIs",
+      "usage": "!listapis",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "removeapi",
+      "description": "Remove API key",
+      "usage": "!removeapi [service]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "config",
+      "description": "Manage bot configuration",
+      "usage": "!config <get|set|list> [key] [value]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "autoresponder",
+      "description": "Manage auto-responses",
+      "usage": "!autoresponder <add|remove|list> [trigger] [response]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "welcome",
+      "description": "Manage welcome message",
+      "usage": "!welcome <set|view|reset> [message]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "goodbye",
+      "description": "Manage goodbye message",
+      "usage": "!goodbye <set|view|reset> [message]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "serverinfo",
+      "description": "Get detailed server information",
+      "usage": "!serverinfo",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "analytics",
+      "description": "View bot analytics",
+      "usage": "!analytics <daily|weekly|monthly>",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "monitor",
+      "description": "Monitor system resources",
+      "usage": "!monitor [resource]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "globalban",
+      "description": "Manage global ban list",
+      "usage": "!globalban <add|remove|check> [user] [reason]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "spamwatch",
+      "description": "Configure spam protection",
+      "usage": "!spamwatch <on|off|config> [threshold]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "badwords",
+      "description": "Manage bad words filter",
+      "usage": "!badwords <add|remove|list> [word]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "economy",
+      "description": "Manage bot economy",
+      "usage": "!economy <reset|multiply|set> [amount]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "reward",
+      "description": "Give rewards to users",
+      "usage": "!reward @user [amount] [reason]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "shop",
+      "description": "Manage bot shop",
+      "usage": "!shop <add|remove|edit|list> [item] [price]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "schedule",
+      "description": "Schedule automated tasks",
+      "usage": "!schedule <add|remove|list> [time] [command]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "automate",
+      "description": "Set up automated responses",
+      "usage": "!automate <add|remove|list> [trigger] [response]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "permission",
+      "description": "Manage user permissions",
+      "usage": "!permission @user [level]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "restrict",
+      "description": "Restrict user features",
+      "usage": "!restrict @user [feature]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "cleanup",
+      "description": "Clean system files",
+      "usage": "!cleanup [target]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "optimize",
+      "description": "Optimize system performance",
+      "usage": "!optimize [component]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "migrate",
+      "description": "Manage database migrations",
+      "usage": "!migrate <up|down|status>",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "index",
+      "description": "Manage database indexes",
+      "usage": "!index <add|remove|list> [table] [column]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "audit",
+      "description": "Manage security auditing",
+      "usage": "!audit <start|stop|report>",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "firewall",
+      "description": "Manage firewall rules",
+      "usage": "!firewall <add|remove|list> [rule]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "dbstatus",
+      "description": "Check database status",
+      "usage": "!dbstatus",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "dbbackup",
+      "description": "Create database backup",
+      "usage": "!dbbackup [name]",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "dbrestore",
+      "description": "Restore database backup",
+      "usage": "!dbrestore [backup_name]",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "dboptimize",
+      "description": "Optimize database performance",
+      "usage": "!dboptimize",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "securityscan",
+      "description": "Run security scan",
+      "usage": "!securityscan",
+      "cooldown": 3600,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "accesslog",
+      "description": "View access logs",
+      "usage": "!accesslog [user/group]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "clearviolations",
+      "description": "Clear user violations",
+      "usage": "!clearviolations [user]",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "tasklist",
+      "description": "List running tasks",
+      "usage": "!tasklist",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "killprocess",
+      "description": "Terminate a process",
+      "usage": "!killprocess [process_id]",
+      "cooldown": 10,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "memoryclean",
+      "description": "Clean system memory",
+      "usage": "!memoryclean",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "apikey",
+      "description": "Manage API keys",
+      "usage": "!apikey [service] <add|remove|update|view> [key]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "apitest",
+      "description": "Test API connection",
+      "usage": "!apitest [service]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "apilimit",
+      "description": "Set API rate limits",
+      "usage": "!apilimit [service] [limit]",
+      "cooldown": 30,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "sysreport",
+      "description": "Generate system report",
+      "usage": "!sysreport",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "networkreport",
+      "description": "Generate network report",
+      "usage": "!networkreport",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    },
+    {
+      "name": "storagereport",
+      "description": "Generate storage report",
+      "usage": "!storagereport",
+      "cooldown": 300,
+      "permissions": ["owner"]
+    }
+  ]
+}

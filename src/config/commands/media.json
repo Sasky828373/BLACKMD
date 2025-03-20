@@ -1,0 +1,182 @@
+{
+  "category": "media",
+  "commands": [
+    {
+      "name": "play",
+      "description": "Play audio from file or URL",
+      "usage": ".play [url] or reply to audio",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "sticker",
+      "description": "Create sticker from image/video",
+      "usage": ".sticker (reply to media)",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "toimg",
+      "description": "Convert sticker to image",
+      "usage": ".toimg (reply to sticker)",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "tovideo",
+      "description": "Convert animated sticker to video",
+      "usage": ".tovideo (reply to animated sticker)",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "enhance",
+      "description": "Enhance image quality",
+      "usage": ".enhance",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "sharpen",
+      "description": "Sharpen image",
+      "usage": ".sharpen [level]",
+      "example": ".sharpen 5",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "brightness",
+      "description": "Adjust image brightness",
+      "usage": ".brightness [level]",
+      "example": ".brightness 1.5",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "contrast",
+      "description": "Adjust image contrast",
+      "usage": ".contrast [level]",
+      "example": ".contrast 1.5",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "blur",
+      "description": "Apply blur effect to image",
+      "usage": ".blur [sigma]",
+      "example": ".blur 5",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "grayscale",
+      "description": "Convert image to grayscale",
+      "usage": ".grayscale",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "reverse",
+      "description": "Reverse video playback",
+      "usage": ".reverse (reply to video)",
+      "example": ".reverse",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "trim",
+      "description": "Trim video duration",
+      "usage": ".trim [start_time] [end_time]",
+      "example": ".trim 0:10 0:30",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "speed",
+      "description": "Adjust video playback speed",
+      "usage": ".speed [factor]",
+      "example": ".speed 2",
+      "cooldown": 30,
+      "permissions": ["user"]
+    },
+    {
+      "name": "ytmp4",
+      "description": "Download YouTube video",
+      "usage": ".ytmp4 [url]",
+      "example": ".ytmp4 https://youtube.com/watch?v=xxx",
+      "cooldown": 30,
+      "permissions": ["premium"]
+    },
+    {
+      "name": "ytmp3",
+      "description": "Download YouTube audio",
+      "usage": ".ytmp3 [url]",
+      "example": ".ytmp3 https://youtube.com/watch?v=xxx",
+      "cooldown": 30,
+      "permissions": ["premium"]
+    },
+    {
+      "name": "video",
+      "description": "Play YouTube video",
+      "usage": ".video [query]",
+      "example": ".video despacito",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "emojimix",
+      "description": "Mix two emojis together",
+      "usage": ".emojimix [emoji1]+[emoji2]",
+      "example": ".emojimix 😀+😭",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "ttp",
+      "description": "Convert text to sticker",
+      "usage": ".ttp [text]",
+      "example": ".ttp Hello World",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "attp",
+      "description": "Convert text to animated sticker",
+      "usage": ".attp [text]",
+      "example": ".attp Hello World",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "rotate",
+      "description": "Rotate image by specified degrees",
+      "usage": ".rotate [degrees]",
+      "example": ".rotate 90",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "flip",
+      "description": "Flip image horizontally or vertically",
+      "usage": ".flip [horizontal|vertical]",
+      "example": ".flip horizontal",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "tint",
+      "description": "Apply color tint to image",
+      "usage": ".tint [red] [green] [blue]",
+      "example": ".tint 255 0 0",
+      "cooldown": 10,
+      "permissions": ["user"]
+    },
+    {
+      "name": "negate",
+      "description": "Invert image colors",
+      "usage": ".negate",
+      "cooldown": 10,
+      "permissions": ["user"]
+    }
+  ]
+}

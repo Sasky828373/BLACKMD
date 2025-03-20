@@ -1,0 +1,109 @@
+{
+  "category": "utility",
+  "commands": [
+    {
+      "name": "calculate",
+      "description": "Calculate mathematical expressions safely",
+      "usage": ".calculate [expression]",
+      "example": ".calculate 2 + 2 * 3",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "encode",
+      "description": "Encode text in various formats (base64, hex, binary)",
+      "usage": ".encode [type] [text]",
+      "example": ".encode base64 Hello World",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "decode",
+      "description": "Decode text from various formats (base64, hex, binary)",
+      "usage": ".decode [type] [text]",
+      "example": ".decode base64 SGVsbG8gV29ybGQ=",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "reverse",
+      "description": "Reverse any text",
+      "usage": ".reverse [text]",
+      "example": ".reverse Hello World",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "mock",
+      "description": "Convert text to Spongebob-style mocking",
+      "usage": ".mock [text]",
+      "example": ".mock Hello World",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "roll",
+      "description": "Roll a dice with specified number of sides",
+      "usage": ".roll [sides]",
+      "example": ".roll 20",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "flip",
+      "description": "Flip a coin (heads or tails)",
+      "usage": ".flip",
+      "example": ".flip",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "choose",
+      "description": "Choose randomly between given options",
+      "usage": ".choose [option1] | [option2] | [option3]",
+      "example": ".choose pizza | burger | salad",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "language",
+      "description": "Change bot language or view available languages",
+      "usage": ".language [code]",
+      "example": ".language en",
+      "cooldown": 5,
+      "permissions": ["user"]
+    },
+    {
+      "name": "wordcount",
+      "description": "Count words and characters in text",
+      "usage": ".wordcount [text]",
+      "example": ".wordcount Hello World",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "random",
+      "description": "Generate a random number within a range",
+      "usage": ".random [min] [max]",
+      "example": ".random 1 100",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "time",
+      "description": "Show current time in different formats",
+      "usage": ".time",
+      "example": ".time",
+      "cooldown": 3,
+      "permissions": ["user"]
+    },
+    {
+      "name": "case",
+      "description": "Convert text to uppercase or lowercase",
+      "usage": ".case <upper|lower> [text]",
+      "example": ".case upper Hello World",
+      "cooldown": 3,
+      "permissions": ["user"]
+    }
+  ]
+}

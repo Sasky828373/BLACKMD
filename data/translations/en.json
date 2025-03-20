@@ -1,0 +1,21 @@
+{
+  "system": {
+    "error": "An error occurred: {0}",
+    "command_not_found": "Command not found: {0}",
+    "missing_permissions": "You do not have permission to use this command.",
+    "command_on_cooldown": "Please wait {0} seconds before using this command again.",
+    "nsfw_not_allowed": "NSFW content is not allowed in this group."
+  },
+  "basic": {
+    "ping_response": "Pong! Response time: {0}ms",
+    "help_title": "Help Menu",
+    "help_description": "Here are the available commands:",
+    "info_title": "Bot Information",
+    "info_uptime": "Uptime: {0}",
+    "info_memory": "Memory Usage: {0}MB"
+  },
+  "menu": {
+    "header": "Command Menu",
+    "footer": "Use !help <command> for more information about a specific command."
+  }
+}
