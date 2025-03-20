@@ -1,6 +1,7 @@
 /**
  * BLACKSKY-MD WhatsApp Bot - Main Entry Point
  * Using @whiskeysockets/baileys with enhanced connection persistence
+ * Enhanced for 24/7 operation on Heroku
  */
 
 const { connectionManager } = require('./core/connection');
@@ -13,16 +14,21 @@ const { ensureDirectoryExists } = require('./utils/fileUtils');
 const { addErrorHandlingToAll } = require('./utils/errorHandler');
 const { verifyStartupRequirements, displayVerificationReport } = require('./utils/startupVerification');
 const { checkMentionsForAfkUsers } = require('./utils/afkMentionHandler');
+const { isHeroku, initializeAuthFromEnv } = require('./utils/herokuHelper');
+const { startHerokuMonitoring, getHealthStatus } = require('./utils/herokuMonitor');
 
 // Create required directories
 function ensureDirectoriesExist() {
+    // Determine the auth directory based on environment
+    const authDir = process.env.AUTH_DIR || 'auth_info_baileys';
+    
     const dirs = [
         path.join(process.cwd(), 'data'),
         path.join(process.cwd(), 'data', 'translations'),
         path.join(process.cwd(), 'data', 'reaction_gifs'),
         path.join(process.cwd(), 'logs'),
-        path.join(process.cwd(), 'auth_info_baileys'),
-        path.join(process.cwd(), 'auth_info_baileys_backup')
+        path.join(process.cwd(), authDir),
+        path.join(process.cwd(), authDir + '_backup')
     ];
     
     for (const dir of dirs) {
@@ -115,6 +121,22 @@ async function setupMessageHandler(sock) {
 async function startBot() {
     logger.info('Starting BLACKSKY-MD WhatsApp Bot...');
     
+    // Check if running on Heroku
+    if (isHeroku()) {
+        logger.info('Running on Heroku platform');
+        
+        // Initialize auth from environment variables if needed
+        const initialized = await initializeAuthFromEnv();
+        if (initialized) {
+            logger.success('Successfully initialized auth from environment variables');
+        } else {
+            logger.warn('Could not initialize auth from environment variables, will attempt normal connection');
+        }
+        
+        // Set up HTTP server for Heroku to prevent idling
+        setupHttpServer();
+    }
+    
     // Ensure required directories exist
     ensureDirectoriesExist();
     
@@ -195,6 +217,11 @@ async function startBot() {
     
     // Set up connection diagnostics logging
     setupConnectionDiagnostics();
+    
+    // Start Heroku monitoring if on Heroku
+    if (isHeroku()) {
+        startHerokuMonitoring(connectionManager);
+    }
 }
 
 /**
@@ -242,6 +269,37 @@ function setupGracefulShutdown() {
     // Handle termination signals
     process.on('SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+/**
+ * Set up HTTP server to prevent Heroku from idling
+ * This is required for 24/7 operation on Heroku
+ */
+function setupHttpServer() {
+    const express = require('express');
+    const app = express();
+    const PORT = process.env.PORT || 3000;
+    
+    // Set up status route
+    app.get('/', (req, res) => {
+        res.send('BLACKSKY-MD WhatsApp Bot is running');
+    });
+    
+    // Set up health check route
+    app.get('/health', (req, res) => {
+        const healthStatus = getHealthStatus(connectionManager);
+        res.json(healthStatus);
+    });
+    
+    // Start server
+    app.listen(PORT, () => {
+        logger.info(`HTTP server started on port ${PORT}`);
+    });
+    
+    // Log server activity periodically to prevent dyno sleeping
+    setInterval(() => {
+        logger.debug('HTTP server activity ping to prevent dyno sleeping');
+    }, 15 * 60 * 1000); // Every 15 minutes
 }
 
 // Handle uncaught exceptions to prevent crashes

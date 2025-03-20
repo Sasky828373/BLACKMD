@@ -134,10 +134,33 @@ chmod +x termux-start.sh
 
 For detailed Termux setup instructions, see [TERMUX_GUIDE.md](TERMUX_GUIDE.md).
 
-### 3. Heroku Manual Deployment
+### 3. Heroku 24/7 Deployment
 
-See our detailed guides for different deployment strategies:
-- [Standard Deployment](HEROKU-DEPLOYMENT.md)
+For reliable 24/7 operation on Heroku, follow these steps:
+
+1. **Prepare Your Bot**:
+   - Run your bot locally first
+   - Send `.getcreds` command (owner only) to get your session credentials
+   - Save the credentials string for Heroku deployment
+
+2. **Setup Heroku Environment**:
+   - Create a new Heroku app
+   - Add the following environment variables:
+     ```
+     PLATFORM=heroku
+     NODE_ENV=production
+     OWNER_NUMBER=your_number_here
+     CREDS_DATA=your_saved_credentials_string
+     ```
+
+3. **Deploy to Heroku**:
+   - Deploy using GitHub, Heroku CLI, or Container Registry
+   - Ensure the dyno is running after deployment
+   - Monitor the logs for successful connection
+
+For detailed instructions, see [HEROKU-DEPLOYMENT.md](HEROKU-DEPLOYMENT.md).
+
+### 4. Other Deployment Options:
 - [Docker-based Deployment](HEROKU-DOCKER-GUIDE.md) (for dependency issues)
 - [Aptfile-based Deployment](HEROKU-APTFILE-GUIDE.md) (alternative approach)
 

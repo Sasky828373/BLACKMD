@@ -1,9 +1,9 @@
 {
   "name": "BLACKSKY-MD WhatsApp Bot",
-  "description": "A robust WhatsApp multi-device bot with advanced GitHub integration",
-  "repository": "https://github.com/yourusername/your-repo-name",
-  "logo": "https://raw.githubusercontent.com/yourusername/your-repo-name/main/assets/logo.png",
-  "keywords": ["whatsapp-bot", "baileys", "nodejs", "whatsapp-web"],
+  "description": "A robust WhatsApp multi-device bot with 24/7 operation capability",
+  "repository": "https://github.com/yourusername/blacksky-md",
+  "logo": "https://raw.githubusercontent.com/yourusername/blacksky-md/main/generated-icon.png",
+  "keywords": ["whatsapp-bot", "baileys", "nodejs", "whatsapp-multi-device", "24-7-bot"],
   "buildpacks": [
     {
       "url": "heroku/nodejs"
@@ -21,22 +21,32 @@
     },
     "PREFIX": {
       "description": "Prefix for bot commands",
-      "value": "!",
+      "value": ".",
       "required": false
     },
-    "SESSION_ID": {
-      "description": "A unique session ID for your bot",
-      "value": "BlackskyMD",
-      "required": true
-    },
     "PLATFORM": {
-      "description": "Platform identifier for session management",
+      "description": "Platform identifier - leave as 'heroku'",
       "value": "heroku",
       "required": true
     },
     "NODE_ENV": {
-      "description": "Environment mode",
-      "value": "production"
+      "description": "Environment mode - leave as 'production'",
+      "value": "production",
+      "required": true
+    },
+    "CREDS_DATA": {
+      "description": "WhatsApp credentials data from the '.getcreds' command (compressed/base64)",
+      "required": true
+    },
+    "AUTH_DIR": {
+      "description": "Directory to store auth data",
+      "value": "auth_info_baileys",
+      "required": false
+    },
+    "DEBUG_LOGS": {
+      "description": "Enable verbose debug logs (true/false)",
+      "value": "false",
+      "required": false
     }
   },
   "formation": {
@@ -46,5 +56,14 @@
     }
   },
   "stack": "heroku-22",
-  "success_url": "/"
+  "success_url": "/",
+  "addons": [
+    {
+      "plan": "papertrail:choklad",
+      "as": "PAPERTRAIL"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "node src/utils/postdeployCheck.js"
+  }
 }
