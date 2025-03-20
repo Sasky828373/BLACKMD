@@ -12,6 +12,7 @@ const path = require('path');
 const { ensureDirectoryExists } = require('./utils/fileUtils');
 const { addErrorHandlingToAll } = require('./utils/errorHandler');
 const { verifyStartupRequirements, displayVerificationReport } = require('./utils/startupVerification');
+const { checkMentionsForAfkUsers } = require('./utils/afkMentionHandler');
 
 // Create required directories
 function ensureDirectoriesExist() {
@@ -82,6 +83,15 @@ async function setupMessageHandler(sock) {
                             }
                         } else {
                             logger.info('Message has no content');
+                        }
+                        
+                        // Check if any mentioned users are AFK and notify the sender
+                        if (!isFromSelf) {
+                            try {
+                                await checkMentionsForAfkUsers(sock, message);
+                            } catch (afkError) {
+                                logger.error('Error checking AFK mentions:', afkError);
+                            }
                         }
                         
                         const result = await commandRegistry.processMessage(sock, message);

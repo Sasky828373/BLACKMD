@@ -617,140 +617,164 @@ const commands = {
     },
     
     // 2. Social System - AFK and Reputation
-    async afk(sock, sender, args, isGroup, msgData) {
-        // Create user profile if it doesn't exist
-        let profile = userProfiles.get(sender);
-        if (!profile) {
-            profile = {
-                name: 'User',
-                xp: 0,
-                level: 1,
-                coins: 0,
-                inventory: {},
-                joinedAt: Date.now(),
-                lastActive: Date.now()
-            };
-            userProfiles.set(sender, profile);
-        }
-        
-        // Get proper response JID (group or sender)
-        const responseJid = isGroup ? msgData.key.remoteJid : sender;
-        
-        // Set AFK status
-        let reason = 'Away from keyboard';
-        if (args.length > 0) {
-            reason = args.join(' ');
-        }
-        
-        userAfk.set(sender, {
-            status: true,
-            reason: reason,
-            timestamp: Date.now()
-        });
-        
-        await safeSendMessage(sock, responseJid, {
-            text: `*💤 AFK Status Set:* ${profile.name} is now AFK.\nReason: ${reason}\n\nAnyone who mentions them will be informed of their AFK status.`
-        });
-    },
-    
-    async unafk(sock, sender, args, isGroup, msgData) {
-        // Create user profile if it doesn't exist
-        let profile = userProfiles.get(sender);
-        if (!profile) {
-            profile = {
-                name: 'User',
-                xp: 0,
-                level: 1,
-                coins: 0,
-                inventory: {},
-                joinedAt: Date.now(),
-                lastActive: Date.now()
-            };
-            userProfiles.set(sender, profile);
-        }
-        
-        // Get proper response JID (group or sender)
-        const responseJid = isGroup ? msgData.key.remoteJid : sender;
-        
-        // Check if user is AFK
-        if (!userAfk.get(sender)?.status) {
-            await safeSendText(sock, responseJid, '*❌ Error:* You are not currently AFK.'
-            );
-            return;
-        }
-        
-        // Calculate AFK duration
-        const afkData = userAfk.get(sender);
-        const duration = Date.now() - afkData.timestamp;
-        const hours = Math.floor(duration / (1000 * 60 * 60));
-        const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
-        
-        // Remove AFK status
-        userAfk.delete(sender);
-        
-        await safeSendMessage(sock, responseJid, {
-            text: `*🔄 AFK Status Removed:* ${profile.name} is back! They were AFK for ${hours}h ${minutes}m.`
-        });
-    },
-    
-    async rep(sock, sender, args) {
-        const profile = await getUserProfile(sock, sender);
-        if (!profile) return;
-        
-        if (args.length < 1) {
-            await safeSendText(sock, sender, '*⚠️ Usage:* .rep @user'
-            );
-            return;
-        }
-        
-        const targetId = args[0].replace('@', '') + '@s.whatsapp.net';
-        
-        if (targetId === sender) {
-            await safeSendText(sock, sender, '*❌ Error:* You cannot give reputation to yourself!'
-            );
-            return;
-        }
-        
-        // Check target profile
-        const targetProfile = userProfiles.get(targetId);
-        if (!targetProfile) {
-            await safeSendText(sock, sender, '*❌ Error:* That user doesn\'t have a profile yet.'
-            );
-            return;
-        }
-        
-        // Check cooldown (once per 12 hours)
-        const lastRep = profile.lastRepGiven || 0;
-        const cooldown = 12 * 60 * 60 * 1000; // 12 hours
-        
-        if (Date.now() - lastRep < cooldown) {
-            const timeLeft = Math.ceil((lastRep + cooldown - Date.now()) / (1000 * 60 * 60));
-            await safeSendMessage(sock, sender, {
-                text: `*⏳ Cooldown:* You can give reputation again in ${timeLeft} hours.`
+    async afk(sock, message, args) {
+        try {
+            // Extract sender JID
+            const sender = message.key.participant || message.key.remoteJid;
+            const remoteJid = message.key.remoteJid;
+            const isGroup = remoteJid.endsWith('@g.us');
+            
+            // Create user profile if it doesn't exist
+            let profile = userProfiles.get(sender);
+            if (!profile) {
+                profile = {
+                    name: 'User',
+                    xp: 0,
+                    level: 1,
+                    coins: 0,
+                    inventory: {},
+                    joinedAt: Date.now(),
+                    lastActive: Date.now()
+                };
+                userProfiles.set(sender, profile);
+            }
+            
+            // Get proper response JID (group or sender)
+            const responseJid = isGroup ? remoteJid : sender;
+            
+            // Set AFK status
+            let reason = 'Away from keyboard';
+            if (args.length > 0) {
+                reason = args.join(' ');
+            }
+            
+            userAfk.set(sender, {
+                status: true,
+                reason: reason,
+                timestamp: Date.now()
             });
-            return;
+            
+            await safeSendMessage(sock, responseJid, {
+                text: `*💤 AFK Status Set:* ${profile.name} is now AFK.\nReason: ${reason}\n\nAnyone who mentions them will be informed of their AFK status.`
+            });
+        } catch (error) {
+            logger.error('Error in afk command:', error);
+            await safeSendText(sock, message.key.remoteJid, '*❌ Error:* Failed to set AFK status.');
         }
-        
-        // Initialize rep if needed
-        if (!targetProfile.reputation) {
-            targetProfile.reputation = 0;
+    },
+    
+    async unafk(sock, message, args) {
+        try {
+            // Extract sender JID
+            const sender = message.key.participant || message.key.remoteJid;
+            const remoteJid = message.key.remoteJid;
+            const isGroup = remoteJid.endsWith('@g.us');
+            
+            // Create user profile if it doesn't exist
+            let profile = userProfiles.get(sender);
+            if (!profile) {
+                profile = {
+                    name: 'User',
+                    xp: 0,
+                    level: 1,
+                    coins: 0,
+                    inventory: {},
+                    joinedAt: Date.now(),
+                    lastActive: Date.now()
+                };
+                userProfiles.set(sender, profile);
+            }
+            
+            // Get proper response JID (group or sender)
+            const responseJid = isGroup ? remoteJid : sender;
+            
+            // Check if user is AFK
+            if (!userAfk.get(sender)?.status) {
+                await safeSendText(sock, responseJid, '*❌ Error:* You are not currently AFK.');
+                return;
+            }
+            
+            // Calculate AFK duration
+            const afkData = userAfk.get(sender);
+            const duration = Date.now() - afkData.timestamp;
+            const hours = Math.floor(duration / (1000 * 60 * 60));
+            const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+            
+            // Remove AFK status
+            userAfk.delete(sender);
+            
+            await safeSendMessage(sock, responseJid, {
+                text: `*🔄 AFK Status Removed:* ${profile.name} is back! They were AFK for ${hours}h ${minutes}m.`
+            });
+        } catch (error) {
+            logger.error('Error in unafk command:', error);
+            await safeSendText(sock, message.key.remoteJid, '*❌ Error:* Failed to remove AFK status.');
         }
-        
-        // Add reputation
-        targetProfile.reputation++;
-        profile.lastRepGiven = Date.now();
-        
-        // Save profiles
-        userProfiles.set(targetId, targetProfile);
-        userProfiles.set(sender, profile);
-        
-        await safeSendMessage(sock, sender, {
-            text: `*👍 Reputation:* You gave +1 reputation to ${targetProfile.name}!`
-        });
-        
-        await safeSendMessage(sock, targetId, {
-            text: `*👍 Reputation:* ${profile.name} gave you +1 reputation! Your reputation is now ${targetProfile.reputation}.`
-        });
+    },
+    
+    async rep(sock, message, args) {
+        try {
+            const sender = message.key.participant || message.key.remoteJid;
+            const responseJid = getResponseJid(sender, message);
+            
+            const profile = await getUserProfile(sock, sender);
+            if (!profile) return;
+            
+            if (args.length < 1) {
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .rep @user');
+                return;
+            }
+            
+            const targetId = args[0].replace('@', '') + '@s.whatsapp.net';
+            
+            if (targetId === sender) {
+                await safeSendText(sock, responseJid, '*❌ Error:* You cannot give reputation to yourself!');
+                return;
+            }
+            
+            // Check target profile
+            const targetProfile = userProfiles.get(targetId);
+            if (!targetProfile) {
+                await safeSendText(sock, responseJid, '*❌ Error:* That user doesn\'t have a profile yet.');
+                return;
+            }
+            
+            // Check cooldown (once per 12 hours)
+            const lastRep = profile.lastRepGiven || 0;
+            const cooldown = 12 * 60 * 60 * 1000; // 12 hours
+            
+            if (Date.now() - lastRep < cooldown) {
+                const timeLeft = Math.ceil((lastRep + cooldown - Date.now()) / (1000 * 60 * 60));
+                await safeSendMessage(sock, responseJid, {
+                    text: `*⏳ Cooldown:* You can give reputation again in ${timeLeft} hours.`
+                });
+                return;
+            }
+            
+            // Initialize rep if needed
+            if (!targetProfile.reputation) {
+                targetProfile.reputation = 0;
+            }
+            
+            // Add reputation
+            targetProfile.reputation++;
+            profile.lastRepGiven = Date.now();
+            
+            // Save profiles
+            userProfiles.set(targetId, targetProfile);
+            userProfiles.set(sender, profile);
+            
+            await safeSendMessage(sock, responseJid, {
+                text: `*👍 Reputation:* You gave +1 reputation to ${targetProfile.name}!`
+            });
+            
+            await safeSendMessage(sock, targetId, {
+                text: `*👍 Reputation:* ${profile.name} gave you +1 reputation! Your reputation is now ${targetProfile.reputation}.`
+            });
+        } catch (error) {
+            logger.error('Error in rep command:', error);
+            await safeSendText(sock, message.key.remoteJid, '*❌ Error:* Failed to give reputation.');
+        }
     },
     
     // 3. Mini-games - Fishing and Mining
