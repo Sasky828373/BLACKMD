@@ -366,6 +366,34 @@ class CommandRegistry {
             return false;
         }
         
+        // Get sender's JID (participant for groups, remoteJid for direct messages)
+        const senderJid = message.key.participant || message.key.remoteJid;
+        
+        // Check if the sender is banned (unless it's a message from the bot itself)
+        if (!message.key.fromMe && senderJid) {
+            // Extract user ID from JID (remove the @s.whatsapp.net or @g.us part)
+            const userId = senderJid.split('@')[0];
+            
+            // Check global banned users list
+            if (global.bannedUsers && global.bannedUsers.has(userId)) {
+                logger.info(`Blocked command from banned user: ${userId}`);
+                // Option: Send a message telling the user they are banned
+                try {
+                    await safeSendText(
+                        sock,
+                        message.key.remoteJid,
+                        `⛔ @${userId} you are banned from using the bot.`,
+                        {
+                            mentions: [senderJid]
+                        }
+                    );
+                } catch (error) {
+                    logger.error('Error sending banned user message:', error);
+                }
+                return false;
+            }
+        }
+        
         // Special handling for self-messages to prevent command loops
         if (message.key.fromMe) {
             // If this is a self-message with a command prefix

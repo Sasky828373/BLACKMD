@@ -3,6 +3,61 @@ const globalConfig = require('../config/globalConfig');
 const os = require('os');
 const { safeSendText, safeSendMessage, safeSendImage } = require('../utils/jidHelper');
 
+// Save banned users to file for persistence
+async function saveBannedUsers() {
+    try {
+        const bannedUsersFilePath = path.join(process.cwd(), 'data', 'banned_users.json');
+        const bannedUsersArray = Array.from(global.bannedUsers || []);
+        
+        await fs.promises.writeFile(
+            bannedUsersFilePath, 
+            JSON.stringify(bannedUsersArray, null, 2),
+            'utf8'
+        );
+        
+        logger.info(`Saved ${bannedUsersArray.length} banned users to file`);
+        return true;
+    } catch (err) {
+        logger.error('Error saving banned users:', err);
+        return false;
+    }
+}
+
+// Load banned users from file
+async function loadBannedUsers() {
+    try {
+        const bannedUsersFilePath = path.join(process.cwd(), 'data', 'banned_users.json');
+        
+        // Create empty banned users set if it doesn't exist
+        if (!global.bannedUsers) {
+            global.bannedUsers = new Set();
+        }
+        
+        // Check if file exists
+        if (fs.existsSync(bannedUsersFilePath)) {
+            const data = await fs.promises.readFile(bannedUsersFilePath, 'utf8');
+            const bannedUsersArray = JSON.parse(data);
+            
+            // Add each user to the set
+            bannedUsersArray.forEach(userId => {
+                global.bannedUsers.add(userId);
+            });
+            
+            logger.info(`Loaded ${bannedUsersArray.length} banned users from file`);
+        } else {
+            logger.info('No banned users file found, creating empty list');
+            await saveBannedUsers();
+        }
+        
+        return true;
+    } catch (err) {
+        logger.error('Error loading banned users:', err);
+        // Initialize with empty Set to avoid further errors
+        global.bannedUsers = new Set();
+        return false;
+    }
+}
+
 // Helper function to format time
 function formatTime(seconds) {
     const days = Math.floor(seconds / (3600 * 24));
@@ -298,6 +353,9 @@ Note: Use your number in international format without any + sign, spaces, or das
             // Add to banned users list
             if (!global.bannedUsers) global.bannedUsers = new Set();
             global.bannedUsers.add(targetNumber);
+            
+            // Save banned users to file for persistence
+            await saveBannedUsers();
 
             // Create WhatsApp-style mention format
             const mentionText = `@${targetNumber}`;
@@ -321,7 +379,7 @@ Note: Use your number in international format without any + sign, spaces, or das
             await safeSendText(sock, remoteJid, '❌ Error banning user. Please check logs.');
         }
     },
-
+    
     async unban(sock, message, args) {
         const remoteJid = message.key.remoteJid;
         try {
@@ -346,6 +404,8 @@ Note: Use your number in international format without any + sign, spaces, or das
             // Remove from banned users list
             if (global.bannedUsers) {
                 global.bannedUsers.delete(targetNumber);
+                // Save updated banned users list to file
+                await saveBannedUsers();
             }
 
             // Create WhatsApp-style mention format
@@ -370,6 +430,8 @@ Note: Use your number in international format without any + sign, spaces, or das
             await safeSendText(sock, remoteJid, '❌ Error unbanning user. Please check logs.');
         }
     },
+
+
 
     async banlist(sock, message, args) {
         const remoteJid = message.key.remoteJid;
@@ -479,6 +541,10 @@ Note: Use your number in international format without any + sign, spaces, or das
     // Helper function for initialization
     async init() {
         logger.info('Initializing owner command handler...');
+        
+        // Load banned users from file during initialization
+        await loadBannedUsers();
+        
         return true;
     }
 };
