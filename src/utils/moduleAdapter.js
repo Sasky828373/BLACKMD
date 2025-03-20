@@ -14,15 +14,26 @@ const logger = require('./logger');
  */
 function loadCommandModule(filePath) {
     try {
-        // Clear require cache to ensure fresh loading
-        delete require.cache[require.resolve(filePath)];
+        // Use absolute path for require to avoid path resolution issues
+        const absolutePath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
         
-        // Load the module
-        const module = require(filePath);
+        // Check if file exists before trying to load it
+        if (!fs.existsSync(absolutePath)) {
+            logger.error(`Module file does not exist: ${absolutePath}`);
+            return null;
+        }
+        
+        // Clear require cache to ensure fresh loading
+        if (require.cache[absolutePath]) {
+            delete require.cache[absolutePath];
+        }
+        
+        // Load the module using absolute path
+        const module = require(absolutePath);
         
         // Check if it's a valid module
         if (!module) {
-            logger.error(`Module at ${filePath} is empty`);
+            logger.error(`Module at ${absolutePath} is empty`);
             return null;
         }
         

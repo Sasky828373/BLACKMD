@@ -5,6 +5,30 @@
 
 const config = {
     /**
+     * Bot Configuration
+     * General settings for the bot
+     */
+    bot: {
+        /**
+         * Default command prefix
+         * This is used to trigger commands, e.g., !help
+         */
+        prefix: '!',
+        
+        /**
+         * Bot name
+         * Used in welcome messages and responses
+         */
+        name: 'BLACKSKY-MD',
+        
+        /**
+         * Bot language
+         * Default language for responses
+         */
+        language: 'en'
+    },
+
+    /**
      * Bot Owner Configuration
      * This configuration determines who can use owner-only commands
      */

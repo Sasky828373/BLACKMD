@@ -221,213 +221,75 @@ const menuCommands = {
                 messageOptions.quoted = message;
             }
             
-            // Ultra-fast path: Get language early for immediate response
-            const userLang = config.bot.language || 'en';
-            
-            // STAGE 1: IMMEDIATE RESPONSE (Ultra-fast path)
-            // If no specific command is requested, we can respond immediately
             if (!commandName) {
-                // Fire off an immediate response for general help (<5ms target)
-                const basicHelpText = `*📚 BOT HELP*\n\n` +
-                    `• Use \`${prefix}help [command]\` to get info about a specific command\n` +
-                    `• Use \`${prefix}menu\` to see all available commands\n` +
-                    `• Example: \`${prefix}help sticker\`\n\n` +
-                    `*Loading more details...*`;
+                // If no command name is provided, show a list of available command categories
+                const { allCommands } = await loadAllCommands();
                 
-                // Send basic help text immediately for sub-5ms response time, group aware
-                const loadingPromise = isGroup && typeof safeSendGroupMessage === 'function'
-                    ? safeSendGroupMessage(sock, jid, { text: basicHelpText }, messageOptions)
-                        .catch(() => {/* Silent catch for fire-and-forget */})
-                    : safeSendText(sock, jid, basicHelpText)
-                        .catch(() => {/* Silent catch for fire-and-forget */});
+                let helpText = `📋 *COMMAND HELP GUIDE*\n\n`;
+                helpText += `To see help for a command, use:\n`;
+                helpText += `${prefix}help <command>\n\n`;
                 
-                // STAGE 2: BACKGROUND PROCESSING
-                // Generate the full formatted help text in the background
-                setTimeout(async () => {
-                    try {
-                        // Add personalized greeting in groups
-                        let personalization = '';
-                        if (isGroup) {
-                            const mention = `@${sender.split('@')[0]}`;
-                            personalization = `┃ ${symbols.bullet} *User:* ${mention}\n`;
-                        }
-                        
-                        const helpText = `┏━━━❮ *📚 ${languageManager.getText('menu.command_help', userLang)}* ❯━━━┓
-┃
-${personalization}┃ ${symbols.arrow} ${languageManager.getText('menu.command_info', userLang)}:
-┃   \`${prefix}help [command]\`
-┃
-┃ ${symbols.arrow} ${languageManager.getText('menu.available_commands', userLang)}:
-┃   \`${prefix}menu\` - ${languageManager.getText('menu.categories', userLang)}
-┃   \`${prefix}menu1\` - ${languageManager.getText('menu.bot_menu', userLang)}
-┃   \`${prefix}list\` - ${languageManager.getText('menu.categories', userLang)}
-┃   \`${prefix}list [category]\` - ${languageManager.getText('menu.category', userLang)}
-┃
-┃ ${symbols.star} *${languageManager.getText('menu.help_examples', userLang)}:*
-┃   \`${prefix}help sticker\`
-┃   \`${prefix}list media\`
-┃
-┗━━━━━━━━━━━━━━━━━━━━┛`;
-                        
-                        // Wait a moment to ensure the loading message was seen
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        
-                        // Send the fully formatted help text with group awareness
-                        if (isGroup && typeof safeSendGroupMessage === 'function') {
-                            await safeSendGroupMessage(sock, jid, { text: helpText }, messageOptions);
-                        } else {
-                            await safeSendMessage(sock, jid, { text: helpText });
-                        }
-                    } catch (bgError) {
-                        // Silent error in background processing
-                    }
-                }, 10);
+                helpText += `Available categories:\n`;
                 
-                // Calculate response time for the initial text
-                const initialResponseTime = Number(process.hrtime.bigint() - startTime) / 1_000_000;
-                if (initialResponseTime > 5) {
-                    logger.warn(`Initial help response time exceeded target: ${initialResponseTime.toFixed(2)}ms`);
+                const orderedCategories = [
+                    'basic', 'utility', 'group', 'media', 'fun',
+                    'reactions', 'user', 'user_extended', 'educational',
+                    'nsfw', 'menu'
+                ];
+                
+                for (const category of orderedCategories) {
+                    if (!allCommands[category] || allCommands[category].length === 0) continue;
+                    
+                    const emoji = categoryEmojis[category] || categoryEmojis.default;
+                    const categoryDisplayName = categoryNames[category] || category;
+                    const commandCount = allCommands[category].length;
+                    
+                    helpText += `${emoji} *${categoryDisplayName}* (${commandCount} commands)\n`;
                 }
                 
-                return true; // Return immediately to unblock main thread
-            }
-            
-            // SPECIFIC COMMAND HELP PATH
-            // Send immediate acknowledgment to ensure <5ms initial response
-            const loadingPromise = isGroup && typeof safeSendGroupMessage === 'function'
-                ? safeSendGroupMessage(sock, jid, 
-                    { text: `*📚 Looking up help for command:* \`${commandName}\`...` }, 
-                    messageOptions)
-                    .catch(() => {/* Silent catch */})
-                : safeSendText(sock, jid, 
-                    `*📚 Looking up help for command:* \`${commandName}\`...`)
-                    .catch(() => {/* Silent catch */});
-            
-            // Process the command lookup in background
-            setTimeout(async () => {
-                try {
-                    // Find command details
-                    const commandsPath = path.join(process.cwd(), 'src/commands');
-                    const commandFiles = await fs.readdir(commandsPath);
-                    let foundCommand = null;
-                    let foundIn = null;
+                helpText += `\nUse ${prefix}menu to see all commands`;
                 
-                    // Fast-path command search
-                    for (const file of commandFiles) {
-                        if (file.endsWith('.js') && path.basename(file) !== 'index.js') {
-                            try {
-                                const moduleData = require(path.join(commandsPath, file));
-                                let commandsObject = moduleData.commands || moduleData;
-                
-                                if (commandsObject[commandName]) {
-                                    foundCommand = true;
-                                    foundIn = moduleData.category || path.basename(file, '.js');
-                                    break;
-                                }
-                            } catch (err) {
-                                // Silent error for search
-                            }
-                        }
-                    }
-                
-                    if (foundCommand) {
-                        const emoji = categoryEmojis[foundIn] || categoryEmojis.default;
-                        
-                        // Simplified configuration lookup - minimal I/O operations
-                        let configInfo = "No additional information available.";
-                        try {
-                            const configPath = path.join(process.cwd(), 'src/config/commands', `${foundIn}.json`);
-                            const configData = await fs.readFile(configPath, 'utf8');
-                            const configs = JSON.parse(configData);
-                
-                            const cmdConfig = configs.commands?.find(cmd => cmd.name === commandName);
-                            if (cmdConfig && cmdConfig.description) {
-                                configInfo = cmdConfig.description;
-                            }
-                        } catch (err) {
-                            // Config file might not exist, that's ok
-                        }
-                        
-                        // Simplified category name lookup
-                        let categoryDisplayName = categoryNames[foundIn] || foundIn;
-                        
-                        // Add personalized greeting in groups
-                        let personalization = '';
-                        if (isGroup) {
-                            const mention = `@${sender.split('@')[0]}`;
-                            personalization = `┃ ${symbols.bullet} *Requested by:* ${mention}\n`;
-                        }
-                
-                        const helpText = `┏━━━❮ *${emoji} Command Info* ❯━━━┓
-┃
-${personalization}┃ *${symbols.star} Command:* \`${prefix}${commandName}\`
-┃ *${symbols.bullet} Category:* ${categoryDisplayName}
-┃
-┃ *${symbols.arrow} Description:* 
-┃   ${configInfo}
-┃
-┃ *${symbols.bullet} Usage:* 
-┃   \`${prefix}${commandName}\`
-┃
-┗━━━━━━━━━━━━━━━━━━━━┛`;
-                
-                        // Wait a moment to ensure the loading message was seen
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        
-                        // Send the detailed command help with group awareness
-                        if (isGroup && typeof safeSendGroupMessage === 'function') {
-                            await safeSendGroupMessage(sock, jid, { text: helpText }, messageOptions);
-                        } else {
-                            await safeSendMessage(sock, jid, { text: helpText });
-                        }
-                    } else {
-                        // Command not found - group aware error message
-                        if (isGroup && typeof safeSendGroupMessage === 'function') {
-                            await safeSendGroupMessage(sock, jid, { 
-                                text: `❌ Command \`${commandName}\` not found. Use \`${prefix}menu\` to see available commands.`
-                            }, messageOptions);
-                        } else {
-                            await safeSendText(sock, jid, 
-                                `❌ Command \`${commandName}\` not found. Use \`${prefix}menu\` to see available commands.`
-                            );
-                        }
-                    }
-                } catch (bgError) {
-                    // Silent background error with group-aware messaging
-                    if (isGroup && typeof safeSendGroupMessage === 'function') {
-                        await safeSendGroupMessage(sock, jid, { 
-                            text: `❌ Error looking up command help.`
-                        }, messageOptions).catch(() => {/* Silent */});
-                    } else {
-                        await safeSendText(sock, jid, 
-                            `❌ Error looking up command help.`
-                        ).catch(() => {/* Silent */});
-                    }
-                }
-            }, 10);
-            
-            // Calculate initial response time
-            const initialResponseTime = Number(process.hrtime.bigint() - startTime) / 1_000_000;
-            if (initialResponseTime > 5) {
-                logger.warn(`Initial help response time exceeded target: ${initialResponseTime.toFixed(2)}ms`);
-            }
-            
-            return true; // Return immediately to unblock main thread
-            
-        } catch (err) {
-            // Ultra-minimal error handling for better performance
-            const jid = message.key.remoteJid;
-            const isGroup = jid.includes('@g.us');
-            
-            if (isGroup && typeof safeSendGroupMessage === 'function') {
-                safeSendGroupMessage(sock, jid, { 
-                    text: `❌ Error with help command` 
-                }, { quoted: message })
-                    .catch(() => {/* Silent catch */});
+                await safeSendMessage(sock, jid, { text: helpText }, messageOptions);
+                return true;
             } else {
-                safeSendText(sock, jid, `❌ Error with help command`)
-                    .catch(() => {/* Silent catch */});
+                // Show help for a specific command
+                // Perform a search for the command in all modules
+                const { allCommands } = await loadAllCommands();
+                let foundCategory = null;
+                
+                // Search for the command in all categories
+                for (const category in allCommands) {
+                    if (allCommands[category].includes(commandName)) {
+                        foundCategory = category;
+                        break;
+                    }
+                }
+                
+                if (foundCategory) {
+                    // For simplicity, just show generic help for now
+                    const emoji = categoryEmojis[foundCategory] || categoryEmojis.default;
+                    const categoryDisplayName = categoryNames[foundCategory] || foundCategory;
+                    
+                    let helpText = `📋 *COMMAND HELP: ${prefix}${commandName}*\n\n`;
+                    helpText += `Category: ${emoji} ${categoryDisplayName}\n`;
+                    helpText += `Usage: ${prefix}${commandName}\n\n`;
+                    helpText += `Note: Detailed help is not available for this command yet. Try using the command to learn how it works.\n`;
+                    
+                    await safeSendMessage(sock, jid, { text: helpText }, messageOptions);
+                    return true;
+                } else {
+                    await safeSendMessage(sock, jid, { 
+                        text: `❓ Command *${commandName}* not found. Use ${prefix}menu to see available commands.` 
+                    }, { quoted: message })
+                        .catch(() => {/* Silent catch */});
+                }
             }
+            return false;
+        } catch (err) {
+            logger.error('Help command error:', err);
+            safeSendText(sock, message.key.remoteJid, 
+                `❌ Error with help command`
+            ).catch(() => {/* Silent catch */});
             return false;
         }
     }
@@ -455,63 +317,98 @@ async function loadAllCommands() {
         const allCommands = {};
         let totalCommands = 0;
 
-        // Function to recursively get all files
-        async function getAllFiles(dir) {
-            const entries = await fs.readdir(dir, { withFileTypes: true });
-            const files = await Promise.all(entries.map(async entry => {
-                const fullPath = path.join(dir, entry.name);
-                return entry.isDirectory() ? getAllFiles(fullPath) : fullPath;
-            }));
-            return files.flat();
+        // Function to get all JS files in a directory (non-recursive)
+        async function getCommandFiles() {
+            try {
+                // Get all files directly in the commands directory
+                const entries = await fs.readdir(commandsPath, { withFileTypes: true });
+                const files = [];
+                
+                for (const entry of entries) {
+                    const fullPath = path.join(commandsPath, entry.name);
+                    if (entry.isFile() && entry.name.endsWith('.js')) {
+                        // Skip the current menu file
+                        if (entry.name !== 'menu.js') {
+                            files.push(fullPath);
+                        }
+                    } else if (entry.isDirectory()) {
+                        // For subdirectories, get JS files one level deep
+                        try {
+                            const subEntries = await fs.readdir(fullPath, { withFileTypes: true });
+                            for (const subEntry of subEntries) {
+                                if (subEntry.isFile() && subEntry.name.endsWith('.js')) {
+                                    files.push(path.join(fullPath, subEntry.name));
+                                }
+                            }
+                        } catch (err) {
+                            logger.error(`Error reading subdirectory: ${fullPath}`, err);
+                        }
+                    }
+                }
+                
+                return files;
+            } catch (err) {
+                logger.error('Error reading command directory:', err);
+                return [];
+            }
         }
 
-        // Get all JS files including those in subdirectories
-        const commandFiles = await getAllFiles(commandsPath);
+        // Get all command files
+        const commandFiles = await getCommandFiles();
         logger.info(`Found ${commandFiles.length} potential command files`);
 
         // Process each command file
         for (const file of commandFiles) {
-            if (file.endsWith('.js') && !['index.js', 'menu.js'].includes(path.basename(file))) {
-                try {
-                    const moduleData = require(file);
-                    let category = path.basename(path.dirname(file));
-
-                    // If it's in the root commands directory, use the filename as category
-                    if (category === 'commands') {
-                        category = path.basename(file, '.js');
-                    }
-
-                    // Get commands from module
-                    let commands = moduleData.commands || moduleData;
-                    if (typeof commands === 'object') {
-                        // Filter valid commands - with additional error checking
-                        const commandList = Object.keys(commands).filter(cmd => {
-                            try {
-                                return typeof commands[cmd] === 'function' && cmd !== 'init';
-                            } catch (e) {
-                                logger.error(`Error accessing command ${cmd} in ${file}:`, e);
-                                return false;
-                            }
-                        });
-
-                        if (commandList.length > 0) {
-                            if (!allCommands[category]) {
-                                allCommands[category] = [];
-                            }
-                            allCommands[category].push(...commandList);
-                            totalCommands += commandList.length;
-                            logger.info(`Loaded ${commandList.length} commands from ${category}`);
-                        }
-                    }
-                } catch (err) {
-                    logger.error(`Error loading commands from ${file}:`, err);
+            try {
+                // Clean require cache to ensure fresh load
+                const modulePath = require.resolve(file);
+                if (require.cache[modulePath]) {
+                    delete require.cache[modulePath];
                 }
+                
+                const moduleData = require(file);
+                let category = path.basename(path.dirname(file));
+
+                // If it's in the root commands directory, use the filename as category
+                if (category === 'commands') {
+                    category = path.basename(file, '.js');
+                }
+
+                // Get commands from module
+                let commands = moduleData.commands || moduleData;
+                if (typeof commands === 'object') {
+                    // Filter valid commands - with additional error checking
+                    const commandList = Object.keys(commands).filter(cmd => {
+                        try {
+                            return typeof commands[cmd] === 'function' && cmd !== 'init';
+                        } catch (e) {
+                            logger.error(`Error accessing command ${cmd} in ${file}:`, e);
+                            return false;
+                        }
+                    });
+
+                    if (commandList.length > 0) {
+                        if (!allCommands[category]) {
+                            allCommands[category] = [];
+                        }
+                        allCommands[category].push(...commandList);
+                        totalCommands += commandList.length;
+                        logger.info(`Loaded ${commandList.length} commands from ${category}`);
+                    }
+                }
+            } catch (err) {
+                logger.error(`Error loading commands from ${file}:`, err);
             }
         }
 
         // Also check the index.js for additional commands
         try {
-            const indexCommands = require('./index').commands;
+            const indexPath = path.join(commandsPath, 'index.js');
+            if (require.cache[require.resolve(indexPath)]) {
+                delete require.cache[require.resolve(indexPath)];
+            }
+            
+            const indexCommands = require(indexPath).commands;
             if (indexCommands && typeof indexCommands === 'object') {
                 const mainCommands = Object.keys(indexCommands).filter(cmd => {
                     try {
@@ -544,52 +441,17 @@ async function loadAllCommands() {
         return commandCache;
     } catch (err) {
         logger.error('Error loading commands:', err);
-        return { allCommands: {}, totalCommands: 0 };
-    }
-}
-
-// Cache for images and GIFs
-const imageCache = new Map();
-const IMAGE_CACHE_LIFETIME = 300000; // 5 minutes in milliseconds
-
-/**
- * Optimized helper function to send menu message with image or GIF
- * Uses caching to avoid repeated filesystem access
- */
-// Pre-buffer some common icons and images for ultra-fast access
-const imageBuffer = {};
-
-/**
- * Ultra-optimized helper function to send menu message with text-only responses
- * Avoids image loading completely for maximum speed and reliability
- */
-async function sendMenuWithMedia(sock, jid, text) {
-    try {
-        // ULTRA-FAST OPTIMIZATION: Skip all image handling and go straight to text
-        // This completely avoids the metadata error and provides instant responses
         
-        // Send header text with emoji for a nice appearance without images
-        const headerText = `*🤖 BLACKSKY-MD BOT*\n\n`;
+        // Create fallback minimal command list if error occurs
+        const fallbackCommands = {
+            allCommands: {
+                'menu': ['menu', 'help'],
+                'basic': ['ping', 'info']
+            },
+            totalCommands: 4
+        };
         
-        // Combine header and main text for a clean presentation
-        await safeSendMessage(sock, jid, {
-            text: headerText + text
-        });
-        
-        logger.info(`Menu sent with ultra-fast text-only mode for maximum performance`);
-        return true;
-    } catch (err) {
-        // Ultra-minimal error handling to ensure message is sent
-        logger.error(`Error in sendMenuWithMedia: ${err.message}`);
-        try {
-            // Always fall back to bare text as ultimate reliability measure
-            await safeSendText(sock, jid, text);
-            logger.info(`Menu sent as text only (error fallback)`);
-            return true;
-        } catch (finalErr) {
-            logger.error(`Critical failure sending menu: ${finalErr.message}`);
-            return false;
-        }
+        return fallbackCommands;
     }
 }
 
@@ -601,7 +463,7 @@ module.exports = {
     async init() {
         try {
             logger.info('Initializing menu system...');
-            await loadAllCommands();
+            await loadAllCommands(); // Pre-cache commands during init
             logger.info('Menu system initialized successfully');
             return true;
         } catch (err) {

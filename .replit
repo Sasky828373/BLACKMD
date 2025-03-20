@@ -1,5 +1,5 @@
 modules = ["nodejs-20", "bash", "web", "python-3.11"]
-run = "npm run src/index.js"
+run = "npm run start"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
@@ -34,5 +34,5 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run src/index.js"
+args = "npm run start"
 waitForPort = 5000
