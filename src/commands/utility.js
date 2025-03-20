@@ -6,18 +6,21 @@ const axios = require('axios');
 const { safeSendText, safeSendMessage, safeSendImage } = require('../utils/jidHelper');
 
 const utilityCommands = {
-    async weather(sock, sender, args) {
+    async weather(sock, sender, args, isGroup, msgData) {
         try {
+            // Get proper response JID (group or sender)
+            const responseJid = isGroup ? msgData.key.remoteJid : sender;
+            
             const city = args.join(' ');
             if (!city) {
-                await safeSendText(sock, sender, 'Please provide a city name');
+                await safeSendText(sock, responseJid, 'Please provide a city name');
                 return;
             }
 
             const API_KEY = process.env.OPENWEATHER_API_KEY;
             if (!API_KEY) {
                 logger.error('OpenWeather API key not found');
-                await safeSendText(sock, sender, 'Weather service is currently unavailable');
+                await safeSendText(sock, responseJid, 'Weather service is currently unavailable');
                 return;
             }
 
@@ -32,10 +35,10 @@ const utilityCommands = {
 🌪️ Wind: ${weather.wind.speed} m/s
 ☁️ Conditions: ${weather.weather[0].description}`;
 
-            await safeSendText(sock, sender, message);
+            await safeSendText(sock, responseJid, message);
         } catch (err) {
             logger.error('Weather command error:', err);
-            await safeSendText(sock, sender, 'Error fetching weather data. Please try again later.');
+            await safeSendText(sock, responseJid, 'Error fetching weather data. Please try again later.');
         }
     },
 

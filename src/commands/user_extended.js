@@ -617,9 +617,24 @@ const commands = {
     },
     
     // 2. Social System - AFK and Reputation
-    async afk(sock, sender, args) {
-        const profile = await getUserProfile(sock, sender);
-        if (!profile) return;
+    async afk(sock, sender, args, isGroup, msgData) {
+        // Create user profile if it doesn't exist
+        let profile = userProfiles.get(sender);
+        if (!profile) {
+            profile = {
+                name: 'User',
+                xp: 0,
+                level: 1,
+                coins: 0,
+                inventory: {},
+                joinedAt: Date.now(),
+                lastActive: Date.now()
+            };
+            userProfiles.set(sender, profile);
+        }
+        
+        // Get proper response JID (group or sender)
+        const responseJid = isGroup ? msgData.key.remoteJid : sender;
         
         // Set AFK status
         let reason = 'Away from keyboard';
@@ -633,18 +648,33 @@ const commands = {
             timestamp: Date.now()
         });
         
-        await safeSendMessage(sock, sender, {
-            text: `*💤 AFK Status Set:* You are now AFK.\nReason: ${reason}\n\nAnyone who mentions you will be informed of your AFK status.`
+        await safeSendMessage(sock, responseJid, {
+            text: `*💤 AFK Status Set:* ${profile.name} is now AFK.\nReason: ${reason}\n\nAnyone who mentions them will be informed of their AFK status.`
         });
     },
     
-    async unafk(sock, sender) {
-        const profile = await getUserProfile(sock, sender);
-        if (!profile) return;
+    async unafk(sock, sender, args, isGroup, msgData) {
+        // Create user profile if it doesn't exist
+        let profile = userProfiles.get(sender);
+        if (!profile) {
+            profile = {
+                name: 'User',
+                xp: 0,
+                level: 1,
+                coins: 0,
+                inventory: {},
+                joinedAt: Date.now(),
+                lastActive: Date.now()
+            };
+            userProfiles.set(sender, profile);
+        }
+        
+        // Get proper response JID (group or sender)
+        const responseJid = isGroup ? msgData.key.remoteJid : sender;
         
         // Check if user is AFK
         if (!userAfk.get(sender)?.status) {
-            await safeSendText(sock, sender, '*❌ Error:* You are not currently AFK.'
+            await safeSendText(sock, responseJid, '*❌ Error:* You are not currently AFK.'
             );
             return;
         }
@@ -658,8 +688,8 @@ const commands = {
         // Remove AFK status
         userAfk.delete(sender);
         
-        await safeSendMessage(sock, sender, {
-            text: `*🔄 AFK Status Removed:* Welcome back! You were AFK for ${hours}h ${minutes}m.`
+        await safeSendMessage(sock, responseJid, {
+            text: `*🔄 AFK Status Removed:* ${profile.name} is back! They were AFK for ${hours}h ${minutes}m.`
         });
     },
     
@@ -1456,7 +1486,7 @@ const commands = {
             if (mail.attachment.type === 'coins') {
                 profile.coins += mail.attachment.amount;
                 
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*💰 Attachment Claimed:* You received ${formatNumber(mail.attachment.amount)} coins!`
                 });
             } else if (mail.attachment.type === 'item') {
@@ -1468,7 +1498,7 @@ const commands = {
                 // Add item
                 profile.inventory[mail.attachment.item] = true;
                 
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*📦 Attachment Claimed:* You received a ${mail.attachment.name}!`
                 });
             }
@@ -1486,7 +1516,7 @@ const commands = {
         // Send mail
         if (args[0].toLowerCase() === 'send') {
             if (args.length < 4) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .mail send @user "subject" message'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .mail send @user "subject" message'
                 );
                 return;
             }
@@ -1497,7 +1527,7 @@ const commands = {
             // Check target profile
             const targetProfile = userProfiles.get(targetId);
             if (!targetProfile) {
-                await safeSendText(sock, sender, '*❌ Error:* That user doesn\'t have a profile yet.'
+                await safeSendText(sock, responseJid, '*❌ Error:* That user doesn\'t have a profile yet.'
                 );
                 return;
             }
@@ -1506,7 +1536,7 @@ const commands = {
             let subjectMatch = args.slice(2).join(' ').match(/"([^"]+)"/);
             
             if (!subjectMatch) {
-                await safeSendText(sock, sender, '*❌ Error:* Subject must be enclosed in quotes, e.g., "Hello there"'
+                await safeSendText(sock, responseJid, '*❌ Error:* Subject must be enclosed in quotes, e.g., "Hello there"'
                 );
                 return;
             }
@@ -1517,7 +1547,7 @@ const commands = {
             const content = args.slice(2).join(' ').replace(/"([^"]+)"/, '').trim();
             
             if (!content) {
-                await safeSendText(sock, sender, '*❌ Error:* Mail content cannot be empty.'
+                await safeSendText(sock, responseJid, '*❌ Error:* Mail content cannot be empty.'
                 );
                 return;
             }
@@ -1563,7 +1593,7 @@ const commands = {
         // Delete mail
         if (args[0].toLowerCase() === 'delete') {
             if (args.length < 2) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .mail delete [mail number|all]'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .mail delete [mail number|all]'
                 );
                 return;
             }
@@ -1575,7 +1605,7 @@ const commands = {
                 // Save mailbox
                 global.mailSystem.mailboxes.set(sender, mailbox);
                 
-                await safeSendText(sock, sender, '*🗑️ Inbox Cleared:* All mails have been deleted.'
+                await safeSendText(sock, responseJid, '*🗑️ Inbox Cleared:* All mails have been deleted.'
                 );
                 return;
             }
@@ -1583,7 +1613,7 @@ const commands = {
             const mailNumber = parseInt(args[1]);
             
             if (isNaN(mailNumber) || mailNumber < 1 || mailNumber > mailbox.inbox.length) {
-                await safeSendText(sock, sender, '*❌ Error:* Invalid mail number.'
+                await safeSendText(sock, responseJid, '*❌ Error:* Invalid mail number.'
                 );
                 return;
             }
@@ -1594,13 +1624,13 @@ const commands = {
             // Save mailbox
             global.mailSystem.mailboxes.set(sender, mailbox);
             
-            await safeSendText(sock, sender, '*🗑️ Mail Deleted:* The mail has been deleted.'
+            await safeSendText(sock, responseJid, '*🗑️ Mail Deleted:* The mail has been deleted.'
             );
             return;
         }
         
         // Unknown command
-        await safeSendText(sock, sender, '*⚠️ Usage:* .mail [inbox|read|claim|send|delete]'
+        await safeSendText(sock, responseJid, '*⚠️ Usage:* .mail [inbox|read|claim|send|delete]'
         );
     },
     
@@ -1742,8 +1772,25 @@ const commands = {
     },
     
     // 8. Passive Income with Idle Game Mechanics
-    async business(sock, sender, args) {
-        const profile = await getUserProfile(sock, sender);
+    async business(sock, sender, args, message = {}) {
+        // Get the user's JID
+        let userJid;
+        if (typeof sender === 'string') {
+            userJid = sender;
+        } else if (typeof sender === 'object') {
+            userJid = sender.jid || (sender.participant ? sender.participant.replace(/:[^:]*$/, '') : null);
+        }
+        
+        // Get the group JID if the command was used in a group
+        let groupJid = null;
+        if (message && message.key && message.key.remoteJid && message.key.remoteJid.includes('@g.us')) {
+            groupJid = message.key.remoteJid;
+        }
+        
+        // Get response JID - where to send the response
+        const responseJid = groupJid || userJid;
+        
+        const profile = await getUserProfile(sock, userJid);
         if (!profile) return;
         
         // Initialize business data if needed
@@ -1767,7 +1814,7 @@ const commands = {
         // Showing business info
         if (args.length === 0) {
             if (profile.business.level === 0) {
-                await safeSendText(sock, sender, '*🏭 Business:* You don\'t have a business yet. Use .business start to set up a business for 5,000 coins.'
+                await safeSendText(sock, responseJid, '*🏭 Business:* You don\'t have a business yet. Use .business start to set up a business for 5,000 coins.'
                 );
                 return;
             }
@@ -1797,14 +1844,14 @@ const commands = {
             businessText += '.business upgrade - Upgrade your business\n';
             businessText += '.business automate - Make collection automatic (50,000 coins)';
             
-            await safeSendText(sock, sender, businessText );
+            await safeSendText(sock, responseJid, businessText );
             return;
         }
         
         // Starting a business
         if (args[0].toLowerCase() === 'start') {
             if (profile.business.level > 0) {
-                await safeSendText(sock, sender, '*❌ Error:* You already have a business! Use .business to see your stats.'
+                await safeSendText(sock, responseJid, '*❌ Error:* You already have a business! Use .business to see your stats.'
                 );
                 return;
             }
@@ -1812,7 +1859,7 @@ const commands = {
             const startupCost = businessInfo.upgradeBaseCost;
             
             if (profile.coins < startupCost) {
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*❌ Error:* You need ${formatNumber(startupCost)} coins to start a business. You have ${formatNumber(profile.coins)} coins.`
                 });
                 return;
@@ -1832,7 +1879,7 @@ const commands = {
             // Save profile
             userProfiles.set(sender, profile);
             
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*🏭 Business Started:* You've invested ${formatNumber(startupCost)} coins to start your own business!\n\nUse .business to view your business and .business collect to collect earnings.`
             });
             return;
@@ -1840,7 +1887,7 @@ const commands = {
         
         // Make sure they have a business for other commands
         if (profile.business.level === 0) {
-            await safeSendText(sock, sender, '*❌ Error:* You don\'t have a business yet. Use .business start to set up a business.'
+            await safeSendText(sock, responseJid, '*❌ Error:* You don\'t have a business yet. Use .business start to set up a business.'
             );
             return;
         }
@@ -1858,7 +1905,7 @@ const commands = {
             }
             
             if (pendingIncome <= 0) {
-                await safeSendText(sock, sender, '*❌ Error:* There are no earnings to collect yet. Wait a bit longer.'
+                await safeSendText(sock, responseJid, '*❌ Error:* There are no earnings to collect yet. Wait a bit longer.'
                 );
                 return;
             }
@@ -1871,7 +1918,7 @@ const commands = {
             // Save profile
             userProfiles.set(sender, profile);
             
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*💰 Earnings Collected:* You collected ${formatNumber(pendingIncome)} coins from your business!\n\nTotal Profit: ${formatNumber(profile.business.totalProfit)} coins\nCurrent Balance: ${formatNumber(profile.coins)} coins`
             });
             return;
@@ -1882,7 +1929,7 @@ const commands = {
             const upgradeCost = Math.floor(businessInfo.upgradeBaseCost * Math.pow(businessInfo.upgradeCostMultiplier, profile.business.level));
             
             if (profile.coins < upgradeCost) {
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*❌ Error:* You need ${formatNumber(upgradeCost)} coins to upgrade your business. You have ${formatNumber(profile.coins)} coins.`
                 });
                 return;
@@ -1900,7 +1947,7 @@ const commands = {
             // Save profile
             userProfiles.set(sender, profile);
             
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*🏭 Business Upgraded:* You spent ${formatNumber(upgradeCost)} coins to upgrade your business to level ${profile.business.level}!\n\nNew Hourly Income: ${formatNumber(Math.floor(newHourlyIncome))} coins`
             });
             return;
@@ -1909,7 +1956,7 @@ const commands = {
         // Automating business
         if (args[0].toLowerCase() === 'automate') {
             if (profile.business.automated) {
-                await safeSendText(sock, sender, '*❌ Error:* Your business is already automated!'
+                await safeSendText(sock, responseJid, '*❌ Error:* Your business is already automated!'
                 );
                 return;
             }
@@ -1917,7 +1964,7 @@ const commands = {
             const automationCost = 50000;
             
             if (profile.coins < automationCost) {
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*❌ Error:* You need ${formatNumber(automationCost)} coins to automate your business. You have ${formatNumber(profile.coins)} coins.`
                 });
                 return;
@@ -1932,21 +1979,24 @@ const commands = {
             // Save profile
             userProfiles.set(sender, profile);
             
-            await safeSendMessage(sock, sender, {
+            await safeSendMessage(sock, responseJid, {
                 text: `*🤖 Business Automated:* You spent ${formatNumber(automationCost)} coins to fully automate your business!\n\nYour business will now continue to generate income beyond the 24-hour limit, and earnings will be automatically collected when you check your business status.`
             });
             return;
         }
         
         // Unknown command
-        await safeSendText(sock, sender, '*⚠️ Usage:* .business [start|collect|upgrade|automate]'
+        await safeSendText(sock, responseJid, '*⚠️ Usage:* .business [start|collect|upgrade|automate]'
         );
     },
     
     // 9. Bounty hunting system
-    async bounty(sock, sender, args) {
+    async bounty(sock, sender, args, isGroup, msgData) {
         const profile = await getUserProfile(sock, sender);
         if (!profile) return;
+        
+        // Get proper response JID (group or sender)
+        const responseJid = isGroup ? msgData.key.remoteJid : sender;
         
         // Initialize global bounty system if needed
         global.bountySystem = global.bountySystem || {
@@ -2035,14 +2085,14 @@ const commands = {
             
             bountyText += 'Use .bounty hunt [id] to accept a bounty.';
             
-            await safeSendText(sock, sender, bountyText );
+            await safeSendText(sock, responseJid, bountyText );
             return;
         }
         
         // Hunt/complete a bounty
         if (args[0].toLowerCase() === 'hunt') {
             if (args.length < 2) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .bounty hunt [bounty id]'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .bounty hunt [bounty id]'
                 );
                 return;
             }
@@ -2051,7 +2101,7 @@ const commands = {
             const cooldownTime = profile.bounties.cooldown;
             if (cooldownTime > Date.now()) {
                 const timeLeft = Math.ceil((cooldownTime - Date.now()) / (1000 * 60));
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*⏳ Cooldown:* You need to rest before taking another bounty. Try again in ${timeLeft} minutes.`
                 });
                 return;
@@ -2064,7 +2114,7 @@ const commands = {
             const bounty = global.bountySystem.activeBounties.find(b => b.id === bountyId);
             
             if (!bounty) {
-                await safeSendText(sock, sender, '*❌ Error:* Bounty not found or expired. Use .bounty list to see active bounties.'
+                await safeSendText(sock, responseJid, '*❌ Error:* Bounty not found or expired. Use .bounty list to see active bounties.'
                 );
                 return;
             }
@@ -2125,12 +2175,12 @@ const commands = {
                 // Add new random bounty
                 global.bountySystem.activeBounties.push(generateBounty());
                 
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*🎯 Bounty Completed:* You successfully completed the ${bounty.name} bounty!\n\nReward: ${formatNumber(bounty.reward)} coins\nXP Gained: ${bounty.exp}\n\nYour Balance: ${formatNumber(profile.coins)} coins\nCooldown: ${cooldownMinutes} minutes`
                 });
             } else {
                 // Failed attempt
-                await safeSendMessage(sock, sender, {
+                await safeSendMessage(sock, responseJid, {
                     text: `*❌ Bounty Failed:* You were unable to complete the ${bounty.name} bounty.\n\nThe bounty was too challenging. Try an easier one next time.\n\nCooldown: ${cooldownMinutes} minutes`
                 });
             }
@@ -2161,19 +2211,22 @@ const commands = {
                 statsText += `\nRank: Novice Bounty Hunter`;
             }
             
-            await safeSendText(sock, sender, statsText );
+            await safeSendText(sock, responseJid, statsText );
             return;
         }
         
         // Unknown command
-        await safeSendText(sock, sender, '*⚠️ Usage:* .bounty [list|hunt|stats]'
+        await safeSendText(sock, responseJid, '*⚠️ Usage:* .bounty [list|hunt|stats]'
         );
     },
     
     // 10. Clans/guilds system
-    async clan(sock, sender, args) {
+    async clan(sock, sender, args, isGroup, msgData) {
         const profile = await getUserProfile(sock, sender);
         if (!profile) return;
+        
+        // Get proper response JID (group or sender)
+        const responseJid = isGroup ? msgData.key.remoteJid : sender;
         
         // Initialize global clan system if needed
         global.clanSystem = global.clanSystem || {
@@ -2238,12 +2291,12 @@ const commands = {
                     clanText += '\n.clan promote @user - Promote to officer\n.clan demote @user - Demote an officer\n.clan setdesc [text] - Set clan description';
                 }
                 
-                await safeSendText(sock, sender, clanText );
+                await safeSendText(sock, responseJid, clanText );
                 return;
             } else if (args[0]?.toLowerCase() === 'list') {
                 // Show list of all clans
                 if (global.clanSystem.clans.size === 0) {
-                    await safeSendText(sock, sender, '*👥 Clans:* No clans have been created yet. Use .clan create [name] to create one!'
+                    await safeSendText(sock, responseJid, '*👥 Clans:* No clans have been created yet. Use .clan create [name] to create one!'
                     );
                     return;
                 }
@@ -2262,11 +2315,11 @@ const commands = {
                 
                 clanListText += 'Use .clan join [name] to join a clan or .clan create [name] to create your own.';
                 
-                await safeSendText(sock, sender, clanListText );
+                await safeSendText(sock, responseJid, clanListText );
                 return;
             } else {
                 // User not in a clan
-                await safeSendText(sock, sender, '*👥 Clan:* You are not in a clan.\n\nUse .clan list to see available clans, .clan join [name] to join one, or .clan create [name] to create your own.'
+                await safeSendText(sock, responseJid, '*👥 Clan:* You are not in a clan.\n\nUse .clan list to see available clans, .clan join [name] to join one, or .clan create [name] to create your own.'
                 );
                 return;
             }
@@ -2275,7 +2328,7 @@ const commands = {
         // Create a new clan
         if (args[0].toLowerCase() === 'create') {
             if (args.length < 2) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .clan create [name]'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .clan create [name]'
                 );
                 return;
             }
@@ -2343,7 +2396,7 @@ const commands = {
         // Join a clan
         if (args[0].toLowerCase() === 'join') {
             if (args.length < 2) {
-                await safeSendText(sock, sender, '*⚠️ Usage:* .clan join [name]'
+                await safeSendText(sock, responseJid, '*⚠️ Usage:* .clan join [name]'
                 );
                 return;
             }
