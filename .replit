@@ -1,0 +1,13 @@
+modules = ["nodejs-20", "python-3.11"]
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 40702005
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node src/index.js"
