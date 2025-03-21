@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: blacksky-md
+    env: node
+    buildCommand: npm install
+    startCommand: node app.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: OWNER_NUMBER
+        sync: false
+      - key: BOT_PREFIX
+        value: "."
+    plan: free
