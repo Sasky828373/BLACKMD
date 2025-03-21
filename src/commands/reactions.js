@@ -209,12 +209,28 @@ async function handleReaction(sock, message, type, args) {
                     mentions: mentionedJids
                 });
 
-                await sock.sendMessage(jid, { 
-                    video: gifBuffer,
-                    gifPlayback: true,
-                    caption: ' ',
-                    mimetype: 'video/mp4'
-                }, { quoted: message });
+                // Send text first
+                await sock.sendMessage(jid, {
+                    text: reactionMessage,
+                    mentions: mentionedJids
+                });
+
+                // Convert GIF to MP4 for better animation
+                const { convertGifToMp4 } = require('../utils/gifConverter');
+                const videoBuffer = await convertGifToMp4(gifBuffer);
+
+                if (videoBuffer) {
+                    await sock.sendMessage(jid, {
+                        video: videoBuffer,
+                        gifPlayback: true,
+                        ptt: false,
+                        mimetype: 'video/mp4'
+                    });
+                } else {
+                    // Fallback to direct GIF sending
+                    const { safeSendAnimatedGif } = require('../utils/jidHelper');
+                    await safeSendAnimatedGif(sock, jid, gifBuffer, "");
+                }
             } else {
                 console.log(`GIF not found: ${gifPath}`);
                 await sock.sendMessage(jid, {
