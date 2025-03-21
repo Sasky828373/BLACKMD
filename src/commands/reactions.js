@@ -212,9 +212,9 @@ async function handleReaction(sock, message, type, args) {
                 await sock.sendMessage(jid, { 
                     video: gifBuffer,
                     gifPlayback: true,
-                    caption: '',
-                    mimetype: 'video/gif'
-                });
+                    caption: ' ',
+                    mimetype: 'video/mp4'
+                }, { quoted: message });
             } else {
                 console.log(`GIF not found: ${gifPath}`);
                 await sock.sendMessage(jid, {
