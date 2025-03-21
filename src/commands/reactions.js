@@ -190,10 +190,15 @@ async function handleReaction(sock, message, type, args) {
         }
 
         // Ultra-fast template application
-        let reactionMessage = REACTION_TEMPLATES[type] || `{sender} reacts with ${type}`;
+        let reactionMessage = REACTION_TEMPLATES[type] || `@{sender} reacts with ${type}`;
         reactionMessage = reactionMessage
-            .replace('{sender}', formattedSender)
+            .replace('{sender}', senderJid.split('@')[0])
             .replace('{target}', formattedTarget);
+
+        // Ensure sender is included in mentions
+        if (!mentionedJids.includes(senderJid)) {
+            mentionedJids.push(senderJid);
+        }
 
 
         // Fire-and-forget immediate text response (<5ms target)
