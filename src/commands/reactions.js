@@ -175,28 +175,35 @@ async function handleReaction(sock, message, type, args) {
         const formattedSender = `@${senderJid.split('@')[0]}`;
         let targetName = "themselves";
         let targetJid = null;
-        let mentionedJids = [senderJid];
-        let formattedTarget = "themselves";
-
+        
         // Fast mention detection (no async)
         const contextInfo = message.message?.extendedTextMessage?.contextInfo;
         if (contextInfo?.mentionedJid?.length > 0) {
             targetJid = contextInfo.mentionedJid[0];
-            mentionedJids.push(targetJid);
-            formattedTarget = `@${targetJid.split('@')[0]}`;
+            
         } else if (args.length > 0) {
             targetName = args.join(' ');
-            formattedTarget = targetName;
+            
         }
 
+        // Format mentions properly
+        const mentionedJids = [senderJid];
+        if (targetJid) mentionedJids.push(targetJid);
+
         // Ultra-fast template application
-        let reactionMessage = REACTION_TEMPLATES[type] || `@{sender} reacts with ${type}`;
+        let reactionMessage;
+        if (targetJid) {
+            reactionMessage = REACTION_TEMPLATES[type] || `@{sender} ${type}s with @{target}`;
+        } else {
+            reactionMessage = REACTION_TEMPLATES[type] || `@{sender} ${type}s`;
+        }
+
         reactionMessage = reactionMessage
             .replace('{sender}', senderJid.split('@')[0])
-            .replace('{target}', formattedTarget);
+            .replace('{target}', targetJid ? targetJid.split('@')[0] : '');
 
         // Add WhatsApp-style mention formatting
-        await sock.sendMessage(remoteJid, {
+        await sock.sendMessage(jid, {
             text: reactionMessage,
             mentions: mentionedJids,
             extendedTextMessage: {
@@ -209,16 +216,9 @@ async function handleReaction(sock, message, type, args) {
         return;
 
         // Ensure sender is included in mentions
-        if (!mentionedJids.includes(senderJid)) {
-            mentionedJids.push(senderJid);
-        }
-
-
+        
         // Fire-and-forget immediate text response (<5ms target)
-        safeSendMessage(sock, jid, {
-            text: reactionMessage,
-            mentions: mentionedJids
-        }).catch(e => {/* Silent catch for fire-and-forget */});
+        
 
         // STAGE 2: BACKGROUND GIF PROCESSING (Non-blocking)
         // Start these operations after sending the text response
