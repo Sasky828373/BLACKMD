@@ -190,10 +190,23 @@ async function handleReaction(sock, message, type, args) {
         }
 
         // Ultra-fast template application
-        let reactionMessage = REACTION_TEMPLATES[type] || `☘️ @{sender} reacts with ${type}`;
+        let reactionMessage = REACTION_TEMPLATES[type] || `@{sender} reacts with ${type}`;
         reactionMessage = reactionMessage
             .replace('{sender}', senderJid.split('@')[0])
             .replace('{target}', formattedTarget);
+
+        // Add WhatsApp-style mention formatting
+        await sock.sendMessage(remoteJid, {
+            text: reactionMessage,
+            mentions: mentionedJids,
+            extendedTextMessage: {
+                text: reactionMessage,
+                contextInfo: {
+                    mentionedJid: mentionedJids
+                }
+            }
+        });
+        return;
 
         // Ensure sender is included in mentions
         if (!mentionedJids.includes(senderJid)) {
