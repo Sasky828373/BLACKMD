@@ -29,7 +29,10 @@ function isHeroku() {
  * @returns {boolean} Whether running on Railway
  */
 function isRailway() {
-    return PLATFORM === 'railway' || !!process.env.RAILWAY_SERVICE_ID;
+    return PLATFORM === 'railway' || 
+           !!process.env.RAILWAY_SERVICE_ID || 
+           !!process.env.RAILWAY_STATIC_URL || 
+           !!process.env.RAILWAY_PROJECT_ID;
 }
 
 /**
@@ -216,11 +219,57 @@ async function getCredsForTransmission() {
     return await compressCredsData();
 }
 
+/**
+ * Get Railway environment information
+ * @returns {Object} Railway environment details
+ */
+function getRailwayEnvironmentInfo() {
+    if (!isRailway()) {
+        return { isRailway: false };
+    }
+    
+    return {
+        isRailway: true,
+        serviceId: process.env.RAILWAY_SERVICE_ID || 'Not available',
+        projectId: process.env.RAILWAY_PROJECT_ID || 'Not available',
+        staticUrl: process.env.RAILWAY_STATIC_URL || 'Not available',
+        environmentName: process.env.RAILWAY_ENVIRONMENT_NAME || 'Not available'
+    };
+}
+
+/**
+ * Generate Railway deployment helper info for logs
+ * @returns {string} Formatted info string
+ */
+function getRailwayDeploymentHelperInfo() {
+    if (!isRailway()) {
+        return 'Not running on Railway platform';
+    }
+    
+    const railwayInfo = getRailwayEnvironmentInfo();
+    return `
+Railway Deployment Information:
+- Service ID: ${railwayInfo.serviceId}
+- Project ID: ${railwayInfo.projectId}
+- Static URL: ${railwayInfo.staticUrl}
+- Environment: ${railwayInfo.environmentName}
+- Node Version: ${process.version}
+- Memory: ${Math.round(process.memoryUsage().rss / (1024 * 1024))} MB used
+
+To save WhatsApp connection credentials permanently:
+1. Create a CREDS_DATA environment variable in your Railway project
+2. Run "node heroku-credentials-helper.js" locally after connecting to WhatsApp
+3. Copy the output string to the CREDS_DATA environment variable
+`;
+}
+
 module.exports = {
     isHeroku,
     isRailway,
     isCloudPlatform,
     hasCredsData,
     initializeAuthFromEnv,
-    getCredsForTransmission
+    getCredsForTransmission,
+    getRailwayEnvironmentInfo,
+    getRailwayDeploymentHelperInfo
 };

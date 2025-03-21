@@ -308,6 +308,78 @@ function setupHttpServer() {
         res.json(healthStatus);
     });
     
+    // Railway-specific health check endpoint
+    app.get('/_health', (req, res) => {
+        // Simple minimal response for Railway's health checker
+        res.status(200).json({ status: 'ok', timestamp: Date.now() });
+    });
+    
+    // Add Railway-specific status route
+    app.get('/railway', (req, res) => {
+        const { isRailway, getRailwayEnvironmentInfo, getRailwayDeploymentHelperInfo } = require('./utils/herokuHelper');
+        const railwayInfo = getRailwayEnvironmentInfo();
+        
+        // Display HTML page with Railway info if accessed via browser
+        if (req.headers.accept && req.headers.accept.includes('text/html')) {
+            res.setHeader('Content-Type', 'text/html');
+            res.write('<html><head><title>WhatsApp Bot - Railway Status</title>');
+            res.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+            res.write('<style>body{font-family:Arial,sans-serif;text-align:center;margin-top:30px;background-color:#f5f5f5;}');
+            res.write('h1{color:#1A1A1A;}h2{color:#373D3F;}');
+            res.write('.container{max-width:800px;margin:0 auto;padding:20px;background-color:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}');
+            res.write('.status{display:inline-block;padding:8px 16px;border-radius:20px;font-weight:bold;margin:10px 0;}');
+            res.write('.running{background-color:#D6F5D6;color:#227D22;}');
+            res.write('.info{margin-top:20px;text-align:left;background-color:#F8F9FA;padding:15px;border-radius:6px;border-left:4px solid #6366F1;}');
+            res.write('.help{margin-top:20px;text-align:left;background-color:#FFF8E6;padding:15px;border-radius:6px;border-left:4px solid #F59E0B;white-space:pre-line;}');
+            res.write('table{width:100%;margin-top:20px;border-collapse:collapse;}');
+            res.write('th,td{text-align:left;padding:12px;border-bottom:1px solid #E5E7EB;}');
+            res.write('th{background-color:#F3F4F6;}');
+            res.write('</style></head><body>');
+            res.write('<div class="container">');
+            res.write('<h1>BLACKSKY-MD WhatsApp Bot</h1>');
+            res.write('<div class="status running">✓ Running</div>');
+            
+            if (railwayInfo.isRailway) {
+                res.write('<h2>Railway Deployment Status</h2>');
+                res.write('<table>');
+                res.write('<tr><th>Service ID</th><td>' + railwayInfo.serviceId + '</td></tr>');
+                res.write('<tr><th>Project ID</th><td>' + railwayInfo.projectId + '</td></tr>');
+                res.write('<tr><th>Static URL</th><td>' + railwayInfo.staticUrl + '</td></tr>');
+                res.write('<tr><th>Environment</th><td>' + railwayInfo.environmentName + '</td></tr>');
+                res.write('<tr><th>Node Version</th><td>' + process.version + '</td></tr>');
+                res.write('<tr><th>Memory Usage</th><td>' + Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB</td></tr>');
+                res.write('<tr><th>Uptime</th><td>' + Math.floor(process.uptime() / 60) + ' minutes</td></tr>');
+                res.write('</table>');
+                
+                res.write('<div class="help">');
+                res.write('<h3>Railway Deployment Guide</h3>');
+                res.write('To save WhatsApp connection credentials permanently:\n');
+                res.write('1. Create a CREDS_DATA environment variable in your Railway project\n');
+                res.write('2. Run "node heroku-credentials-helper.js" locally after connecting to WhatsApp\n');
+                res.write('3. Copy the output string to the CREDS_DATA environment variable');
+                res.write('</div>');
+            } else {
+                res.write('<div class="info">');
+                res.write('This bot is not running on Railway platform');
+                res.write('</div>');
+            }
+            
+            res.write('</div>');
+            res.write('</body></html>');
+            res.end();
+        } else {
+            // Return JSON for API requests
+            res.json({
+                status: 'running',
+                platform: railwayInfo.isRailway ? 'railway' : 'other',
+                time: new Date().toISOString(),
+                uptime: process.uptime(),
+                memory: process.memoryUsage(),
+                environment: railwayInfo
+            });
+        }
+    });
+    
     // QR code route for easy connection setup on cloud platforms
     app.get('/qr', (req, res) => {
         const status = connectionManager.getStatus();
