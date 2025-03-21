@@ -200,26 +200,34 @@ async function handleReaction(sock, message, type, args) {
         // Send both text and GIF
         const gifPath = path.join(process.cwd(), 'attached_assets', `${type}.gif`);
 
-        if (fs.existsSync(gifPath)) {
-            const gifBuffer = fs.readFileSync(gifPath);
+        try {
+            if (fs.existsSync(gifPath)) {
+                const gifBuffer = fs.readFileSync(gifPath);
 
-            await sock.sendMessage(jid, {
-                text: reactionMessage,
-                mentions: mentionedJids
-            });
+                await sock.sendMessage(jid, {
+                    text: reactionMessage,
+                    mentions: mentionedJids
+                });
 
-            await sock.sendMessage(jid, { 
-                video: gifBuffer,
-                gifPlayback: true,
-                caption: '',
-                mimetype: 'video/gif'
-            });
-        } else {
-            await sock.sendMessage(jid, {
-                text: reactionMessage,
-                mentions: mentionedJids
-            });
+                await sock.sendMessage(jid, { 
+                    video: gifBuffer,
+                    gifPlayback: true,
+                    caption: '',
+                    mimetype: 'video/mp4'
+                });
+            } else {
+                console.log(`GIF not found: ${gifPath}`);
+                await sock.sendMessage(jid, {
+                    text: reactionMessage,
+                    mentions: mentionedJids
+                });
+            }
+        } catch (error) {
+            console.error("Error sending GIF:", error);
+            await sock.sendMessage(jid, { text: reactionMessage, mentions: mentionedJids });
         }
+
+
         return;
 
         // Ensure sender is included in mentions
