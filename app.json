@@ -14,7 +14,8 @@
     },
     "OWNER_NUMBER": {
       "description": "Owner's WhatsApp number with country code, no '+' sign (e.g., 1234567890)",
-      "required": true
+      "required": true,
+      "value": "4915563151347"
     },
     "BOT_NAME": {
       "description": "Name of your WhatsApp bot",
