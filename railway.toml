@@ -1,0 +1,24 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install"
+
+[deploy]
+startCommand = "node src/index.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[environments]
+  [environments.production]
+    enableSchedules = true
+    memory = "1024"
+    healthcheckPath = "/health"
+    restartPolicyType = "ON_FAILURE"
+    restartPolicyMaxRetries = 10
+
+  [environments.preview]
+    memory = "512"
+    healthcheckPath = "/health"
+    restartPolicyType = "ON_FAILURE"
+    restartPolicyMaxRetries = 5

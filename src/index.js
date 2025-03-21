@@ -14,7 +14,7 @@ const { ensureDirectoryExists } = require('./utils/fileUtils');
 const { addErrorHandlingToAll } = require('./utils/errorHandler');
 const { verifyStartupRequirements, displayVerificationReport } = require('./utils/startupVerification');
 const { checkMentionsForAfkUsers } = require('./utils/afkMentionHandler');
-const { isHeroku, initializeAuthFromEnv } = require('./utils/herokuHelper');
+const { isHeroku, isRailway, isCloudPlatform, initializeAuthFromEnv } = require('./utils/herokuHelper');
 const { startHerokuMonitoring, getHealthStatus } = require('./utils/herokuMonitor');
 
 // Create required directories
@@ -121,9 +121,19 @@ async function setupMessageHandler(sock) {
 async function startBot() {
     logger.info('Starting BLACKSKY-MD WhatsApp Bot...');
     
-    // Check if running on Heroku
-    if (isHeroku()) {
-        logger.info('Running on Heroku platform');
+    // Start HTTP server immediately for better platform detection
+    setupHttpServer();
+    logger.info('HTTP server started early in the boot process');
+    
+    // Check if running on a cloud platform
+    if (isCloudPlatform()) {
+        if (isHeroku()) {
+            logger.info('Running on Heroku platform');
+        } else if (isRailway()) {
+            logger.info('Running on Railway platform');
+        } else {
+            logger.info('Running on a cloud platform');
+        }
         
         // Initialize auth from environment variables if needed
         const initialized = await initializeAuthFromEnv();
@@ -132,9 +142,6 @@ async function startBot() {
         } else {
             logger.warn('Could not initialize auth from environment variables, will attempt normal connection');
         }
-        
-        // Set up HTTP server for Heroku to prevent idling
-        setupHttpServer();
     }
     
     // Ensure required directories exist
@@ -218,9 +225,18 @@ async function startBot() {
     // Set up connection diagnostics logging
     setupConnectionDiagnostics();
     
-    // Start Heroku monitoring if on Heroku
-    if (isHeroku()) {
-        startHerokuMonitoring(connectionManager);
+    // Start platform monitoring if on a cloud platform
+    if (isCloudPlatform()) {
+        if (isHeroku()) {
+            startHerokuMonitoring(connectionManager);
+        } else if (isRailway()) {
+            // Railway has built-in monitoring, but we'll log platform info
+            logger.info('Railway deployment detected - using built-in monitoring');
+            // Log basic system information for Railway
+            const os = require('os');
+            logger.info(`System Information: ${os.platform()} ${os.arch()} with ${Math.round(os.totalmem() / (1024 * 1024))}MB RAM`);
+            logger.info(`Railway Service ID: ${process.env.RAILWAY_SERVICE_ID || 'Not available'}`);
+        }
     }
 }
 
@@ -272,13 +288,14 @@ function setupGracefulShutdown() {
 }
 
 /**
- * Set up HTTP server to prevent Heroku from idling
- * This is required for 24/7 operation on Heroku
+ * Set up HTTP server for cloud platforms
+ * This provides health checks and prevents idling on platforms like Heroku and Railway
  */
 function setupHttpServer() {
     const express = require('express');
     const app = express();
-    const PORT = process.env.PORT || 3000;
+    // Always use port 5000 for local development, but respect PORT env var for cloud platforms
+    const PORT = process.env.PORT || 5000;
     
     // Set up status route
     app.get('/', (req, res) => {
@@ -291,9 +308,77 @@ function setupHttpServer() {
         res.json(healthStatus);
     });
     
-    // Start server
-    app.listen(PORT, () => {
-        logger.info(`HTTP server started on port ${PORT}`);
+    // QR code route for easy connection setup on cloud platforms
+    app.get('/qr', (req, res) => {
+        const status = connectionManager.getStatus();
+        if (status.qr) {
+            const qrCode = require('qrcode');
+            res.setHeader('Content-Type', 'text/html');
+            res.write('<html><head><title>WhatsApp QR Code</title>');
+            res.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+            res.write('<style>body{font-family:Arial,sans-serif;text-align:center;margin-top:50px;background-color:#f5f5f5;}');
+            res.write('h1{color:#075e54;}');
+            res.write('.container{max-width:500px;margin:0 auto;padding:20px;background-color:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}');
+            res.write('.qr-container{margin:20px 0;}');
+            res.write('.refresh{margin-top:20px;color:#888;}');
+            res.write('</style></head><body>');
+            res.write('<div class="container">');
+            res.write('<h1>BLACKSKY-MD WhatsApp QR Code</h1>');
+            res.write('<p>Scan this QR code with your WhatsApp to connect the bot</p>');
+            res.write('<div class="qr-container" id="qrcode"></div>');
+            res.write('<p class="refresh">This page will refresh automatically every 30 seconds</p>');
+            res.write('</div>');
+            res.write('<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>');
+            res.write('<script>');
+            res.write(`QRCode.toCanvas(document.getElementById('qrcode'), '${status.qr}', function (error) {`);
+            res.write('if (error) console.error(error);');
+            res.write('});');
+            res.write('setTimeout(function() { window.location.reload(); }, 30000);');
+            res.write('</script>');
+            res.write('</body></html>');
+            res.end();
+        } else if (status.isConnected) {
+            res.setHeader('Content-Type', 'text/html');
+            res.write('<html><head><title>WhatsApp Connected</title>');
+            res.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+            res.write('<style>body{font-family:Arial,sans-serif;text-align:center;margin-top:50px;background-color:#f5f5f5;}');
+            res.write('h1{color:#075e54;}');
+            res.write('.container{max-width:500px;margin:0 auto;padding:20px;background-color:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}');
+            res.write('.success{color:#25D366;font-size:24px;margin:20px 0;}');
+            res.write('</style></head><body>');
+            res.write('<div class="container">');
+            res.write('<h1>BLACKSKY-MD WhatsApp Bot</h1>');
+            res.write('<p class="success">✓ Connected to WhatsApp</p>');
+            res.write('<p>The bot is up and running</p>');
+            res.write('</div>');
+            res.write('</body></html>');
+            res.end();
+        } else {
+            res.setHeader('Content-Type', 'text/html');
+            res.write('<html><head><title>WhatsApp Connecting</title>');
+            res.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+            res.write('<meta http-equiv="refresh" content="5">');
+            res.write('<style>body{font-family:Arial,sans-serif;text-align:center;margin-top:50px;background-color:#f5f5f5;}');
+            res.write('h1{color:#075e54;}');
+            res.write('.container{max-width:500px;margin:0 auto;padding:20px;background-color:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}');
+            res.write('.connecting{color:#FFA500;font-size:20px;margin:20px 0;}');
+            res.write('.loader{border:5px solid #f3f3f3;border-top:5px solid #075e54;border-radius:50%;width:50px;height:50px;animation:spin 1s linear infinite;margin:20px auto;}');
+            res.write('@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}');
+            res.write('</style></head><body>');
+            res.write('<div class="container">');
+            res.write('<h1>BLACKSKY-MD WhatsApp Bot</h1>');
+            res.write('<p class="connecting">Connecting to WhatsApp...</p>');
+            res.write('<div class="loader"></div>');
+            res.write('<p>Waiting for QR code or connection. This page will refresh automatically.</p>');
+            res.write('</div>');
+            res.write('</body></html>');
+            res.end();
+        }
+    });
+    
+    // Start server and bind to 0.0.0.0 to make it accessible from outside
+    app.listen(PORT, '0.0.0.0', () => {
+        logger.info(`HTTP server started on port ${PORT} (http://0.0.0.0:${PORT})`);
     });
     
     // Log server activity periodically to prevent dyno sleeping

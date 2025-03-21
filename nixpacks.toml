@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs-18_x", "python311", "ffmpeg", "nodePackages.pm2", "python311Packages.pip"]
+
+[phases.install]
+cmds = [
+  "npm install",
+  "pip install -r requirements.txt"
+]
+
+[phases.build]
+cmds = ["npm run build || true"]
+
+[start]
+cmd = "node src/index.js"

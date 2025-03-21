@@ -2,7 +2,19 @@
 
 A WhatsApp Multi-Device bot with advanced command handling, intelligent interaction capabilities, and user-friendly design.
 
-## Deployment to Heroku
+## Deployment Options
+
+### Deploying to Railway
+
+1. Fork or clone this repository
+2. Create a new project on [Railway](https://railway.app/)
+3. Connect your GitHub repository to Railway
+4. Railway will automatically detect the configuration and start the deployment
+5. Once deployed, access the QR code at `https://your-app-name.railway.app/qr`
+
+For detailed Railway deployment instructions, see [RAILWAY_DEPLOYMENT_GUIDE.md](RAILWAY_DEPLOYMENT_GUIDE.md).
+
+### Deploying to Heroku
 
 1. Fork or clone this repository
 2. Create a new Heroku app
@@ -12,11 +24,15 @@ A WhatsApp Multi-Device bot with advanced command handling, intelligent interact
    - heroku/python
 5. Deploy your app
 
+For detailed Heroku deployment instructions, see [HEROKU_DEPLOY_GUIDE.md](HEROKU_DEPLOY_GUIDE.md).
+
 ## Required Environment Variables
 
-Set the following environment variables in your Heroku app settings:
+Set the following environment variables in your platform's settings:
 
 - `CREDS_DATA`: Your WhatsApp session credentials data (optional, can be generated at first run)
+- `PLATFORM`: Set to "railway" if deploying on Railway, or "heroku" if deploying on Heroku
+- `PORT`: Port for the web server (usually set automatically by the platform)
 
 ## Technical Details
 

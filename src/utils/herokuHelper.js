@@ -1,6 +1,7 @@
 /**
- * Heroku Helper Utility
- * Provides utilities for Heroku deployment, including credential management
+ * Platform Helper Utility
+ * Provides utilities for cloud deployments, including credential management
+ * Supports Heroku, Railway, and other platforms
  */
 
 const fs = require('fs');
@@ -24,6 +25,22 @@ function isHeroku() {
 }
 
 /**
+ * Check if running on Railway
+ * @returns {boolean} Whether running on Railway
+ */
+function isRailway() {
+    return PLATFORM === 'railway' || !!process.env.RAILWAY_SERVICE_ID;
+}
+
+/**
+ * Check if running on any cloud platform
+ * @returns {boolean} Whether running on a cloud platform
+ */
+function isCloudPlatform() {
+    return isHeroku() || isRailway();
+}
+
+/**
  * Check if credentials data exists in environment
  * @returns {boolean} Whether credentials data exists
  */
@@ -36,10 +53,19 @@ function hasCredsData() {
  * @returns {Promise<boolean>} Success status
  */
 async function initializeAuthFromEnv() {
-    // Only do this on Heroku
-    if (!isHeroku()) {
-        logger.debug('Not running on Heroku, skipping auth initialization from environment');
+    // Only do this on cloud platforms
+    if (!isCloudPlatform()) {
+        logger.debug('Not running on a cloud platform, skipping auth initialization from environment');
         return false;
+    }
+
+    // Log platform information
+    if (isHeroku()) {
+        logger.info('Running on Heroku platform');
+    } else if (isRailway()) {
+        logger.info('Running on Railway platform');
+    } else {
+        logger.info(`Running on cloud platform: ${PLATFORM}`);
     }
 
     try {
@@ -192,6 +218,8 @@ async function getCredsForTransmission() {
 
 module.exports = {
     isHeroku,
+    isRailway,
+    isCloudPlatform,
     hasCredsData,
     initializeAuthFromEnv,
     getCredsForTransmission
