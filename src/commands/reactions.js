@@ -202,17 +202,29 @@ async function handleReaction(sock, message, type, args) {
             .replace('{sender}', senderJid.split('@')[0])
             .replace('{target}', targetJid ? targetJid.split('@')[0] : '');
 
-        // Add WhatsApp-style mention formatting
-        await sock.sendMessage(jid, {
-            text: reactionMessage,
-            mentions: mentionedJids,
-            extendedTextMessage: {
+        // Send both text and GIF
+        const gifPath = path.join(process.cwd(), 'data', 'reaction_gifs', `${type}.gif`);
+        
+        if (fs.existsSync(gifPath)) {
+            const gifBuffer = fs.readFileSync(gifPath);
+            
+            await sock.sendMessage(jid, {
                 text: reactionMessage,
-                contextInfo: {
-                    mentionedJid: mentionedJids
-                }
-            }
-        });
+                mentions: mentionedJids
+            });
+
+            await sock.sendMessage(jid, { 
+                video: gifBuffer,
+                gifPlayback: true,
+                caption: '',
+                mimetype: 'video/gif'
+            });
+        } else {
+            await sock.sendMessage(jid, {
+                text: reactionMessage,
+                mentions: mentionedJids
+            });
+        }
         return;
 
         // Ensure sender is included in mentions
