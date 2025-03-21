@@ -10,7 +10,12 @@
   "env": {
     "CREDS_DATA": {
       "description": "WhatsApp session credentials data (base64 encoded)",
-      "required": false
+      "required": true
+    },
+    "PLATFORM": {
+      "description": "Platform identification for session management",
+      "required": true,
+      "value": "heroku"
     },
     "OWNER_NUMBER": {
       "description": "Owner's WhatsApp number with country code, no '+' sign (e.g., 1234567890)",
@@ -26,6 +31,11 @@
       "description": "Command prefix (e.g., !, ., #)",
       "required": false,
       "value": "!"
+    },
+    "NODE_ENV": {
+      "description": "Node environment",
+      "required": true,
+      "value": "production"
     },
     "NODE_OPTIONS": {
       "description": "Node.js options",

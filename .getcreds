@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Script zur einfachen Generierung des CREDS_DATA Strings für Heroku
+
+# Farben für bessere Lesbarkeit
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${YELLOW}WhatsApp Credentials Generator für Heroku${NC}"
+echo "================================================"
+echo ""
+
+# Prüfen ob Node.js installiert ist
+if ! command -v node &> /dev/null; then
+    echo -e "${RED}Fehler: Node.js ist nicht installiert!${NC}"
+    echo "Bitte installiere Node.js und versuche es erneut."
+    exit 1
+fi
+
+# Prüfe ob der Bot bereits läuft
+if [ ! -d "auth_info_baileys" ]; then
+    echo -e "${RED}Fehler: auth_info_baileys Verzeichnis nicht gefunden!${NC}"
+    echo "Du musst zuerst den Bot starten und mit WhatsApp verbinden:"
+    echo "  npm start"
+    echo ""
+    echo "Führe dieses Skript danach erneut aus."
+    exit 1
+fi
+
+echo -e "${YELLOW}Generiere Credentials String für Heroku...${NC}"
+echo ""
+
+# Führe das Hilfsskript aus
+CREDS_DATA=$(node heroku-credentials-helper.js get-creds-only)
+
+if [ $? -ne 0 ] || [ -z "$CREDS_DATA" ]; then
+    echo -e "${RED}Fehler beim Generieren der Credentials!${NC}"
+    echo "Bitte stelle sicher, dass der Bot ordnungsgemäß mit WhatsApp verbunden ist."
+    exit 1
+fi
+
+echo -e "${GREEN}Credentials erfolgreich generiert!${NC}"
+echo ""
+echo -e "${YELLOW}Füge diese Umgebungsvariable zu deiner Heroku-App hinzu:${NC}"
+echo ""
+echo -e "CREDS_DATA=${CREDS_DATA}"
+echo ""
+echo -e "${YELLOW}Anleitung:${NC}"
+echo "1. Öffne deine Heroku-App im Dashboard"
+echo "2. Gehe zu Settings -> Config Vars"
+echo "3. Füge CREDS_DATA als Schlüssel und den oben angezeigten String als Wert hinzu"
+echo "4. Stelle sicher, dass du auch die folgenden Umgebungsvariablen gesetzt hast:"
+echo "   - PLATFORM=heroku"
+echo "   - NODE_ENV=production"
+echo "   - OWNER_NUMBER=4915563151347"
+echo ""
+echo -e "${GREEN}Danach starte deine Heroku-App neu mit:${NC}"
+echo "heroku restart -a deine-app-name"

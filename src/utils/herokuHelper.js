@@ -84,15 +84,19 @@ async function decompressCredsData(data) {
         // Base64 decode the data first
         const buffer = Buffer.from(data, 'base64');
         
-        // Try to parse as JSON first (in case it's not compressed)
+        // Try different decompression methods
         try {
-            const jsonString = buffer.toString('utf8');
-            JSON.parse(jsonString); // Just to validate
-            return jsonString;
-        } catch (jsonError) {
-            // Not valid JSON, try to decompress
+            // Method 1: Try to parse as JSON first (in case it's not compressed)
             try {
-                // Try to decompress as ZIP
+                const jsonString = buffer.toString('utf8');
+                JSON.parse(jsonString); // Just to validate
+                return jsonString;
+            } catch (jsonError) {
+                // Not valid JSON, try other methods
+            }
+            
+            // Method 2: Try to decompress as ZIP
+            try {
                 const zip = new AdmZip(buffer);
                 const zipEntries = zip.getEntries();
                 
@@ -102,14 +106,46 @@ async function decompressCredsData(data) {
                         return entry.getData().toString('utf8');
                     }
                 }
-                
-                logger.warn('No creds.json found in compressed data');
-                return null;
             } catch (zipError) {
-                logger.error('Error decompressing ZIP data:', zipError);
-                // Not a ZIP file either, return null
-                return null;
+                // Not a ZIP file, try next method
             }
+            
+            // Method 3: Try to decompress with zlib (gzip)
+            try {
+                const zlib = require('zlib');
+                const util = require('util');
+                const gunzip = util.promisify(zlib.gunzip);
+                
+                const decompressed = await gunzip(buffer);
+                const jsonString = decompressed.toString('utf8');
+                
+                // Try to parse as JSON to validate
+                const jsonData = JSON.parse(jsonString);
+                
+                // Check if it's a credentials file object format or the multi-file format
+                if (jsonData.creds || jsonData['creds.json']) {
+                    // It's either the direct creds object or our multi-file format
+                    if (jsonData.creds) {
+                        return JSON.stringify(jsonData.creds);
+                    } else if (jsonData['creds.json']) {
+                        return jsonData['creds.json'];
+                    }
+                }
+                
+                // Just return the whole decompressed data as a fallback
+                return jsonString;
+            } catch (zlibError) {
+                // Not gzipped or invalid data
+                logger.debug('Not a valid gzipped data:', zlibError.message);
+            }
+            
+            // If all decompression methods failed, log and return null
+            logger.warn('All decompression methods failed for credentials data');
+            return null;
+            
+        } catch (decompressionError) {
+            logger.error('Error in decompression methods:', decompressionError);
+            return null;
         }
     } catch (error) {
         logger.error('Error processing credentials data:', error);
