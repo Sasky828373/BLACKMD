@@ -1,13 +1,16 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install"
+buildCommand = "npm install --no-optional"
+watchPatterns = ["/src/**", "/package.json"]
 
 [deploy]
 startCommand = "node src/index.js"
 healthcheckPath = "/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 180
+healthcheckInterval = 15
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
+sleepApplication = false
 
 [environments]
   [environments.production]
@@ -16,9 +19,13 @@ restartPolicyMaxRetries = 10
     healthcheckPath = "/health"
     restartPolicyType = "ON_FAILURE"
     restartPolicyMaxRetries = 10
-
+    numReplicas = 1
+    
   [environments.preview]
     memory = "512"
     healthcheckPath = "/health"
     restartPolicyType = "ON_FAILURE"
     restartPolicyMaxRetries = 5
+
+[nixpacks]
+  features = ["nodejs", "python"]

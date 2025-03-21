@@ -1,14 +1,21 @@
 [phases.setup]
-nixPkgs = ["nodejs-18_x", "python311", "ffmpeg", "nodePackages.pm2", "python311Packages.pip"]
+nixPkgs = ["nodejs-18_x", "python311", "ffmpeg", "imagemagick", "nodePackages.pm2", "python311Packages.pip", "git"]
+aptPkgs = ["libgl1", "libglib2.0-0", "libsm6", "libxext6", "libxrender-dev"]
 
 [phases.install]
 cmds = [
-  "npm install",
-  "pip install -r requirements.txt"
+  "node -v",
+  "npm -v",
+  "npm install --no-optional",
+  "pip install -r requirements.txt || echo 'No Python requirements or error installing'"
 ]
 
 [phases.build]
-cmds = ["npm run build || true"]
+cmds = ["npm run build || echo 'No build command needed'"]
 
 [start]
 cmd = "node src/index.js"
+onExit = "restart"
+
+[variables]
+NODE_VERSION = "18.x"
