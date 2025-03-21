@@ -190,7 +190,7 @@ async function handleReaction(sock, message, type, args) {
         }
 
         // Ultra-fast template application
-        let reactionMessage = REACTION_TEMPLATES[type] || `@{sender} reacts with ${type}`;
+        let reactionMessage = REACTION_TEMPLATES[type] || `*@{sender}* reacts with ${type}`;
         reactionMessage = reactionMessage
             .replace('{sender}', senderJid.split('@')[0])
             .replace('{target}', formattedTarget);
