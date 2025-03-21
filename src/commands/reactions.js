@@ -21,7 +21,7 @@ const REACTION_GIF_MAPPING = {
     'cry': 'cry.gif',
     'blush': 'blush.gif',
     'laugh': 'laugh.gif',
-    
+
     // Target-reactions
     'hug': 'hug.gif',
     'pat': 'pat.gif',
@@ -132,7 +132,7 @@ const REACTION_TEMPLATES = {
 async function getGifBuffer(type) {
     const now = Date.now();
     const cacheKey = `reaction_${type}`;
-    
+
     // Check cache first
     if (gifBufferCache.has(cacheKey)) {
         const cache = gifBufferCache.get(cacheKey);
@@ -140,7 +140,7 @@ async function getGifBuffer(type) {
             return cache.buffer;
         }
     }
-    
+
     // Cache miss, read from disk
     const gifPath = path.join(REACTIONS_DIR, `${type}.gif`);
     if (fs.existsSync(gifPath)) {
@@ -167,7 +167,9 @@ async function handleReaction(sock, message, type, args) {
         const startTime = process.hrtime.bigint();
         const jid = message.key.remoteJid;
         const senderJid = message.key.participant || message.key.remoteJid;
-        
+        const sender = senderJid; // Added for easy access to senderJid
+
+
         // STAGE 1: IMMEDIATE RESPONSE (Ultra-fast path)
         // Format mentions without async operations for instant response
         const formattedSender = `@${senderJid.split('@')[0]}`;
@@ -188,31 +190,32 @@ async function handleReaction(sock, message, type, args) {
         }
 
         // Ultra-fast template application
-        const template = REACTION_TEMPLATES[type] || `{sender} reacts with ${type}`;
-        const reactionMessage = template
+        let reactionMessage = REACTION_TEMPLATES[type] || `{sender} reacts with ${type}`;
+        reactionMessage = reactionMessage
             .replace('{sender}', formattedSender)
             .replace('{target}', formattedTarget);
-        
+
+
         // Fire-and-forget immediate text response (<5ms target)
         safeSendMessage(sock, jid, {
             text: reactionMessage,
             mentions: mentionedJids
         }).catch(e => {/* Silent catch for fire-and-forget */});
-        
+
         // STAGE 2: BACKGROUND GIF PROCESSING (Non-blocking)
         // Start these operations after sending the text response
         setTimeout(async () => {
             try {
                 // Get the GIF buffer (cached if available)
                 const gifBuffer = await getGifBuffer(type);
-                
+
                 if (gifBuffer) {
                     // Use our improved direct video approach for reliable animations
                     try {
                         // Convert GIF to MP4 for proper animation
                         const { convertGifToMp4 } = require('../utils/gifConverter');
                         const videoBuffer = await convertGifToMp4(gifBuffer);
-                        
+
                         if (videoBuffer) {
                             // Send as video with gifPlayback enabled - most reliable method
                             await safeSendMessage(sock, jid, {
@@ -229,7 +232,7 @@ async function handleReaction(sock, message, type, args) {
                         }
                     } catch (mediaError) {
                         logger.error(`All methods failed for ${type} reaction: ${mediaError.message}`);
-                        
+
                         // We already sent a text reaction, so this is just informational
                         logger.info(`Text-only reaction was sent for ${type}`);
                     }
@@ -238,7 +241,7 @@ async function handleReaction(sock, message, type, args) {
                 logger.error(`Error in reaction GIF background processing: ${backgroundError.message}`);
             }
         }, 100); // Small delay to ensure text message gets priority
-        
+
     } catch (error) {
         // Minimal error handling with no logging for better performance
         safeSendMessage(sock, message.key.remoteJid, { text: `❌ Error with reaction command` })
