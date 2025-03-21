@@ -193,14 +193,10 @@ async function handleReaction(sock, message, type, args) {
         // Ultra-fast template application
         let reactionMessage;
         if (targetJid) {
-            reactionMessage = REACTION_TEMPLATES[type] || `@{sender} ${type}s with @{target}`;
+            reactionMessage = REACTION_TEMPLATES[type] || `*${formattedSender}* ${type}s with @${targetJid.split('@')[0]}`;
         } else {
-            reactionMessage = REACTION_TEMPLATES[type] || `@{sender} ${type}s`;
+            reactionMessage = REACTION_TEMPLATES[type] || `*${formattedSender}* ${type}s`;
         }
-
-        reactionMessage = reactionMessage
-            .replace('{sender}', senderJid.split('@')[0])
-            .replace('{target}', targetJid ? targetJid.split('@')[0] : '');
 
         // Send both text and GIF
         const gifPath = path.join(process.cwd(), 'data', 'reaction_gifs', `${type}.gif`);
