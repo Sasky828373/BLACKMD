@@ -209,12 +209,6 @@ async function handleReaction(sock, message, type, args) {
                     mentions: mentionedJids
                 });
 
-                // Send text first
-                await sock.sendMessage(jid, {
-                    text: reactionMessage,
-                    mentions: mentionedJids
-                });
-
                 // Convert GIF to MP4 for better animation
                 const { convertGifToMp4 } = require('../utils/gifConverter');
                 const videoBuffer = await convertGifToMp4(gifBuffer);
