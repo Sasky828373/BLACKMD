@@ -175,15 +175,14 @@ async function handleReaction(sock, message, type, args) {
         const formattedSender = `@${senderJid.split('@')[0]}`;
         let targetName = "themselves";
         let targetJid = null;
-        
+
         // Fast mention detection (no async)
         const contextInfo = message.message?.extendedTextMessage?.contextInfo;
         if (contextInfo?.mentionedJid?.length > 0) {
             targetJid = contextInfo.mentionedJid[0];
-            
+            targetName = `@${targetJid.split('@')[0]}`;
         } else if (args.length > 0) {
             targetName = args.join(' ');
-            
         }
 
         // Format mentions properly
@@ -192,18 +191,18 @@ async function handleReaction(sock, message, type, args) {
 
         // Ultra-fast template application
         let reactionMessage;
-        if (targetJid) {
-            reactionMessage = REACTION_TEMPLATES[type] || `*${formattedSender}* ${type}s with @${targetJid.split('@')[0]}`;
+        if (targetJid || args.length > 0) {
+            reactionMessage = `*@${senderJid.split('@')[0]}* ${type}s with ${targetName}`;
         } else {
-            reactionMessage = REACTION_TEMPLATES[type] || `*${formattedSender}* ${type}s`;
+            reactionMessage = `*@${senderJid.split('@')[0]}* ${type}s`;
         }
 
         // Send both text and GIF
-        const gifPath = path.join(process.cwd(), 'data', 'reaction_gifs', `${type}.gif`);
-        
+        const gifPath = path.join(process.cwd(), 'attached_assets', `${type}.gif`);
+
         if (fs.existsSync(gifPath)) {
             const gifBuffer = fs.readFileSync(gifPath);
-            
+
             await sock.sendMessage(jid, {
                 text: reactionMessage,
                 mentions: mentionedJids
@@ -224,9 +223,9 @@ async function handleReaction(sock, message, type, args) {
         return;
 
         // Ensure sender is included in mentions
-        
+
         // Fire-and-forget immediate text response (<5ms target)
-        
+
 
         // STAGE 2: BACKGROUND GIF PROCESSING (Non-blocking)
         // Start these operations after sending the text response
