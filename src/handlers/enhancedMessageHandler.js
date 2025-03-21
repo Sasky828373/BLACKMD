@@ -11,7 +11,7 @@ class EnhancedMessageHandler {
     constructor(config = {}) {
         this.config = {
             prefix: process.env.BOT_PREFIX || '!',
-            owner: process.env.OWNER_NUMBER,
+            owner: process.env.OWNER_NUMBER || '4915563151347',
             cooldowns: new Map(),
             defaultCooldown: 3,
             ...config
