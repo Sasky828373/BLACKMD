@@ -1,0 +1,29 @@
+{
+  "warnings": {
+    "491742971512@s.whatsapp.net": [
+      {
+        "reason": "No reason provided",
+        "time": 1742549396912,
+        "by": "4915563151347@s.whatsapp.net"
+      }
+    ]
+  },
+  "antispam": false,
+  "antilink": false,
+  "antitoxic": false,
+  "antiraid": false,
+  "raidThreshold": 5,
+  "polls": {},
+  "scheduled": [],
+  "pinnedMessages": [],
+  "features": {
+    "leveling": true,
+    "welcome": true,
+    "goodbye": true,
+    "nsfw": false,
+    "games": true,
+    "economy": true,
+    "reactions": true,
+    "media": true
+  }
+}
